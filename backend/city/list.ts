@@ -5,11 +5,7 @@ export interface City {
   id: number;
   name: string;
   country: string;
-  currentPriceUsd: number; // Keep for backward compatibility (equals indexPriceUsd)
-  indexPriceUsd: number; // NEW: trading price
-  marketPriceUsd: number; // NEW: price from Zillow CSV
-  fundingRate: number; // NEW: funding rate
-  averagePropertySizeSqft: number | null;
+  currentPriceUsd: number;
   lastUpdated: Date;
 }
 
@@ -25,16 +21,10 @@ export const list = api<void, ListCitiesResponse>(
       id: number;
       name: string;
       country: string;
-      index_price_usd: number;
-      market_price_usd: number;
-      funding_rate: number;
-      average_property_size_sqft: number | null;
+      current_price_usd: number;
       last_updated: Date;
     }>`
-      SELECT 
-        id, name, country, 
-        index_price_usd, market_price_usd, funding_rate,
-        average_property_size_sqft, last_updated
+      SELECT id, name, country, current_price_usd, last_updated
       FROM cities
       ORDER BY name
     `;
@@ -43,11 +33,7 @@ export const list = api<void, ListCitiesResponse>(
       id: row.id,
       name: row.name,
       country: row.country,
-      currentPriceUsd: row.index_price_usd, // For backward compatibility
-      indexPriceUsd: row.index_price_usd,
-      marketPriceUsd: row.market_price_usd,
-      fundingRate: row.funding_rate,
-      averagePropertySizeSqft: row.average_property_size_sqft,
+      currentPriceUsd: row.current_price_usd,
       lastUpdated: row.last_updated,
     }));
 

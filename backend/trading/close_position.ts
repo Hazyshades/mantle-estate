@@ -1,7 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { getMarketMetrics, calculateIndexPrice, calculateFundingRate } from "../prices/calculations";
 
 interface ClosePositionRequest {
   positionId: number;
@@ -55,21 +54,15 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
         throw APIError.failedPrecondition("Position already closed");
       }
 
-      // Get current city price (Index Price)
-      const city = await tx.queryRow<{ 
-        index_price_usd: number;
-        market_price_usd: number;
-        funding_rate: number;
-        last_funding_update: Date | null;
-      }>`
-        SELECT index_price_usd, market_price_usd, funding_rate, last_funding_update 
-        FROM cities WHERE id = ${position.city_id}
+      // Get current city price
+      const city = await tx.queryRow<{ current_price_usd: number }>`
+        SELECT current_price_usd FROM cities WHERE id = ${position.city_id}
       `;
       if (!city) {
         throw APIError.notFound("City not found");
       }
 
-      const exitPrice = city.index_price_usd;
+      const exitPrice = city.current_price_usd;
 
       // Calculate P&L
       const currentValue = position.quantity_sqm * exitPrice;
@@ -118,47 +111,6 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
         ) VALUES (
           ${userId}, ${transactionType}, ${position.city_id}, ${position.quantity_sqm},
           ${exitPrice}, ${closingFee}, ${netPnl}
-        )
-      `;
-
-      // Update Index Price and Funding Rate after closing position
-      // Get updated metrics (position is already closed, so not included)
-      const updatedMetrics = await getMarketMetrics(position.city_id, tx);
-      
-      // Recalculate Index Price based on new metrics
-      const newIndexPrice = calculateIndexPrice(city.market_price_usd, updatedMetrics);
-      
-      // Calculate Funding Rate
-      const lastUpdate = city.last_funding_update ? new Date(city.last_funding_update) : new Date();
-      const daysSinceLastUpdate = 
-        (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-      const newFundingRate = calculateFundingRate(
-        city.funding_rate,
-        updatedMetrics,
-        daysSinceLastUpdate
-      );
-      
-      // Update Index Price and Funding Rate in DB
-      await tx.exec`
-        UPDATE cities
-        SET index_price_usd = ${newIndexPrice},
-            funding_rate = ${newFundingRate},
-            last_funding_update = NOW(),
-            last_updated = NOW()
-        WHERE id = ${position.city_id}
-      `;
-
-      // Save to history
-      await tx.exec`
-        INSERT INTO price_history (city_id, price_usd, market_price_usd, index_price_usd)
-        VALUES (${position.city_id}, ${newIndexPrice}, ${city.market_price_usd}, ${newIndexPrice})
-      `;
-      
-      await tx.exec`
-        INSERT INTO market_price_history (
-          city_id, market_price_usd, index_price_usd, funding_rate
-        ) VALUES (
-          ${position.city_id}, ${city.market_price_usd}, ${newIndexPrice}, ${newFundingRate}
         )
       `;
 

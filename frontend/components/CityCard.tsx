@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import backend from "~backend/client";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
-import PriceChartArea from "./PriceChartArea";
+import PriceChart from "./PriceChart";
 import TradeDialog from "./TradeDialog";
 import { TrendingDown, TrendingUp } from "lucide-react";
 
@@ -27,16 +27,14 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
 
   const loadPriceHistory = async () => {
     try {
-      // Request 25 years of data to display history from 2000
-      const response = await backend.city.getPriceHistory({ cityId: city.id, years: 25 });
+      const response = await backend.city.getPriceHistory({ cityId: city.id, hours: 24 });
       setPriceHistory(response.prices);
     } catch (error) {
       console.error("Error loading price history:", error);
     }
   };
 
-  // Calculate price change: compare current price with oldest price in history
-  const priceChange =
+  const priceChange24h =
     priceHistory.length >= 2
       ? ((city.currentPriceUsd - priceHistory[0].price) / priceHistory[0].price) * 100
       : 0;
@@ -55,19 +53,19 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
               <CardTitle className="text-lg">{city.name}</CardTitle>
               <p className="text-sm text-muted-foreground">{city.country}</p>
             </div>
-            <div className={`flex items-center gap-1 ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
-              {priceChange >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              <span className="text-sm font-medium">{priceChange.toFixed(2)}%</span>
+            <div className={`flex items-center gap-1 ${priceChange24h >= 0 ? "text-green-500" : "text-red-500"}`}>
+              {priceChange24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              <span className="text-sm font-medium">{priceChange24h.toFixed(2)}%</span>
             </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className="text-lg font-semibold">${city.currentPriceUsd.toFixed(2)}</p>
-            <p className="text-sm leading-none font-medium text-muted-foreground">per sqm</p>
+            <p className="text-2xl font-bold">${city.currentPriceUsd.toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground">per sqm</p>
           </div>
 
-          {priceHistory.length > 0 && <PriceChartArea data={priceHistory} />}
+          {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
 
           <div className="grid grid-cols-2 gap-2">
             <Button onClick={() => handleTrade("long")} className="w-full" variant="default">

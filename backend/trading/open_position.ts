@@ -1,7 +1,6 @@
 import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
-import { calculateFillPrice, getMarketMetrics, calculateIndexPrice, calculateFundingRate } from "../prices/calculations";
 
 interface OpenPositionRequest {
   cityId: number;
@@ -51,36 +50,15 @@ export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(
         throw APIError.notFound("User not found");
       }
 
-      // Get current city price (Index Price)
-      const city = await tx.queryRow<{ 
-        index_price_usd: number;
-        market_price_usd: number;
-        funding_rate: number;
-        last_funding_update: Date | null;
-      }>`
-        SELECT index_price_usd, market_price_usd, funding_rate, last_funding_update FROM cities WHERE id = ${cityId}
+      // Get current city price
+      const city = await tx.queryRow<{ current_price_usd: number }>`
+        SELECT current_price_usd FROM cities WHERE id = ${cityId}
       `;
       if (!city) {
         throw APIError.notFound("City not found");
       }
 
-      // Get metrics for fill price calculation
-      const metrics = await getMarketMetrics(cityId, tx);
-      const tradeSize = amountUsd * leverage; // Trade size in USD
-      
-      // Calculate current skew
-      const currentSkew = metrics.totalLongValue - metrics.totalShortValue;
-      
-      // Calculate fill price according to Parcl v3
-      const { fillPrice } = calculateFillPrice(
-        city.index_price_usd,
-        currentSkew,
-        tradeSize,
-        positionType
-      );
-
-      // using fillPrice instead of indexPrice
-      const currentPrice = fillPrice;
+      const currentPrice = city.current_price_usd;
 
       // Calculate position details
       const positionValue = amountUsd * leverage;
@@ -120,47 +98,6 @@ export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(
         ) VALUES (
           ${userId}, ${transactionType}, ${cityId}, ${quantitySqm},
           ${currentPrice}, ${openingFee}, NULL
-        )
-      `;
-
-      // Update Index Price and Funding Rate after creating position
-      // Get updated metrics (already including new position)
-      const updatedMetrics = await getMarketMetrics(cityId, tx);
-      
-      // Recalculate Index Price based on new metrics
-      const newIndexPrice = calculateIndexPrice(city.market_price_usd, updatedMetrics);
-      
-      // Calculate Funding Rate
-      const lastUpdate = city.last_funding_update ? new Date(city.last_funding_update) : new Date();
-      const daysSinceLastUpdate = 
-        (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-      const newFundingRate = calculateFundingRate(
-        city.funding_rate,
-        updatedMetrics,
-        daysSinceLastUpdate
-      );
-      
-      // Update Index Price and Funding Rate in DB
-      await tx.exec`
-        UPDATE cities
-        SET index_price_usd = ${newIndexPrice},
-            funding_rate = ${newFundingRate},
-            last_funding_update = NOW(),
-            last_updated = NOW()
-        WHERE id = ${cityId}
-      `;
-      
-      // Save to history
-      await tx.exec`
-        INSERT INTO price_history (city_id, price_usd, market_price_usd, index_price_usd)
-        VALUES (${cityId}, ${newIndexPrice}, ${city.market_price_usd}, ${newIndexPrice})
-      `;
-      
-      await tx.exec`
-        INSERT INTO market_price_history (
-          city_id, market_price_usd, index_price_usd, funding_rate
-        ) VALUES (
-          ${cityId}, ${city.market_price_usd}, ${newIndexPrice}, ${newFundingRate}
         )
       `;
 

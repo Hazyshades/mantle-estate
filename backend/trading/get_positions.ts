@@ -27,14 +27,14 @@ export const getPositions = api<void, GetPositionsResponse>(
   async () => {
     const auth = getAuthData()!;
     const userId = auth.userID;
-      const rows = await db.queryAll<{
+    const rows = await db.queryAll<{
       id: number;
       city_id: number;
       city_name: string;
       position_type: string;
       quantity_sqm: number;
       entry_price: number;
-      index_price_usd: number;
+      current_price_usd: number;
       leverage: number;
       margin_required: number;
       opening_fee: number;
@@ -42,7 +42,7 @@ export const getPositions = api<void, GetPositionsResponse>(
     }>`
       SELECT
         p.id, p.city_id, c.name as city_name, p.position_type,
-        p.quantity_sqm, p.entry_price, c.index_price_usd,
+        p.quantity_sqm, p.entry_price, c.current_price_usd,
         p.leverage, p.margin_required, p.opening_fee, p.opened_at
       FROM positions p
       JOIN cities c ON p.city_id = c.id
@@ -51,7 +51,7 @@ export const getPositions = api<void, GetPositionsResponse>(
     `;
 
     const positions = rows.map((row) => {
-      const currentValue = row.quantity_sqm * row.index_price_usd;
+      const currentValue = row.quantity_sqm * row.current_price_usd;
       const initialValue = row.quantity_sqm * row.entry_price;
       const FEE_RATE = 0.001;
       const estimatedClosingFee = currentValue * FEE_RATE;
@@ -72,7 +72,7 @@ export const getPositions = api<void, GetPositionsResponse>(
         positionType: row.position_type as "long" | "short",
         quantitySqm: row.quantity_sqm,
         entryPrice: row.entry_price,
-        currentPrice: row.index_price_usd,
+        currentPrice: row.current_price_usd,
         leverage: row.leverage,
         marginRequired: row.margin_required,
         openedAt: row.opened_at,

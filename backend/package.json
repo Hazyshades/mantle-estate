@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "bun",
   "scripts": {
-    "build": "cd ../frontend && bun install && npx vite build --outDir=../backend/frontend/dist"
+    "build": "cd ../frontend \u0026\u0026 bun install \u0026\u0026 npx vite build --outDir=../backend/frontend/dist"
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",

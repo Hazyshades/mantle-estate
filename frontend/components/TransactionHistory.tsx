@@ -1,14 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Empty } from "@/components/ui/empty";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { Transaction } from "~backend/trading/get_transactions";
-import { Download, History } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState } from "react";
 
 interface TransactionHistoryProps {
@@ -72,11 +68,12 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
 
   if (transactions.length === 0) {
     return (
-      <Empty
-        title="No transaction history"
-        description="Your trades will appear here once you start trading. Close a position to see your transaction history."
-        icon={<History className="h-12 w-12 text-muted-foreground" />}
-      />
+      <Card>
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">No transaction history</p>
+          <p className="text-sm text-muted-foreground mt-2">Your trades will appear here</p>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -84,65 +81,51 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="scroll-m-20 text-3xl font-semibold tracking-tight">Transaction History</CardTitle>
+          <CardTitle>Transaction History</CardTitle>
           <Button onClick={handleExport} disabled={isExporting} size="sm">
-            {isExporting ? (
-              <>
-                <Spinner size="sm" className="mr-2" />
-                Exporting...
-              </>
-            ) : (
-              <>
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </>
-            )}
+            <Download className="h-4 w-4 mr-2" />
+            {isExporting ? "Exporting..." : "Export CSV"}
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-[600px]">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>City</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Fee</TableHead>
-                <TableHead>P&L</TableHead>
-                <TableHead>Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {transactions.map((transaction) => (
-                <TableRow key={transaction.id}>
-                  <TableCell>
-                    <Badge variant={getTypeVariant(transaction.transactionType)}>
-                      {getTypeLabel(transaction.transactionType)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">{transaction.cityName}</TableCell>
-                  <TableCell>{transaction.quantity.toFixed(2)} sqm</TableCell>
-                  <TableCell>${transaction.price.toFixed(2)}</TableCell>
-                  <TableCell>${transaction.fee.toFixed(2)}</TableCell>
-                  <TableCell>
-                    {transaction.pnl !== null ? (
-                      <span className={transaction.pnl >= 0 ? "text-green-500 font-medium" : "text-red-500 font-medium"}>
+        <div className="space-y-3">
+          {transactions.map((transaction) => (
+            <div key={transaction.id} className="flex items-center justify-between p-4 rounded-lg border border-border">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant={getTypeVariant(transaction.transactionType)}>{getTypeLabel(transaction.transactionType)}</Badge>
+                  <span className="font-medium">{transaction.cityName}</span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                  <div>
+                    <p className="text-muted-foreground">Quantity</p>
+                    <p>{transaction.quantity.toFixed(2)} sqm</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Price</p>
+                    <p>${transaction.price.toFixed(2)}</p>
+                  </div>
+                  <div>
+                    <p className="text-muted-foreground">Fee</p>
+                    <p>${transaction.fee.toFixed(2)}</p>
+                  </div>
+                  {transaction.pnl !== null && (
+                    <div>
+                      <p className="text-muted-foreground">P&L</p>
+                      <p className={transaction.pnl >= 0 ? "text-green-500" : "text-red-500"}>
                         {transaction.pnl >= 0 ? "+" : ""}${transaction.pnl.toFixed(2)}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground">-</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
-                    {new Date(transaction.timestamp).toLocaleString()}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {new Date(transaction.timestamp).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
