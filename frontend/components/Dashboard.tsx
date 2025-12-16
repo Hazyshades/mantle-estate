@@ -8,10 +8,10 @@ import { useBackend } from "../lib/useBackend";
 import type { City } from "~backend/city/list";
 import type { Position } from "~backend/trading/get_positions";
 import type { Transaction } from "~backend/trading/get_transactions";
-import CityGrid from "./CityGrid";
 import PositionsList from "./PositionsList";
 import TransactionHistory from "./TransactionHistory";
-import { Building2, LogOut, TrendingUp, Wallet } from "lucide-react";
+import { Building2, LogOut } from "lucide-react";
+import MarketList from "./MarketList";
 
 interface DashboardProps {
   userId: string;
@@ -75,62 +75,70 @@ export default function Dashboard({ userId }: DashboardProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Building2 className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">Real Estate Trading</h1>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900">
+      <header className="border-b border-border bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
+        <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-primary/15 p-3 text-primary">
+              <Building2 className="h-7 w-7" />
             </div>
-            <Button variant="outline" onClick={() => signOut()}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+            <div>
+              <p className="text-xs uppercase text-muted-foreground tracking-[0.12em]">Synthetic Real Estate</p>
+              <h1 className="text-2xl font-bold">Real Estate Trading Desk</h1>
+            </div>
           </div>
+          <Button variant="outline" onClick={() => signOut()}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Logout
+          </Button>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">${balance.toFixed(2)}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Open Positions</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{positions.length}</div>
-              <p className="text-xs text-muted-foreground">
-                Unrealized P&L:{" "}
-                <span className={totalUnrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}>
-                  ${totalUnrealizedPnl.toFixed(2)}
-                </span>
+      <div className="container mx-auto px-4 py-8 space-y-8">
+        <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white p-6 shadow-sm">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
+          <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="col-span-1 md:col-span-2 space-y-2">
+              <p className="text-sm text-muted-foreground">Summary metrics</p>
+              <h2 className="text-3xl font-bold">Welcome back</h2>
+              <p className="text-sm text-muted-foreground max-w-xl">
+                Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total P&L</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className={`text-2xl font-bold ${totalRealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
-                ${totalRealizedPnl.toFixed(2)}
-              </div>
-              <p className="text-xs text-muted-foreground">Realized from closed positions</p>
-            </CardContent>
-          </Card>
+            </div>
+            <Card className="bg-white shadow-sm border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs uppercase text-muted-foreground">Balance</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">${balance.toFixed(2)}</div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white shadow-sm border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs uppercase text-muted-foreground">Open positions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{positions.length}</div>
+                <p className="text-xs text-muted-foreground">
+                  Unrealized P&amp;L:{" "}
+                  <span className={totalUnrealizedPnl >= 0 ? "text-green-400" : "text-red-400"}>
+                    ${totalUnrealizedPnl.toFixed(2)}
+                  </span>
+                </p>
+              </CardContent>
+            </Card>
+            <Card className="bg-white shadow-sm border-border">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs uppercase text-muted-foreground">Realized P&amp;L</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${totalRealizedPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                  ${totalRealizedPnl.toFixed(2)}
+                </div>
+                <p className="text-xs text-muted-foreground">From closed trades</p>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         <Tabs defaultValue="markets" className="space-y-6">
@@ -140,8 +148,8 @@ export default function Dashboard({ userId }: DashboardProps) {
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="markets">
-            <CityGrid cities={cities} balance={balance} onTradeComplete={loadData} />
+          <TabsContent value="markets" className="space-y-6">
+            <MarketList cities={cities} balance={balance} onTradeComplete={loadData} />
           </TabsContent>
 
           <TabsContent value="positions">

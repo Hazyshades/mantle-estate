@@ -27,14 +27,16 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
 
   const loadPriceHistory = async () => {
     try {
-      const response = await backend.city.getPriceHistory({ cityId: city.id, hours: 24 });
+      // Request 25 years of data to display history from 2000
+      const response = await backend.city.getPriceHistory({ cityId: city.id, years: 25 });
       setPriceHistory(response.prices);
     } catch (error) {
       console.error("Error loading price history:", error);
     }
   };
 
-  const priceChange24h =
+  // Calculate price change: compare current price with oldest price in history
+  const priceChange =
     priceHistory.length >= 2
       ? ((city.currentPriceUsd - priceHistory[0].price) / priceHistory[0].price) * 100
       : 0;
@@ -53,9 +55,9 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
               <CardTitle className="text-lg">{city.name}</CardTitle>
               <p className="text-sm text-muted-foreground">{city.country}</p>
             </div>
-            <div className={`flex items-center gap-1 ${priceChange24h >= 0 ? "text-green-500" : "text-red-500"}`}>
-              {priceChange24h >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-              <span className="text-sm font-medium">{priceChange24h.toFixed(2)}%</span>
+            <div className={`flex items-center gap-1 ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+              {priceChange >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+              <span className="text-sm font-medium">{priceChange.toFixed(2)}%</span>
             </div>
           </div>
         </CardHeader>

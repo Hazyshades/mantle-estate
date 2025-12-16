@@ -6,8 +6,28 @@ interface PriceChartProps {
 }
 
 export default function PriceChart({ data }: PriceChartProps) {
+  // Determine date format based on data range
+  const getDateLabel = (timestamp: Date) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    
+    // If data is from last 7 days - show time
+    if (diffDays < 7) {
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+    // If data is from last year - show date without year
+    if (diffDays < 365) {
+      return date.toLocaleDateString([], { month: "short", day: "numeric" });
+    }
+    // For longer periods - show date with year
+    return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+  };
+
   const chartData = data.map((point) => ({
-    time: new Date(point.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    time: getDateLabel(point.timestamp),
+    date: new Date(point.timestamp),
     price: point.price,
   }));
 

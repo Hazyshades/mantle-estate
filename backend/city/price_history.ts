@@ -4,6 +4,8 @@ import db from "../db";
 interface PriceHistoryRequest {
   cityId: number;
   hours?: number;
+  days?: number; // Alternative to hours for longer periods
+  years?: number; // For getting data for multiple years
 }
 
 export interface PricePoint {
@@ -18,7 +20,7 @@ interface PriceHistoryResponse {
 // Get price history for a city
 export const getPriceHistory = api<PriceHistoryRequest, PriceHistoryResponse>(
   { expose: true, method: "GET", path: "/cities/:cityId/price-history" },
-  async ({ cityId, hours = 24 }) => {
+  async ({ cityId, hours, days, years }) => {
     // Verify city exists
     const city = await db.queryRow<{ id: number }>`
       SELECT id FROM cities WHERE id = ${cityId}
@@ -28,7 +30,18 @@ export const getPriceHistory = api<PriceHistoryRequest, PriceHistoryResponse>(
       throw APIError.notFound("City not found");
     }
 
-    const cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+    // Determine period: priority years > days > hours
+    let cutoff: Date;
+    if (years !== undefined) {
+      cutoff = new Date(Date.now() - years * 365 * 24 * 60 * 60 * 1000);
+    } else if (days !== undefined) {
+      cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    } else if (hours !== undefined) {
+      cutoff = new Date(Date.now() - hours * 60 * 60 * 1000);
+    } else {
+      // Default 24 hours
+      cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    }
 
     const rows = await db.queryAll<{
       price_usd: number;
