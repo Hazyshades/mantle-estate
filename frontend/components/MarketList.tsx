@@ -165,7 +165,9 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
           {/* Price per Square Foot */}
           <p className="text-lg font-bold text-slate-900">
-            ${city.currentPriceUsd.toFixed(2)} / Sqft
+            {city.averagePropertySizeSqft 
+              ? `$${(city.currentPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
+              : `$${city.currentPriceUsd.toFixed(2)}`}
           </p>
 
           {/* Price Change */}

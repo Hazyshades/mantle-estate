@@ -32,14 +32,15 @@ export const getByCode = api<GetCityByCodeRequest, GetCityByCodeResponse>(
   { expose: true, method: "GET", path: "/cities/code/:code" },
   async ({ code }) => {
     // Get all cities and search by code
-    const rows = await db.queryAll<{
+        const rows = await db.queryAll<{
       id: number;
       name: string;
       country: string;
       current_price_usd: number;
+      average_property_size_sqft: number | null;
       last_updated: Date;
     }>`
-      SELECT id, name, country, current_price_usd, last_updated
+      SELECT id, name, country, current_price_usd, average_property_size_sqft, last_updated
       FROM cities
       ORDER BY name
     `;
@@ -60,6 +61,7 @@ export const getByCode = api<GetCityByCodeRequest, GetCityByCodeResponse>(
         name: city.name,
         country: city.country,
         currentPriceUsd: city.current_price_usd,
+        averagePropertySizeSqft: city.average_property_size_sqft,
         lastUpdated: city.last_updated,
       },
     };

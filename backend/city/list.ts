@@ -6,6 +6,7 @@ export interface City {
   name: string;
   country: string;
   currentPriceUsd: number;
+  averagePropertySizeSqft: number | null;
   lastUpdated: Date;
 }
 
@@ -22,9 +23,10 @@ export const list = api<void, ListCitiesResponse>(
       name: string;
       country: string;
       current_price_usd: number;
+      average_property_size_sqft: number | null;
       last_updated: Date;
     }>`
-      SELECT id, name, country, current_price_usd, last_updated
+      SELECT id, name, country, current_price_usd, average_property_size_sqft, last_updated
       FROM cities
       ORDER BY name
     `;
@@ -34,6 +36,7 @@ export const list = api<void, ListCitiesResponse>(
       name: row.name,
       country: row.country,
       currentPriceUsd: row.current_price_usd,
+      averagePropertySizeSqft: row.average_property_size_sqft,
       lastUpdated: row.last_updated,
     }));
 
