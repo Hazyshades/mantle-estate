@@ -110,20 +110,21 @@ export default function CityDetailPage() {
 
   // Calculate price change over the week
   const weekAgoPrice = useMemo(() => {
-    if (!city || priceHistory.length === 0) return city?.currentPriceUsd || 0;
+    if (!city || priceHistory.length === 0) return city?.indexPriceUsd || 0;
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekAgoPoint = priceHistory.find(
       (p) => new Date(p.timestamp) <= weekAgo
     );
-    return weekAgoPoint?.price || priceHistory[0]?.price || city.currentPriceUsd;
+    return weekAgoPoint?.indexPrice || priceHistory[0]?.indexPrice || city.indexPriceUsd;
   }, [priceHistory, city]);
 
-  const priceChange = city ? city.currentPriceUsd - weekAgoPrice : 0;
+  const priceChange = city ? city.indexPriceUsd - weekAgoPrice : 0;
   const priceChangePercent = weekAgoPrice > 0 ? (priceChange / weekAgoPrice) * 100 : 0;
 
-  // Pseudo-data for market metrics
-  const marketPrice = city ? city.currentPriceUsd * 0.94 : 0;
+  // Use real data from API
+  const marketPrice = city?.marketPriceUsd || 0;
+  const indexPrice = city?.indexPriceUsd || 0;
   const volume24h = useMemo(() => {
     if (!city) return 0;
     const seed = city.id * 13 + city.name.length * 7;
@@ -143,9 +144,10 @@ export default function CityDetailPage() {
   const chartData = filteredPriceHistory.map((point) => ({
     timestamp: new Date(point.timestamp).getTime(),
     date: new Date(point.timestamp),
-    indexPrice: point.price,
-    marketPrice: marketPrice,
-    fpu: point.price - marketPrice,
+    indexPrice: point.indexPrice || point.price,
+    marketPrice: point.marketPrice || point.price,
+    fpu: (point.indexPrice || point.price) - (point.marketPrice || point.price),
+    fundingRate: point.fundingRate || 0,
     volume: volume24h / filteredPriceHistory.length,
   }));
 
@@ -179,7 +181,7 @@ export default function CityDetailPage() {
     setIsSubmitting(true);
 
     try {
-      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * city.currentPriceUsd;
+      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * indexPrice;
       
       if (amountNum <= 0) {
         throw new Error("Amount must be positive");
@@ -266,8 +268,8 @@ export default function CityDetailPage() {
 
   const amountNum = parseFloat(amount) || 0;
   const sizeNum = parseFloat(size) || 0;
-  const calculatedSize = amountNum > 0 ? amountNum / city.currentPriceUsd : sizeNum;
-  const calculatedAmount = sizeNum > 0 ? sizeNum * city.currentPriceUsd : amountNum;
+  const calculatedSize = amountNum > 0 ? amountNum / indexPrice : sizeNum;
+  const calculatedAmount = sizeNum > 0 ? sizeNum * indexPrice : amountNum;
 
   return (
     <div className="min-h-screen bg-slate-900 text-white">
@@ -296,7 +298,7 @@ export default function CityDetailPage() {
                 <div>
                   <h2 className="text-3xl font-bold">{city.name.split(",")[0]}</h2>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold">${city.currentPriceUsd.toFixed(2)}</span>
+                    <span className="text-2xl font-bold">${indexPrice.toFixed(2)}</span>
                     <span className={`text-sm ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {priceChange >= 0 ? "+" : ""}${Math.abs(priceChange).toFixed(2)} ({priceChangePercent >= 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%) past week
                     </span>
@@ -324,12 +326,14 @@ export default function CityDetailPage() {
                         <Info className="h-3 w-3 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Current market trading price</p>
+                        <p>Real estate price from Zillow data (fair value)</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
                   <p className="text-lg font-bold">${marketPrice.toFixed(2)}</p>
-                  <p className="text-xs text-red-500">D -5.752%</p>
+                  <p className="text-xs text-slate-400">
+                    Diff: {((indexPrice - marketPrice) / marketPrice * 100).toFixed(2)}%
+                  </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
@@ -362,26 +366,22 @@ export default function CityDetailPage() {
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Funding/Velocity</p>
+                    <p className="text-xs text-slate-400">Funding Rate</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Funding rate paid by longs to shorts (or vice versa) per period</p>
+                        <p>Rate paid by majority side to minority side. Positive = longs pay shorts, Negative = shorts pay longs</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">0.0011%</p>
-                  <p className="text-xs text-red-500">-0.0006%</p>
-                  <Select defaultValue="1d">
-                    <SelectTrigger className="h-6 mt-1 bg-slate-700 border-slate-600">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1d">1d</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <p className={`text-lg font-bold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
+                    {(city.fundingRate * 100).toFixed(4)}%
+                  </p>
+                  <p className="text-xs text-slate-400">
+                    {city.fundingRate >= 0 ? "Longs pay" : "Shorts pay"}
+                  </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
@@ -424,7 +424,7 @@ export default function CityDetailPage() {
                     onCheckedChange={(checked) => setShowIndexPrice(checked === true)}
                   />
                   <label htmlFor="index-price" className="text-sm cursor-pointer">
-                    Index Price ${city.currentPriceUsd.toFixed(2)}
+                    Index Price ${indexPrice.toFixed(2)}
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -434,7 +434,7 @@ export default function CityDetailPage() {
                     onCheckedChange={(checked) => setShowMarketPrice(checked === true)}
                   />
                   <label htmlFor="market-price" className="text-sm cursor-pointer">
-                    Market Price ${marketPrice.toFixed(3)}
+                    Market Price ${marketPrice.toFixed(2)}
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -444,13 +444,13 @@ export default function CityDetailPage() {
                     onCheckedChange={(checked) => setShowFPU(checked === true)}
                   />
                   <label htmlFor="fpu" className="text-sm cursor-pointer flex items-center gap-1">
-                    FPU {(city.currentPriceUsd - marketPrice).toFixed(3)}
+                    FPU {(indexPrice - marketPrice).toFixed(2)}
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-slate-400 cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Fair Price Uncertainty - difference between index and market price</p>
+                        <p>Fair Price Uncertainty - difference between Index and Market price</p>
                       </TooltipContent>
                     </Tooltip>
                   </label>
@@ -525,15 +525,17 @@ export default function CityDetailPage() {
                         strokeWidth={2}
                         fillOpacity={1}
                         fill="url(#colorIndex)"
+                        name="Index Price"
                       />
                     )}
                     {showMarketPrice && (
                       <Line
                         type="monotone"
                         dataKey="marketPrice"
-                        stroke="#3b82f6"
+                        stroke="#ef4444"
                         strokeWidth={2}
                         dot={false}
+                        name="Market Price"
                       />
                     )}
                   </AreaChart>
@@ -591,7 +593,7 @@ export default function CityDetailPage() {
                   onChange={(e) => {
                     setAmount(e.target.value);
                     if (e.target.value) {
-                      setSize((parseFloat(e.target.value) / city.currentPriceUsd).toFixed(2));
+                      setSize((parseFloat(e.target.value) / indexPrice).toFixed(2));
                     } else {
                       setSize("");
                     }
@@ -606,7 +608,7 @@ export default function CityDetailPage() {
                     onValueChange={(values) => {
                       const val = values[0].toString();
                       setAmount(val);
-                      setSize((values[0] / city.currentPriceUsd).toFixed(2));
+                      setSize((values[0] / indexPrice).toFixed(2));
                     }}
                     className="w-full"
                   />
@@ -625,7 +627,7 @@ export default function CityDetailPage() {
                   onChange={(e) => {
                     setSize(e.target.value);
                     if (e.target.value) {
-                      setAmount((parseFloat(e.target.value) * city.currentPriceUsd).toFixed(2));
+                      setAmount((parseFloat(e.target.value) * indexPrice).toFixed(2));
                     } else {
                       setAmount("");
                     }
@@ -635,12 +637,12 @@ export default function CityDetailPage() {
                 {balance > 0 && (
                   <Slider
                     value={[sizeNum]}
-                    max={balance / city.currentPriceUsd}
+                    max={balance / indexPrice}
                     step={0.1}
                     onValueChange={(values) => {
                       const val = values[0].toFixed(2);
                       setSize(val);
-                      setAmount((values[0] * city.currentPriceUsd).toFixed(2));
+                      setAmount((values[0] * indexPrice).toFixed(2));
                     }}
                     className="w-full"
                   />

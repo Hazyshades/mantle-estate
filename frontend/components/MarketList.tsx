@@ -47,7 +47,7 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
   const priceChange24h =
     priceHistory.length >= 2
-      ? ((city.currentPriceUsd - priceHistory[0].price) / priceHistory[0].price) * 100
+      ? ((city.indexPriceUsd - priceHistory[0].indexPrice) / priceHistory[0].indexPrice) * 100
       : 0;
 
   const changeColor = priceChange24h >= 0 ? "text-green-500" : "text-red-500";
@@ -166,9 +166,18 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
           {/* Price per Square Foot */}
           <p className="text-lg font-bold text-slate-900">
             {city.averagePropertySizeSqft 
-              ? `$${(city.currentPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
-              : `$${city.currentPriceUsd.toFixed(2)}`}
+              ? `$${(city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
+              : `$${city.indexPriceUsd.toFixed(2)}`}
           </p>
+
+          {/* Market Price and FPU */}
+          <div className="text-xs text-slate-500 space-y-1">
+            <p>Market: ${city.marketPriceUsd.toFixed(2)}</p>
+            <p className={city.indexPriceUsd > city.marketPriceUsd ? "text-green-500" : "text-red-500"}>
+              FPU: {((city.indexPriceUsd - city.marketPriceUsd) / city.marketPriceUsd * 100).toFixed(2)}%
+            </p>
+            <p>Funding: {(city.fundingRate * 100).toFixed(4)}%</p>
+          </div>
 
           {/* Price Change */}
           <p className={`text-sm font-medium ${changeColor}`}>
@@ -203,10 +212,10 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
       }
 
       // Filter by price range
-      if (minPrice && city.currentPriceUsd < parseFloat(minPrice)) {
+      if (minPrice && city.indexPriceUsd < parseFloat(minPrice)) {
         return false;
       }
-      if (maxPrice && city.currentPriceUsd > parseFloat(maxPrice)) {
+      if (maxPrice && city.indexPriceUsd > parseFloat(maxPrice)) {
         return false;
       }
 

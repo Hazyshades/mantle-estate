@@ -9,7 +9,10 @@ interface PriceHistoryRequest {
 }
 
 export interface PricePoint {
-  price: number;
+  price: number; // Index Price (for backward compatibility)
+  indexPrice: number; // NEW
+  marketPrice: number; // NEW
+  fundingRate: number; // NEW
   timestamp: Date;
 }
 
@@ -45,16 +48,31 @@ export const getPriceHistory = api<PriceHistoryRequest, PriceHistoryResponse>(
 
     const rows = await db.queryAll<{
       price_usd: number;
+      market_price_usd: number | null;
+      index_price_usd: number | null;
       timestamp: Date;
     }>`
-      SELECT price_usd, timestamp
+      SELECT 
+        price_usd,
+        market_price_usd,
+        index_price_usd,
+        timestamp
       FROM price_history
       WHERE city_id = ${cityId} AND timestamp >= ${cutoff}
       ORDER BY timestamp ASC
     `;
 
+    // Get current funding rate for city (can be improved by adding to table)
+    const currentCity = await db.queryRow<{ funding_rate: number }>`
+      SELECT funding_rate FROM cities WHERE id = ${cityId}
+    `;
+    const defaultFundingRate = currentCity?.funding_rate || 0;
+
     const prices = rows.map((row) => ({
-      price: row.price_usd,
+      price: row.index_price_usd || row.price_usd, // For backward compatibility
+      indexPrice: row.index_price_usd || row.price_usd,
+      marketPrice: row.market_price_usd || row.price_usd,
+      fundingRate: defaultFundingRate, // Can be added to table or calculated
       timestamp: row.timestamp,
     }));
 

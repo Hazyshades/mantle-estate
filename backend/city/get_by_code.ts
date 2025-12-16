@@ -36,11 +36,16 @@ export const getByCode = api<GetCityByCodeRequest, GetCityByCodeResponse>(
       id: number;
       name: string;
       country: string;
-      current_price_usd: number;
+      index_price_usd: number;
+      market_price_usd: number;
+      funding_rate: number;
       average_property_size_sqft: number | null;
       last_updated: Date;
     }>`
-      SELECT id, name, country, current_price_usd, average_property_size_sqft, last_updated
+      SELECT 
+        id, name, country, 
+        index_price_usd, market_price_usd, funding_rate,
+        average_property_size_sqft, last_updated
       FROM cities
       ORDER BY name
     `;
@@ -60,7 +65,10 @@ export const getByCode = api<GetCityByCodeRequest, GetCityByCodeResponse>(
         id: city.id,
         name: city.name,
         country: city.country,
-        currentPriceUsd: city.current_price_usd,
+        currentPriceUsd: city.index_price_usd, // For backward compatibility
+        indexPriceUsd: city.index_price_usd,
+        marketPriceUsd: city.market_price_usd,
+        fundingRate: city.funding_rate,
         averagePropertySizeSqft: city.average_property_size_sqft,
         lastUpdated: city.last_updated,
       },
