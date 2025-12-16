@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Empty } from "@/components/ui/empty";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { Position } from "~backend/trading/get_positions";
-import { TrendingDown, TrendingUp, X } from "lucide-react";
+import { TrendingDown, TrendingUp, X, Wallet } from "lucide-react";
 import { useState } from "react";
 
 interface PositionsListProps {
@@ -41,12 +42,11 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
 
   if (positions.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No open positions</p>
-          <p className="text-sm text-muted-foreground mt-2">Start trading to see your positions here</p>
-        </CardContent>
-      </Card>
+      <Empty
+        title="No open positions"
+        description="Start trading to see your positions here. Open a long or short position on any market to get started."
+        icon={<Wallet className="h-12 w-12 text-muted-foreground" />}
+      />
     );
   }
 

@@ -6,7 +6,14 @@ import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import backend from "~backend/client";
 import { Card } from "@/components/ui/card";
-import { Search, Filter, List, Settings } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Empty } from "@/components/ui/empty";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Search, Filter, List, Settings, X } from "lucide-react";
 
 interface MarketListProps {
   cities: City[];
@@ -139,8 +146,15 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
           </p>
 
           {/* Market Type with Indicator */}
-          <div className="space-y-1">
-            <p className="text-sm text-slate-600">{marketType.type}</p>
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Badge 
+                variant={priceChange24h > 2 ? "destructive" : priceChange24h < -2 ? "default" : "secondary"}
+                className="text-xs"
+              >
+                {marketType.type}
+              </Badge>
+            </div>
             <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className={`h-full ${marketType.color} transition-all`}
@@ -166,21 +180,51 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
 export default function MarketList({ cities, balance, onTradeComplete }: MarketListProps) {
   const [search, setSearch] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterByCountry, setFilterByCountry] = useState(true);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
 
   const filteredCities = useMemo(() => {
     return cities.filter((city) => {
-      // Filter out non-US cities (Tokyo, London, etc.)
-      // Show only US cities
-      if (city.country !== "USA") {
+      // Filter by country
+      if (filterByCountry && city.country !== "USA") {
         return false;
       }
       
+      // Filter by search
       const matchesSearch =
         city.name.toLowerCase().includes(search.toLowerCase()) ||
         city.country.toLowerCase().includes(search.toLowerCase());
-      return matchesSearch;
+      if (!matchesSearch) {
+        return false;
+      }
+
+      // Filter by price range
+      if (minPrice && city.currentPriceUsd < parseFloat(minPrice)) {
+        return false;
+      }
+      if (maxPrice && city.currentPriceUsd > parseFloat(maxPrice)) {
+        return false;
+      }
+
+      return true;
     });
-  }, [cities, search]);
+  }, [cities, search, filterByCountry, minPrice, maxPrice]);
+
+  const clearFilters = () => {
+    setFilterByCountry(true);
+    setMinPrice("");
+    setMaxPrice("");
+  };
+
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (filterByCountry) count++;
+    if (minPrice) count++;
+    if (maxPrice) count++;
+    return count;
+  }, [filterByCountry, minPrice, maxPrice]);
 
   return (
     <div className="space-y-6">
@@ -201,13 +245,76 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
         </div>
 
         {/* Filters Button */}
-        <Button
-          variant="outline"
-          className="rounded-lg border-gray-200 bg-white hover:bg-slate-100 text-slate-700 shadow-sm"
-        >
-          <Filter className="h-4 w-4 mr-2" />
-          Filters
-        </Button>
+        <Popover open={showFilters} onOpenChange={setShowFilters}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="rounded-lg border-gray-200 bg-white hover:bg-slate-100 text-slate-700 shadow-sm"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center">
+                  {activeFiltersCount}
+                </Badge>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80" align="start">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium">Filters</h4>
+                {activeFiltersCount > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="h-8 text-xs"
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear
+                  </Button>
+                )}
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="country-filter"
+                    checked={filterByCountry}
+                    onCheckedChange={(checked) => setFilterByCountry(checked === true)}
+                  />
+                  <Label htmlFor="country-filter" className="text-sm font-normal cursor-pointer">
+                    US Cities Only
+                  </Label>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-sm">Price Range (USD/sqft)</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Input
+                        type="number"
+                        placeholder="Min"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div>
+                      <Input
+                        type="number"
+                        placeholder="Max"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
 
         {/* View Toggle Icons */}
         <div className="flex items-center gap-2">
@@ -241,9 +348,11 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
           ))}
         </div>
       ) : (
-        <div className="rounded-2xl border border-dashed bg-card/50 p-12 text-center text-muted-foreground">
-          No markets found for this query
-        </div>
+        <Empty
+          title="No markets found"
+          description="Try adjusting your search or filters to find more markets"
+          icon={<Search className="h-12 w-12 text-muted-foreground" />}
+        />
       )}
     </div>
   );

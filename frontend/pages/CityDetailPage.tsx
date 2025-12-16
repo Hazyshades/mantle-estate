@@ -5,13 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Slider } from "@/components/ui/slider";
+import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import backend from "~backend/client";
-import { AreaChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip } from "recharts";
-import { Building2, Wallet, ArrowLeft } from "lucide-react";
+import { AreaChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
+import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown } from "lucide-react";
 
 type TimeRange = "1d" | "1w" | "1m" | "all";
 
@@ -225,8 +231,31 @@ export default function CityDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-slate-900 text-white">
+        <div className="container mx-auto px-4 py-8">
+          <Skeleton className="h-9 w-24 mb-6 bg-slate-800" />
+          <div className="space-y-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="h-12 w-32 bg-slate-800" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-48 bg-slate-800" />
+                  <Skeleton className="h-6 w-64 bg-slate-800" />
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-10 w-full bg-slate-800" />
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {[...Array(6)].map((_, i) => (
+                  <Skeleton key={i} className="h-24 bg-slate-800" />
+                ))}
+              </div>
+              <Skeleton className="h-96 w-full bg-slate-800" />
+              <Skeleton className="h-64 w-full bg-slate-800" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -288,21 +317,61 @@ export default function CityDetailPage() {
               {/* Market metrics */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">Market Price</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">Market Price</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Current market trading price</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">${marketPrice.toFixed(2)}</p>
                   <p className="text-xs text-red-500">D -5.752%</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">24h Volume</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">24h Volume</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total trading volume in the last 24 hours</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">${(volume24h / 1000).toFixed(2)}K</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">Open Interest</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">Open Interest</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total value of all open positions (Long/Short ratio)</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">${(openInterest / 1000).toFixed(1)}K</p>
                   <p className="text-xs text-slate-400">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">Funding/Velocity</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">Funding/Velocity</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Funding rate paid by longs to shorts (or vice versa) per period</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">0.0011%</p>
                   <p className="text-xs text-red-500">-0.0006%</p>
                   <Select defaultValue="1d">
@@ -315,12 +384,32 @@ export default function CityDetailPage() {
                   </Select>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">OI Avail. Long</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">OI Avail. Long</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Available liquidity for opening long positions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">${(longOI / 1000).toFixed(2)}K</p>
                   <p className="text-xs text-slate-400">${((longOI * 0.1) / 1000).toFixed(2)}K</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">OI Avail. Short</p>
+                  <div className="flex items-center gap-1 mb-1">
+                    <p className="text-xs text-slate-400">OI Avail. Short</p>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Available liquidity for opening short positions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
                   <p className="text-lg font-bold">${(shortOI / 1000).toFixed(2)}K</p>
                   <p className="text-xs text-slate-400">${((shortOI * 1.3) / 1000).toFixed(2)}K</p>
                 </div>
@@ -354,8 +443,16 @@ export default function CityDetailPage() {
                     checked={showFPU}
                     onCheckedChange={(checked) => setShowFPU(checked === true)}
                   />
-                  <label htmlFor="fpu" className="text-sm cursor-pointer">
+                  <label htmlFor="fpu" className="text-sm cursor-pointer flex items-center gap-1">
                     FPU {(city.currentPriceUsd - marketPrice).toFixed(3)}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Fair Price Uncertainty - difference between index and market price</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
@@ -402,7 +499,7 @@ export default function CityDetailPage() {
                       stroke="#64748b"
                     />
                     <YAxis stroke="#64748b" />
-                    <Tooltip
+                    <RechartsTooltip
                       contentStyle={{
                         backgroundColor: "#1e293b",
                         border: "1px solid #334155",
@@ -453,26 +550,40 @@ export default function CityDetailPage() {
 
           {/* Transaction panel */}
           <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
-            <div className="flex gap-2 mb-4">
-              <Button
-                variant={tradeType === "long" ? "default" : "outline"}
-                onClick={() => setTradeType("long")}
-                className={tradeType === "long" ? "bg-green-600 hover:bg-green-700" : "bg-slate-700 border-slate-600"}
+            <ToggleGroup
+              type="single"
+              value={tradeType}
+              onValueChange={(value) => {
+                if (value) setTradeType(value as "long" | "short");
+              }}
+              className="mb-4 bg-slate-700 p-1 rounded-lg"
+            >
+              <ToggleGroupItem
+                value="long"
+                aria-label="Long"
+                className={tradeType === "long" ? "bg-green-600 hover:bg-green-700 text-white data-[state=on]:bg-green-600" : "bg-transparent text-slate-300 hover:text-white"}
               >
+                <TrendingUp className="h-4 w-4 mr-2" />
                 Long
-              </Button>
-              <Button
-                variant={tradeType === "short" ? "default" : "outline"}
-                onClick={() => setTradeType("short")}
-                className={tradeType === "short" ? "bg-red-600 hover:bg-red-700" : "bg-slate-700 border-slate-600"}
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="short"
+                aria-label="Short"
+                className={tradeType === "short" ? "bg-red-600 hover:bg-red-700 text-white data-[state=on]:bg-red-600" : "bg-transparent text-slate-300 hover:text-white"}
               >
+                <TrendingDown className="h-4 w-4 mr-2" />
                 Short
-              </Button>
-            </div>
+              </ToggleGroupItem>
+            </ToggleGroup>
+
+            <Separator className="bg-slate-700 mb-4" />
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Max: ${balance.toFixed(2)}</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm text-slate-400">Amount (USD)</label>
+                  <span className="text-xs text-slate-500">Max: ${balance.toFixed(2)}</span>
+                </div>
                 <Input
                   type="number"
                   placeholder="0"
@@ -485,12 +596,28 @@ export default function CityDetailPage() {
                       setSize("");
                     }
                   }}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-700 border-slate-600 text-white mb-2"
                 />
+                {balance > 0 && (
+                  <Slider
+                    value={[amountNum]}
+                    max={balance}
+                    step={100}
+                    onValueChange={(values) => {
+                      const val = values[0].toString();
+                      setAmount(val);
+                      setSize((values[0] / city.currentPriceUsd).toFixed(2));
+                    }}
+                    className="w-full"
+                  />
+                )}
               </div>
 
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Size: {calculatedSize.toFixed(2)}</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm text-slate-400">Size (sqm)</label>
+                  <span className="text-xs text-slate-500">{calculatedSize.toFixed(2)} sqm</span>
+                </div>
                 <Input
                   type="number"
                   placeholder="0"
@@ -503,11 +630,25 @@ export default function CityDetailPage() {
                       setAmount("");
                     }
                   }}
-                  className="bg-slate-700 border-slate-600 text-white"
+                  className="bg-slate-700 border-slate-600 text-white mb-2"
                 />
+                {balance > 0 && (
+                  <Slider
+                    value={[sizeNum]}
+                    max={balance / city.currentPriceUsd}
+                    step={0.1}
+                    onValueChange={(values) => {
+                      const val = values[0].toFixed(2);
+                      setSize(val);
+                      setAmount((values[0] * city.currentPriceUsd).toFixed(2));
+                    }}
+                    className="w-full"
+                  />
+                )}
               </div>
 
-              <div className="space-y-2 pt-4 border-t border-slate-700">
+              <Separator className="bg-slate-700" />
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-400">Est. Fill Price</span>
                   <span className="text-white">--</span>
@@ -523,8 +664,17 @@ export default function CityDetailPage() {
                 disabled={isSubmitting || (!amount && !size)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               >
-                <Wallet className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Processing..." : "Connect Wallet"}
+                {isSubmitting ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Processing...
+                  </>
+                ) : (
+                  <>
+                    <Wallet className="h-4 w-4 mr-2" />
+                    Connect Wallet
+                  </>
+                )}
               </Button>
 
               <p className="text-xs text-center text-slate-400">Slippage 2.00%</p>
