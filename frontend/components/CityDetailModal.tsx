@@ -228,14 +228,25 @@ export default function CityDetailModal({
     if (priceHistory.length === 0) return city.indexPriceUsd;
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekAgoPoint = priceHistory.find(
-      (p) => new Date(p.timestamp) <= weekAgo
+    weekAgo.setHours(0, 0, 0, 0); // Set to start of day for consistent comparison
+    
+    // Find the point closest to week ago (most recent point <= weekAgo)
+    const weekAgoPoints = priceHistory.filter(
+      (p) => new Date(p.timestamp).getTime() <= weekAgo.getTime()
     );
-    return weekAgoPoint?.indexPrice || priceHistory[0]?.indexPrice || city.indexPriceUsd;
+    
+    if (weekAgoPoints.length === 0) {
+      // If no points found before week ago, use the oldest available point
+      return priceHistory[0]?.indexPrice || city.indexPriceUsd;
+    }
+    
+    // Get the most recent point (last in filtered array since history is sorted ASC)
+    const weekAgoPoint = weekAgoPoints[weekAgoPoints.length - 1];
+    return weekAgoPoint?.indexPrice || city.indexPriceUsd;
   }, [priceHistory, city.indexPriceUsd]);
 
   const priceChange = city.indexPriceUsd - weekAgoPrice;
-  const priceChangePercent = (priceChange / weekAgoPrice) * 100;
+  const priceChangePercent = weekAgoPrice > 0 ? (priceChange / weekAgoPrice) * 100 : 0;
 
   // Use real data from API
   const marketPrice = city.marketPriceUsd;
