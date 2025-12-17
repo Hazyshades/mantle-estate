@@ -15,6 +15,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
+import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
 import { AreaChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown } from "lucide-react";
@@ -27,6 +28,7 @@ export default function CityDetailPage() {
   const [city, setCity] = useState<City | null>(null);
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [balance, setBalance] = useState<number>(0);
+  const [cityMetrics, setCityMetrics] = useState<CityMetrics | null>(null);
   const [timeRange, setTimeRange] = useState<TimeRange>("1w");
   const [showIndexPrice, setShowIndexPrice] = useState(true);
   const [showMarketPrice, setShowMarketPrice] = useState(false);
@@ -46,6 +48,12 @@ export default function CityDetailPage() {
       loadBalance();
     }
   }, [cityCode]);
+
+  useEffect(() => {
+    if (city) {
+      loadCityMetrics();
+    }
+  }, [city]);
 
   const loadCityData = async () => {
     if (!cityCode) return;
@@ -81,6 +89,26 @@ export default function CityDetailPage() {
       setBalance(response.balance);
     } catch (error) {
       console.error("Error loading balance:", error);
+    }
+  };
+
+  const loadCityMetrics = async () => {
+    if (!city) return;
+    
+    try {
+      const response = await backend.city.getCityMetrics({ cityId: city.id });
+      setCityMetrics(response.metrics);
+    } catch (error) {
+      console.error("Error loading city metrics:", error);
+      // In case of error, use default values
+      setCityMetrics({
+        volume24h: 0,
+        openInterest: 0,
+        longOI: 0,
+        shortOI: 0,
+        longOIAvailable: 0,
+        shortOIAvailable: 0,
+      });
     }
   };
 
@@ -125,20 +153,14 @@ export default function CityDetailPage() {
   // Use real data from API
   const marketPrice = city?.marketPriceUsd || 0;
   const indexPrice = city?.indexPriceUsd || 0;
-  const volume24h = useMemo(() => {
-    if (!city) return 0;
-    const seed = city.id * 13 + city.name.length * 7;
-    return 5000 + (seed % 5000);
-  }, [city]);
   
-  const openInterest = useMemo(() => {
-    if (!city) return 0;
-    const seed = city.id * 17 + city.name.length * 11;
-    return 200000 + (seed % 100000);
-  }, [city]);
-
-  const longOI = openInterest * 0.81;
-  const shortOI = openInterest * 0.19;
+  // Use real metrics from API
+  const volume24h = cityMetrics?.volume24h || 0;
+  const openInterest = cityMetrics?.openInterest || 0;
+  const longOI = cityMetrics?.longOI || 0;
+  const shortOI = cityMetrics?.shortOI || 0;
+  const longOIAvailable = cityMetrics?.longOIAvailable || 0;
+  const shortOIAvailable = cityMetrics?.shortOIAvailable || 0;
 
   // Format data for chart
   const chartData = filteredPriceHistory.map((point) => ({
@@ -395,8 +417,12 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">${(longOI / 1000).toFixed(2)}K</p>
-                  <p className="text-xs text-slate-400">${((longOI * 0.1) / 1000).toFixed(2)}K</p>
+                  <p className="text-lg font-bold">${(longOIAvailable / 1000).toFixed(2)}K</p>
+                  <p className="text-xs text-slate-400">
+                    {longOIAvailable > 0 
+                      ? `${((longOIAvailable * 0.1) / 1000).toFixed(2)}K` 
+                      : "N/A"}
+                  </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
@@ -410,8 +436,12 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">${(shortOI / 1000).toFixed(2)}K</p>
-                  <p className="text-xs text-slate-400">${((shortOI * 1.3) / 1000).toFixed(2)}K</p>
+                  <p className="text-lg font-bold">${(shortOIAvailable / 1000).toFixed(2)}K</p>
+                  <p className="text-xs text-slate-400">
+                    {shortOIAvailable > 0 
+                      ? `${((shortOIAvailable * 1.3) / 1000).toFixed(2)}K` 
+                      : "N/A"}
+                  </p>
                 </div>
               </div>
 

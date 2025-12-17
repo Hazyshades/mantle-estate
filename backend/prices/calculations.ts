@@ -142,11 +142,13 @@ export async function getMarketMetrics(
   const totalOI = totalLongValue + totalShortValue;
   
   // Get trading volume for 24 hours
+  // Use JavaScript Date for consistency with other queries
+  const cutoff24h = new Date(Date.now() - 24 * 60 * 60 * 1000);
   const volume24h = await db.queryRow<{ volume: number }>`
     SELECT COALESCE(SUM(quantity * price), 0) as volume
     FROM transactions
     WHERE city_id = ${cityId}
-      AND timestamp >= NOW() - INTERVAL '24 hours'
+      AND timestamp >= ${cutoff24h}
   `;
   
   return {
