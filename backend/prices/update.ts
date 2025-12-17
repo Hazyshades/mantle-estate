@@ -4,8 +4,8 @@ import db from "../db";
 import { calculateIndexPrice, calculateFundingRate, getMarketMetrics } from "./calculations";
 
 export const updatePricesEndpoint = api(
-  { expose: false, method: "POST", path: "/prices/update" },
-  async (): Promise<void> => {
+  { expose: true, method: "POST", path: "/prices/update" },
+  async (): Promise<{ updated: number; message: string }> => {
     const cities = await db.queryAll<{
       id: number;
       market_price_usd: number;
@@ -17,6 +17,7 @@ export const updatePricesEndpoint = api(
       FROM cities
     `;
 
+    let updatedCount = 0;
     for (const city of cities) {
       // Get market metrics
       const metrics = await getMarketMetrics(city.id, db);
@@ -58,12 +59,19 @@ export const updatePricesEndpoint = api(
           ${city.id}, ${city.market_price_usd}, ${newIndexPrice}, ${newFundingRate}
         )
       `;
+      
+      updatedCount++;
     }
+    
+    return {
+      updated: updatedCount,
+      message: `Successfully updated index prices and funding rates for ${updatedCount} cities`,
+    };
   }
 );
 
 const updatePrices = new CronJob("update-prices", {
   title: "Update Index Prices and Funding Rates",
-  every: "5m", // Update every 5 minutes
+  every: "6h", // Update every 6 hours
   endpoint: updatePricesEndpoint,
 });

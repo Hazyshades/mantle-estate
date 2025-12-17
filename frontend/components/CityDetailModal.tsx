@@ -260,6 +260,15 @@ export default function CityDetailModal({
   const longOIAvailable = cityMetrics?.longOIAvailable || 0;
   const shortOIAvailable = cityMetrics?.shortOIAvailable || 0;
 
+  // Format volume: show in millions if >= 1M, otherwise in thousands
+  const formatVolume = (volume: number): string => {
+    if (volume >= 1000000) {
+      return `$${(volume / 1000000).toFixed(2)}M`;
+    } else {
+      return `$${(volume / 1000).toFixed(2)}K`;
+    }
+  };
+
   // Format data for chart
   const chartData = filteredPriceHistory.map((point) => ({
     timestamp: new Date(point.timestamp).getTime(),
@@ -411,11 +420,11 @@ export default function CityDetailModal({
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <p className="text-xs text-slate-400 mb-1">24h Volume</p>
-                  <p className="text-lg font-bold">${(volume24h / 1000).toFixed(2)}K</p>
+                  <p className="text-lg font-bold">{formatVolume(volume24h)}</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <p className="text-xs text-slate-400 mb-1">Open Interest</p>
-                  <p className="text-lg font-bold">${(openInterest / 1000).toFixed(1)}K</p>
+                  <p className="text-lg font-bold">{formatVolume(openInterest)}</p>
                   <p className="text-xs text-slate-400">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
@@ -439,19 +448,19 @@ export default function CityDetailModal({
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <p className="text-xs text-slate-400 mb-1">OI Avail. Long</p>
-                  <p className="text-lg font-bold">${(longOIAvailable / 1000).toFixed(2)}K</p>
+                  <p className="text-lg font-bold">{formatVolume(longOIAvailable)}</p>
                   <p className="text-xs text-slate-400">
                     {longOIAvailable > 0 
-                      ? `${((longOIAvailable * 0.1) / 1000).toFixed(2)}K` 
+                      ? formatVolume(longOIAvailable * 0.1)
                       : "N/A"}
                   </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <p className="text-xs text-slate-400 mb-1">OI Avail. Short</p>
-                  <p className="text-lg font-bold">${(shortOIAvailable / 1000).toFixed(2)}K</p>
+                  <p className="text-lg font-bold">{formatVolume(shortOIAvailable)}</p>
                   <p className="text-xs text-slate-400">
                     {shortOIAvailable > 0 
-                      ? `${((shortOIAvailable * 1.3) / 1000).toFixed(2)}K` 
+                      ? formatVolume(shortOIAvailable * 1.3)
                       : "N/A"}
                   </p>
                 </div>

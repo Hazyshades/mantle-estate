@@ -6,29 +6,28 @@ export interface NextUpdateResponse {
 }
 
 /**
- * Calculate the next update time (every 5 minutes, rounded to nearest 5-minute interval)
+ * Calculate the next update time (every 6 hours, rounded to nearest 6-hour interval)
  */
 function getNextUpdateTime(): Date {
   const now = new Date();
-  const minutes = now.getUTCMinutes();
+  const hours = now.getUTCHours();
   
-  // Round up to the next 5-minute interval
-  const nextMinutes = Math.ceil((minutes + 1) / 5) * 5;
+  // Round up to the next 6-hour interval (0, 6, 12, 18)
+  const nextHours = Math.ceil((hours + 1) / 6) * 6;
   
   const nextUpdate = new Date(Date.UTC(
     now.getUTCFullYear(),
     now.getUTCMonth(),
     now.getUTCDate(),
-    now.getUTCHours(),
-    nextMinutes,
+    nextHours >= 24 ? 0 : nextHours,
+    0, // Minutes
     0, // Seconds
     0  // Milliseconds
   ));
   
-  // If we've passed the hour (e.g., nextMinutes = 60), move to next hour
-  if (nextMinutes >= 60) {
-    nextUpdate.setUTCHours(nextUpdate.getUTCHours() + 1);
-    nextUpdate.setUTCMinutes(0);
+  // If we've passed midnight (e.g., nextHours = 24), move to next day
+  if (nextHours >= 24) {
+    nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
   }
   
   return nextUpdate;

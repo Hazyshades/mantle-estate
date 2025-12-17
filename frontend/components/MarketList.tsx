@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
+import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +32,7 @@ interface MarketRowProps {
 function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
   const navigate = useNavigate();
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
+  const [cityMetrics, setCityMetrics] = useState<CityMetrics | null>(null);
 
   useEffect(() => {
     const loadPriceHistory = async () => {
@@ -43,7 +45,26 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
       }
     };
 
+    const loadCityMetrics = async () => {
+      try {
+        const response = await backend.city.getCityMetrics({ cityId: city.id });
+        setCityMetrics(response.metrics);
+      } catch (error) {
+        console.error("Error loading city metrics:", error);
+        // In case of error, use default values
+        setCityMetrics({
+          volume24h: 0,
+          openInterest: 0,
+          longOI: 0,
+          shortOI: 0,
+          longOIAvailable: 0,
+          shortOIAvailable: 0,
+        });
+      }
+    };
+
     loadPriceHistory();
+    loadCityMetrics();
   }, [city.id]);
 
   const priceChange24h =
@@ -53,12 +74,17 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
   const changeColor = priceChange24h >= 0 ? "text-green-500" : "text-red-500";
 
-  // Use a lightweight deterministic "volume" so rows look lively without new backend fields
-  const pseudoVolume = useMemo(() => {
-    const seed = city.id * 13 + city.name.length * 7;
-    const base = 500000 + (seed % 2000000);
-    return base + priceHistory.length * 12000;
-  }, [city.id, city.name.length, priceHistory.length]);
+  // Use real volume from city metrics
+  const transactionVolume = cityMetrics?.volume24h || 0;
+  
+  // Format transaction volume: show in millions if >= 1M, otherwise in thousands
+  const formatTransactionVolume = (volume: number): string => {
+    if (volume >= 1000000) {
+      return `$${(volume / 1000000).toFixed(2)}M`;
+    } else {
+      return `$${(volume / 1000).toFixed(2)}K`;
+    }
+  };
 
   // Determine market type based on price change
   const getMarketType = () => {
@@ -143,7 +169,7 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
           {/* Transaction Volume */}
           <p className="text-sm text-slate-600">
-            Transaction Volume ${(pseudoVolume / 1000000).toFixed(2)}M
+            Transaction Volume {formatTransactionVolume(transactionVolume)}
           </p>
 
           {/* Market Type with Indicator */}
