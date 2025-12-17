@@ -113,28 +113,144 @@ export default function CityDetailPage() {
     }
   };
 
+  // Helper function to aggregate data by day
+  const aggregateByDay = (data: PricePoint[]): PricePoint[] => {
+    const dailyData = new Map<string, {
+      prices: number[];
+      indexPrices: number[];
+      marketPrices: number[];
+      timestamps: Date[];
+      fundingRates: number[];
+    }>();
+
+    data.forEach((point) => {
+      const date = new Date(point.timestamp);
+      const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      
+      if (!dailyData.has(dayKey)) {
+        dailyData.set(dayKey, {
+          prices: [],
+          indexPrices: [],
+          marketPrices: [],
+          timestamps: [],
+          fundingRates: [],
+        });
+      }
+      
+      const dayData = dailyData.get(dayKey)!;
+      dayData.prices.push(point.price);
+      dayData.indexPrices.push(point.indexPrice);
+      dayData.marketPrices.push(point.marketPrice);
+      dayData.timestamps.push(new Date(point.timestamp));
+      dayData.fundingRates.push(point.fundingRate);
+    });
+
+    return Array.from(dailyData.entries())
+      .map(([dayKey, data]) => {
+        const avgPrice = data.prices.reduce((a, b) => a + b, 0) / data.prices.length;
+        const avgIndexPrice = data.indexPrices.reduce((a, b) => a + b, 0) / data.indexPrices.length;
+        const avgMarketPrice = data.marketPrices.reduce((a, b) => a + b, 0) / data.marketPrices.length;
+        const avgFundingRate = data.fundingRates.reduce((a, b) => a + b, 0) / data.fundingRates.length;
+        
+        const lastTimestamp = data.timestamps.reduce((latest, current) => 
+          current > latest ? current : latest
+        );
+
+        return {
+          price: avgPrice,
+          indexPrice: avgIndexPrice,
+          marketPrice: avgMarketPrice,
+          fundingRate: avgFundingRate,
+          timestamp: lastTimestamp,
+        };
+      })
+      .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+  };
+
   // Filter data by selected time range
   const filteredPriceHistory = useMemo(() => {
     if (!priceHistory.length || !city) return [];
     
     const now = new Date();
     let cutoffDate = new Date();
+    let filtered: PricePoint[] = [];
     
     switch (timeRange) {
       case "1d":
         cutoffDate.setDate(now.getDate() - 1);
+        filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
         break;
       case "1w":
         cutoffDate.setDate(now.getDate() - 7);
-        break;
+        filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
+        // Aggregate by day for 1w
+        return aggregateByDay(filtered);
       case "1m":
         cutoffDate.setMonth(now.getMonth() - 1);
-        break;
-      case "all":
-        return priceHistory;
+        filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
+        // Aggregate by day for 1m
+        return aggregateByDay(filtered);
+      case "all": {
+        // Aggregate data by month: for each month, calculate average price
+        const monthlyData = new Map<string, {
+          prices: number[];
+          indexPrices: number[];
+          marketPrices: number[];
+          timestamps: Date[];
+          fundingRates: number[];
+        }>();
+
+        priceHistory.forEach((point) => {
+          const date = new Date(point.timestamp);
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          
+          if (!monthlyData.has(monthKey)) {
+            monthlyData.set(monthKey, {
+              prices: [],
+              indexPrices: [],
+              marketPrices: [],
+              timestamps: [],
+              fundingRates: [],
+            });
+          }
+          
+          const monthData = monthlyData.get(monthKey)!;
+          monthData.prices.push(point.price);
+          monthData.indexPrices.push(point.indexPrice);
+          monthData.marketPrices.push(point.marketPrice);
+          monthData.timestamps.push(new Date(point.timestamp));
+          monthData.fundingRates.push(point.fundingRate);
+        });
+
+        // Convert monthly aggregates to PricePoint array
+        const aggregated: PricePoint[] = Array.from(monthlyData.entries())
+          .map(([monthKey, data]) => {
+            // Calculate averages
+            const avgPrice = data.prices.reduce((a, b) => a + b, 0) / data.prices.length;
+            const avgIndexPrice = data.indexPrices.reduce((a, b) => a + b, 0) / data.indexPrices.length;
+            const avgMarketPrice = data.marketPrices.reduce((a, b) => a + b, 0) / data.marketPrices.length;
+            const avgFundingRate = data.fundingRates.reduce((a, b) => a + b, 0) / data.fundingRates.length;
+            
+            // Use the last timestamp of the month as the representative timestamp
+            const lastTimestamp = data.timestamps.reduce((latest, current) => 
+              current > latest ? current : latest
+            );
+
+            return {
+              price: avgPrice,
+              indexPrice: avgIndexPrice,
+              marketPrice: avgMarketPrice,
+              fundingRate: avgFundingRate,
+              timestamp: lastTimestamp,
+            };
+          })
+          .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+
+        return aggregated;
+      }
     }
     
-    return priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
+    return filtered;
   }, [priceHistory, timeRange]);
 
   // Calculate price change over the week
@@ -176,17 +292,29 @@ export default function CityDetailPage() {
 
   const getDateLabel = (timestamp: Date | number) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = diffMs / (1000 * 60 * 60 * 24);
     
-    if (diffDays < 7) {
-      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    // Formatting depends on the selected time range
+    switch (timeRange) {
+      case "1d":
+        // For day, show time
+        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      
+      case "1w":
+        // For week, show weekday and day number
+        return date.toLocaleDateString([], { weekday: "short", day: "numeric" });
+      
+      case "1m":
+        // For month, show each day: "Dec 1", "Dec 2", etc.
+        return date.toLocaleDateString([], { month: "short", day: "numeric" });
+      
+      case "all":
+        // For all period, show date with year (unified format)
+        return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+      
+      default:
+        // Fallback
+        return date.toLocaleDateString([], { month: "short", day: "numeric" });
     }
-    if (diffDays < 365) {
-      return date.toLocaleDateString([], { month: "short", day: "numeric" });
-    }
-    return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
   };
 
   const handleTrade = async () => {
@@ -529,6 +657,11 @@ export default function CityDetailPage() {
                         return getDateLabel(date);
                       }}
                       stroke="#64748b"
+                      interval={timeRange === "1m" ? 0 : timeRange === "1w" ? 0 : "preserveStartEnd"}
+                      angle={timeRange === "1m" ? -45 : 0}
+                      textAnchor={timeRange === "1m" ? "end" : "middle"}
+                      height={timeRange === "1m" ? 80 : 30}
+                      tick={{ fontSize: 12 }}
                     />
                     <YAxis stroke="#64748b" />
                     <RechartsTooltip
