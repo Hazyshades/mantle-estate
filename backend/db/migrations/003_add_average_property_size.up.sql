@@ -19,3 +19,4 @@ UPDATE cities SET average_property_size_sqft = 1000 WHERE name = 'Tokyo' AND cou
 UPDATE cities SET average_property_size_sqft = 1100 WHERE name = 'Singapore' AND country = 'Singapore';
 UPDATE cities SET average_property_size_sqft = 1200 WHERE name = 'Berlin' AND country = 'Germany';
 UPDATE cities SET average_property_size_sqft = 1500 WHERE name = 'Dubai' AND country = 'UAE';
+

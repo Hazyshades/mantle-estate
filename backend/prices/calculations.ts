@@ -156,3 +156,4 @@ export async function getMarketMetrics(
     volume24h: volume24h?.volume || 0,
   };
 }
+

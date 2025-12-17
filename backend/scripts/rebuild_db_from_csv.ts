@@ -196,3 +196,4 @@ rebuildDatabase()
     console.error("💥 Error executing script:", error);
     process.exit(1);
   });
+
