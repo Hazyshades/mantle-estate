@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Search, Filter, List, Settings, X } from "lucide-react";
+import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 
 interface MarketListProps {
   cities: City[];
@@ -240,7 +241,10 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
   return (
     <div className="space-y-6">
       {/* Header */}
-      <h1 className="text-3xl font-bold text-slate-900">Available Real Estate Deals</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">Available Real Estate Deals</h1>
+        <PriceUpdateTimer variant="compact" />
+      </div>
 
       {/* Control Panel */}
       <div className="flex items-center gap-4 flex-wrap">

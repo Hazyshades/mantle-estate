@@ -19,6 +19,7 @@ import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
 import { AreaChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown } from "lucide-react";
+import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 
 type TimeRange = "1d" | "1w" | "1m" | "all";
 
@@ -328,6 +329,7 @@ export default function CityDetailPage() {
                 </div>
               </div>
             </div>
+            <PriceUpdateTimer />
           </div>
 
           {/* Tabs */}
