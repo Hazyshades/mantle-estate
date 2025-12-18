@@ -20,6 +20,7 @@ import backend from "~backend/client";
 import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown, Maximize2, Minimize2, X } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import PriceChartShadcn from "@/components/PriceChartShadcn";
+import CityInfoModal from "@/components/CityInfoModal";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
@@ -50,6 +51,7 @@ export default function CityDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isChartFullscreen, setIsChartFullscreen] = useState(false);
   const [showTradeConfirm, setShowTradeConfirm] = useState(false);
+  const [showCityInfo, setShowCityInfo] = useState(false);
   const { toast } = useToast();
   const backendClient = useBackend();
 
@@ -506,9 +508,19 @@ export default function CityDetailPage() {
 
           {/* Tabs */}
           <Tabs defaultValue="pricing" className="w-full">
-            <TabsList className="bg-muted">
-              <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            </TabsList>
+            <div className="flex items-center gap-2 mb-4">
+              <TabsList className="bg-muted">
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              </TabsList>
+              <Button
+                variant="outline"
+                onClick={() => setShowCityInfo(true)}
+                className="flex items-center gap-2"
+              >
+                <Info className="h-4 w-4" />
+                Info
+              </Button>
+            </div>
 
             <TabsContent value="pricing" className="space-y-6 mt-6">
               {/* Market metrics */}
@@ -949,6 +961,12 @@ export default function CityDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <CityInfoModal
+        isOpen={showCityInfo}
+        onClose={() => setShowCityInfo(false)}
+        city={city}
+      />
     </div>
   );
 }
