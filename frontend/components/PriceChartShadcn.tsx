@@ -1,0 +1,233 @@
+"use client"
+
+import * as React from "react"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart"
+import type { PricePoint } from "~backend/city/price_history"
+
+interface PriceChartShadcnProps {
+  data: PricePoint[]
+  showIndexPrice?: boolean
+  showMarketPrice?: boolean
+  timeRange?: "1d" | "1w" | "1m" | "all"
+}
+
+const chartConfig = {
+  indexPrice: {
+    label: "Index Price",
+    color: "hsl(217, 91%, 60%)", // Bright blue for light theme
+  },
+  marketPrice: {
+    label: "Market Price",
+    color: "hsl(210, 50%, 55%)", // Medium blue for light theme
+  },
+} satisfies ChartConfig
+
+export default function PriceChartShadcn({ 
+  data, 
+  showIndexPrice = true, 
+  showMarketPrice = false,
+  timeRange = "all"
+}: PriceChartShadcnProps) {
+  // Unique IDs for gradients
+  const gradientIdIndex = React.useId().replace(/:/g, "")
+  const gradientIdMarket = React.useId().replace(/:/g, "")
+  
+  // Transform PricePoint data into chart format
+  const chartData = React.useMemo(() => {
+    return data.map((point) => ({
+      date: new Date(point.timestamp).toISOString(),
+      timestamp: point.timestamp,
+      indexPrice: point.indexPrice ?? point.price,
+      marketPrice: point.marketPrice ?? point.price,
+    }))
+  }, [data])
+
+  // Format date based on time range
+  const getDateFormatter = () => {
+    if (chartData.length === 0) return () => ""
+    
+    if (timeRange === "1d") {
+      return (value: string) => {
+        const date = new Date(value)
+        return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })
+      }
+    }
+    
+    if (timeRange === "1w") {
+      return (value: string) => {
+        const date = new Date(value)
+        return date.toLocaleDateString("en-US", { weekday: "short", day: "numeric" })
+      }
+    }
+    
+    if (timeRange === "1m") {
+      return (value: string) => {
+        const date = new Date(value)
+        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      }
+    }
+    
+    // For "all" - show date with year
+    return (value: string) => {
+      const date = new Date(value)
+      return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    }
+  }
+
+  const dateFormatter = getDateFormatter()
+
+  // Calculate dynamic Y-axis domain based on visible data
+  const yAxisDomain = React.useMemo(() => {
+    if (chartData.length === 0) return [0, 100]
+    
+    const values: number[] = []
+    
+    if (showIndexPrice) {
+      chartData.forEach((point) => {
+        if (point.indexPrice != null) {
+          values.push(point.indexPrice)
+        }
+      })
+    }
+    
+    if (showMarketPrice) {
+      chartData.forEach((point) => {
+        if (point.marketPrice != null) {
+          values.push(point.marketPrice)
+        }
+      })
+    }
+    
+    if (values.length === 0) return [0, 100]
+    
+    const min = Math.min(...values)
+    const max = Math.max(...values)
+    const range = max - min
+    
+    // Add 5% padding on top and bottom
+    const padding = range * 0.05 || (max * 0.05)
+    const domainMin = Math.max(0, min - padding)
+    const domainMax = max + padding
+    
+    return [domainMin, domainMax]
+  }, [chartData, showIndexPrice, showMarketPrice])
+
+  if (chartData.length === 0) {
+    return null
+  }
+
+  return (
+    <ChartContainer
+      config={chartConfig}
+      className="aspect-auto h-[384px] w-full"
+    >
+      <AreaChart data={chartData} accessibilityLayer>
+        <defs>
+          {showIndexPrice && (
+            <linearGradient id={`fillIndex-${gradientIdIndex}`} x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor="var(--color-indexPrice)"
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor="var(--color-indexPrice)"
+                stopOpacity={0.1}
+              />
+            </linearGradient>
+          )}
+          {showMarketPrice && (
+            <linearGradient id={`fillMarket-${gradientIdMarket}`} x1="0" y1="0" x2="0" y2="1">
+              <stop
+                offset="5%"
+                stopColor="var(--color-marketPrice)"
+                stopOpacity={0.8}
+              />
+              <stop
+                offset="95%"
+                stopColor="var(--color-marketPrice)"
+                stopOpacity={0.1}
+              />
+            </linearGradient>
+          )}
+        </defs>
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="date"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          minTickGap={timeRange === "1m" ? 0 : 32}
+          angle={timeRange === "1m" ? -45 : 0}
+          textAnchor={timeRange === "1m" ? "end" : "middle"}
+          height={timeRange === "1m" ? 80 : 30}
+          tickFormatter={dateFormatter}
+        />
+        <YAxis
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          domain={yAxisDomain}
+          tickFormatter={(value) => {
+            if (value >= 1000000) {
+              return `$${(value / 1000000).toFixed(1)}M`
+            }
+            if (value >= 1000) {
+              return `$${(value / 1000).toFixed(0)}K`
+            }
+            return `$${value.toFixed(0)}`
+          }}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={
+            <ChartTooltipContent
+              labelFormatter={(value) => {
+                const date = new Date(value)
+                if (timeRange === "1d") {
+                  return date.toLocaleString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  })
+                }
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: timeRange === "all" ? "numeric" : undefined,
+                })
+              }}
+              indicator="dot"
+              formatter={(value: number) => `$${value.toFixed(2)}`}
+            />
+          }
+        />
+        {showIndexPrice && (
+          <Area
+            dataKey="indexPrice"
+            type="natural"
+            fill={`url(#fillIndex-${gradientIdIndex})`}
+            stroke="var(--color-indexPrice)"
+          />
+        )}
+        {showMarketPrice && (
+          <Area
+            dataKey="marketPrice"
+            type="natural"
+            fill={`url(#fillMarket-${gradientIdMarket})`}
+            stroke="var(--color-marketPrice)"
+          />
+        )}
+      </AreaChart>
+    </ChartContainer>
+  )
+}

@@ -14,9 +14,9 @@ import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
-import { LineChart, Line, Area, AreaChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 import { Building2, TrendingUp, TrendingDown, Wallet, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import PriceChartShadcn from "./PriceChartShadcn";
 
 interface CityDetailModalProps {
   isOpen: boolean;
@@ -395,7 +395,6 @@ export default function CityDetailModal({
           <Tabs defaultValue="pricing" className="w-full">
             <TabsList className="bg-slate-800 border-slate-700">
               <TabsTrigger value="pricing" className="data-[state=active]:bg-slate-700">Pricing</TabsTrigger>
-              <TabsTrigger value="funding" className="data-[state=active]:bg-slate-700">Funding</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pricing" className="space-y-6 mt-6">
@@ -532,66 +531,19 @@ export default function CityDetailModal({
               </div>
 
               {/* Chart */}
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 h-96">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="colorIndex" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="timestamp"
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return getDateLabel(date);
-                      }}
-                      stroke="#64748b"
-                    />
-                    <YAxis stroke="#64748b" />
-                    <RechartsTooltip
-                      contentStyle={{
-                        backgroundColor: "#1e293b",
-                        border: "1px solid #334155",
-                        borderRadius: "6px",
-                      }}
-                      labelStyle={{ color: "#e2e8f0" }}
-                      labelFormatter={(value) => {
-                        const date = new Date(value);
-                        return getDateLabel(date);
-                      }}
-                      formatter={(value: number) => `$${value.toFixed(2)}`}
-                    />
-                    {showIndexPrice && (
-                      <Area
-                        type="monotone"
-                        dataKey="indexPrice"
-                        stroke="#22c55e"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorIndex)"
-                        name="Index Price"
-                      />
-                    )}
-                    {showMarketPrice && (
-                      <Line
-                        type="monotone"
-                        dataKey="marketPrice"
-                        stroke="#ef4444"
-                        strokeWidth={2}
-                        dot={false}
-                        name="Market Price"
-                      />
-                    )}
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="funding" className="mt-6">
               <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                <p className="text-slate-400">Funding information will be here</p>
+                {filteredPriceHistory.length > 0 ? (
+                  <PriceChartShadcn
+                    data={filteredPriceHistory}
+                    showIndexPrice={showIndexPrice}
+                    showMarketPrice={showMarketPrice}
+                    timeRange={timeRange}
+                  />
+                ) : (
+                  <div className="h-96 flex items-center justify-center text-slate-400">
+                    Loading data...
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>

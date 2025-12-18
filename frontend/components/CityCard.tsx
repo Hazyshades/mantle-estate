@@ -5,7 +5,7 @@ import { useToast } from "@/components/ui/use-toast";
 import backend from "~backend/client";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
-import PriceChart from "./PriceChart";
+import PriceChartArea from "./PriceChartArea";
 import TradeDialog from "./TradeDialog";
 import { TrendingDown, TrendingUp } from "lucide-react";
 
@@ -67,7 +67,7 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
             <p className="text-xs text-muted-foreground">per sqm</p>
           </div>
 
-          {priceHistory.length > 0 && <PriceChart data={priceHistory} />}
+          {priceHistory.length > 0 && <PriceChartArea data={priceHistory} />}
 
           <div className="grid grid-cols-2 gap-2">
             <Button onClick={() => handleTrade("long")} className="w-full" variant="default">

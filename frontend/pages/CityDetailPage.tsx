@@ -17,9 +17,9 @@ import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
-import { AreaChart, Area, Line, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip } from "recharts";
 import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
+import PriceChartShadcn from "@/components/PriceChartShadcn";
 
 type TimeRange = "1d" | "1w" | "1m" | "all";
 
@@ -404,28 +404,28 @@ export default function CityDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
         <div className="container mx-auto px-4 py-8">
-          <Skeleton className="h-9 w-24 mb-6 bg-slate-800" />
+          <Skeleton className="h-9 w-24 mb-6" />
           <div className="space-y-6">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
-                <Skeleton className="h-12 w-32 bg-slate-800" />
+                <Skeleton className="h-12 w-32" />
                 <div className="space-y-2">
-                  <Skeleton className="h-8 w-48 bg-slate-800" />
-                  <Skeleton className="h-6 w-64 bg-slate-800" />
+                  <Skeleton className="h-8 w-48" />
+                  <Skeleton className="h-6 w-64" />
                 </div>
               </div>
             </div>
             <div className="space-y-4">
-              <Skeleton className="h-10 w-full bg-slate-800" />
+              <Skeleton className="h-10 w-full" />
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 {[...Array(6)].map((_, i) => (
-                  <Skeleton key={i} className="h-24 bg-slate-800" />
+                  <Skeleton key={i} className="h-24" />
                 ))}
               </div>
-              <Skeleton className="h-96 w-full bg-slate-800" />
-              <Skeleton className="h-64 w-full bg-slate-800" />
+              <Skeleton className="h-96 w-full" />
+              <Skeleton className="h-64 w-full" />
             </div>
           </div>
         </div>
@@ -443,13 +443,13 @@ export default function CityDetailPage() {
   const calculatedAmount = sizeNum > 0 ? sizeNum * indexPrice : amountNum;
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <div className="container mx-auto px-4 py-8">
         {/* Back button */}
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
-          className="mb-6 text-slate-400 hover:text-white"
+          className="mb-6 text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
@@ -459,9 +459,6 @@ export default function CityDetailPage() {
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-400">Real Estate / {displayCityCode}</span>
-              </div>
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary/20 p-3">
                   <Building2 className="h-6 w-6 text-primary" />
@@ -482,20 +479,19 @@ export default function CityDetailPage() {
 
           {/* Tabs */}
           <Tabs defaultValue="pricing" className="w-full">
-            <TabsList className="bg-slate-800 border-slate-700">
-              <TabsTrigger value="pricing" className="data-[state=active]:bg-slate-700">Pricing</TabsTrigger>
-              <TabsTrigger value="funding" className="data-[state=active]:bg-slate-700">Funding</TabsTrigger>
+            <TabsList className="bg-muted">
+              <TabsTrigger value="pricing">Pricing</TabsTrigger>
             </TabsList>
 
             <TabsContent value="pricing" className="space-y-6 mt-6">
               {/* Market metrics */}
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Market Price</p>
+                    <p className="text-xs text-muted-foreground">Market Price</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Real estate price from Zillow data (fair value)</p>
@@ -503,16 +499,16 @@ export default function CityDetailPage() {
                     </Tooltip>
                   </div>
                   <p className="text-lg font-bold">${marketPrice.toFixed(2)}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     Diff: {((indexPrice - marketPrice) / marketPrice * 100).toFixed(2)}%
                   </p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">24h Volume</p>
+                    <p className="text-xs text-muted-foreground">24h Volume</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Total trading volume in the last 24 hours</p>
@@ -521,12 +517,12 @@ export default function CityDetailPage() {
                   </div>
                   <p className="text-lg font-bold">{formatVolume(volume24h)}</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Open Interest</p>
+                    <p className="text-xs text-muted-foreground">Open Interest</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Total value of all open positions (Long/Short ratio)</p>
@@ -534,14 +530,14 @@ export default function CityDetailPage() {
                     </Tooltip>
                   </div>
                   <p className="text-lg font-bold">{formatVolume(openInterest)}</p>
-                  <p className="text-xs text-slate-400">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
+                  <p className="text-xs text-muted-foreground">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Funding Rate</p>
+                    <p className="text-xs text-muted-foreground">Funding Rate</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Rate paid by majority side to minority side. Positive = longs pay shorts, Negative = shorts pay longs</p>
@@ -551,16 +547,16 @@ export default function CityDetailPage() {
                   <p className={`text-lg font-bold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
                     {(city.fundingRate * 100).toFixed(4)}%
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     {city.fundingRate >= 0 ? "Longs pay" : "Shorts pay"}
                   </p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">OI Avail. Long</p>
+                    <p className="text-xs text-muted-foreground">OI Avail. Long</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Available liquidity for opening long positions</p>
@@ -568,18 +564,18 @@ export default function CityDetailPage() {
                     </Tooltip>
                   </div>
                   <p className="text-lg font-bold">{formatVolume(longOIAvailable)}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     {longOIAvailable > 0 
                       ? formatVolume(longOIAvailable * 0.1)
                       : "N/A"}
                   </p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
+                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">OI Avail. Short</p>
+                    <p className="text-xs text-muted-foreground">OI Avail. Short</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Available liquidity for opening short positions</p>
@@ -587,7 +583,7 @@ export default function CityDetailPage() {
                     </Tooltip>
                   </div>
                   <p className="text-lg font-bold">{formatVolume(shortOIAvailable)}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-muted-foreground">
                     {shortOIAvailable > 0 
                       ? formatVolume(shortOIAvailable * 1.3)
                       : "N/A"}
@@ -627,7 +623,7 @@ export default function CityDetailPage() {
                     FPU {(indexPrice - marketPrice).toFixed(2)}
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-slate-400 cursor-help" />
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
                         <p>Fair Price Uncertainty - difference between Index and Market price</p>
@@ -652,7 +648,7 @@ export default function CityDetailPage() {
                       variant={timeRange === range ? "default" : "outline"}
                       size="sm"
                       onClick={() => setTimeRange(range)}
-                      className={timeRange === range ? "bg-primary" : "bg-slate-800 border-slate-700"}
+                      className={timeRange === range ? "" : ""}
                     >
                       {range === "all" ? "All" : range}
                     </Button>
@@ -661,94 +657,37 @@ export default function CityDetailPage() {
               </div>
 
               {/* Chart */}
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700 h-96">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData}>
-                    <defs>
-                      <linearGradient id="colorIndex" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#22c55e" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <XAxis
-                      dataKey="timestamp"
-                      tickFormatter={(value) => {
-                        const date = new Date(value);
-                        return getDateLabel(date);
-                      }}
-                      stroke="#64748b"
-                      interval={timeRange === "1m" ? 0 : timeRange === "1w" ? 0 : "preserveStartEnd"}
-                      angle={timeRange === "1m" ? -45 : 0}
-                      textAnchor={timeRange === "1m" ? "end" : "middle"}
-                      height={timeRange === "1m" ? 80 : 30}
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis stroke="#64748b" />
-                    <RechartsTooltip
-                      contentStyle={{
-                        backgroundColor: "#1e293b",
-                        border: "1px solid #334155",
-                        borderRadius: "6px",
-                      }}
-                      labelStyle={{ color: "#e2e8f0" }}
-                      labelFormatter={(value) => {
-                        // value can be timestamp (number) or string
-                        if (typeof value === 'number') {
-                          return getDateLabel(value);
-                        }
-                        // If it's a string, try to parse it
-                        const date = new Date(value);
-                        return isNaN(date.getTime()) ? value : getDateLabel(date);
-                      }}
-                      formatter={(value: number) => `$${value.toFixed(2)}`}
-                    />
-                    {showIndexPrice && (
-                      <Area
-                        type="monotone"
-                        dataKey="indexPrice"
-                        stroke="#22c55e"
-                        strokeWidth={2}
-                        fillOpacity={1}
-                        fill="url(#colorIndex)"
-                        name="Index Price"
-                      />
-                    )}
-                    {showMarketPrice && (
-                      <Line
-                        type="monotone"
-                        dataKey="marketPrice"
-                        stroke="#ef4444"
-                        strokeWidth={2}
-                        dot={false}
-                        name="Market Price"
-                      />
-                    )}
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="funding" className="mt-6">
-              <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                <p className="text-slate-400">Funding information will be here</p>
+              <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                {filteredPriceHistory.length > 0 ? (
+                  <PriceChartShadcn
+                    data={filteredPriceHistory}
+                    showIndexPrice={showIndexPrice}
+                    showMarketPrice={showMarketPrice}
+                    timeRange={timeRange}
+                  />
+                ) : (
+                  <div className="h-96 flex items-center justify-center text-muted-foreground">
+                    Loading data...
+                  </div>
+                )}
               </div>
             </TabsContent>
           </Tabs>
 
           {/* Transaction panel */}
-          <div className="bg-slate-800 rounded-lg p-6 border border-slate-700">
+          <div className="bg-white rounded-lg p-6 border border-border shadow-sm">
             <ToggleGroup
               type="single"
               value={tradeType}
               onValueChange={(value) => {
                 if (value) setTradeType(value as "long" | "short");
               }}
-              className="mb-4 bg-slate-700 p-1 rounded-lg"
+              className="mb-4 bg-muted p-1 rounded-lg"
             >
               <ToggleGroupItem
                 value="long"
                 aria-label="Long"
-                className={tradeType === "long" ? "bg-green-600 hover:bg-green-700 text-white data-[state=on]:bg-green-600" : "bg-transparent text-slate-300 hover:text-white"}
+                className={tradeType === "long" ? "bg-green-600 hover:bg-green-700 text-white data-[state=on]:bg-green-600" : "bg-transparent text-muted-foreground hover:text-foreground"}
               >
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Long
@@ -756,20 +695,20 @@ export default function CityDetailPage() {
               <ToggleGroupItem
                 value="short"
                 aria-label="Short"
-                className={tradeType === "short" ? "bg-red-600 hover:bg-red-700 text-white data-[state=on]:bg-red-600" : "bg-transparent text-slate-300 hover:text-white"}
+                className={tradeType === "short" ? "bg-red-600 hover:bg-red-700 text-white data-[state=on]:bg-red-600" : "bg-transparent text-muted-foreground hover:text-foreground"}
               >
                 <TrendingDown className="h-4 w-4 mr-2" />
                 Short
               </ToggleGroupItem>
             </ToggleGroup>
 
-            <Separator className="bg-slate-700 mb-4" />
+            <Separator className="mb-4" />
 
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-slate-400">Amount (USD)</label>
-                  <span className="text-xs text-slate-500">Max: ${balance.toFixed(2)}</span>
+                  <label className="text-sm text-muted-foreground">Amount (USD)</label>
+                  <span className="text-xs text-muted-foreground">Max: ${balance.toFixed(2)}</span>
                 </div>
                 <Input
                   type="number"
@@ -783,7 +722,7 @@ export default function CityDetailPage() {
                       setSize("");
                     }
                   }}
-                  className="bg-slate-700 border-slate-600 text-white mb-2"
+                  className="mb-2"
                 />
                 {balance > 0 && (
                   <Slider
@@ -802,8 +741,8 @@ export default function CityDetailPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-slate-400">Size (sqm)</label>
-                  <span className="text-xs text-slate-500">{calculatedSize.toFixed(2)} sqm</span>
+                  <label className="text-sm text-muted-foreground">Size (sqm)</label>
+                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} sqm</span>
                 </div>
                 <Input
                   type="number"
@@ -817,7 +756,7 @@ export default function CityDetailPage() {
                       setAmount("");
                     }
                   }}
-                  className="bg-slate-700 border-slate-600 text-white mb-2"
+                  className="mb-2"
                 />
                 {balance > 0 && (
                   <Slider
@@ -834,15 +773,15 @@ export default function CityDetailPage() {
                 )}
               </div>
 
-              <Separator className="bg-slate-700" />
+              <Separator />
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Est. Fill Price</span>
-                  <span className="text-white">--</span>
+                  <span className="text-muted-foreground">Est. Fill Price</span>
+                  <span className="text-foreground">--</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">Est. Fill Price</span>
-                  <span className="text-white">--</span>
+                  <span className="text-muted-foreground">Est. Fill Price</span>
+                  <span className="text-foreground">--</span>
                 </div>
               </div>
 
@@ -864,7 +803,7 @@ export default function CityDetailPage() {
                 )}
               </Button>
 
-              <p className="text-xs text-center text-slate-400">Slippage 2.00%</p>
+              <p className="text-xs text-center text-muted-foreground">Slippage 2.00%</p>
             </div>
           </div>
         </div>
