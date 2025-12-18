@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, Legend, XAxis, YAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -113,10 +113,11 @@ export default function PriceChartShadcn({
     const max = Math.max(...values)
     const range = max - min
     
-    // Add 10% padding on top and bottom to prevent clipping
-    const padding = range * 0.1 || (max * 0.1)
-    const domainMin = Math.max(0, min - padding)
-    const domainMax = max + padding
+    // Add more padding on top (15%) and bottom (10%) to prevent clipping
+    const topPadding = range * 0.15 || (max * 0.15)
+    const bottomPadding = range * 0.1 || (min * 0.1)
+    const domainMin = Math.max(0, min - bottomPadding)
+    const domainMax = max + topPadding
     
     return [domainMin, domainMax]
   }, [chartData, showIndexPrice, showMarketPrice])
@@ -134,7 +135,7 @@ export default function PriceChartShadcn({
       <AreaChart 
         data={chartData} 
         accessibilityLayer
-        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+        margin={{ top: 40, right: 20, bottom: 20, left: 20 }}
       >
         <defs>
           {showIndexPrice && (
@@ -195,28 +196,92 @@ export default function PriceChartShadcn({
         />
         <ChartTooltip
           cursor={false}
-          content={
-            <ChartTooltipContent
-              labelFormatter={(value) => {
-                const date = new Date(value)
-                if (timeRange === "1d") {
-                  return date.toLocaleString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  })
-                }
-                return date.toLocaleDateString("en-US", {
+          content={({ active, payload, label }) => {
+            if (!active || !payload || payload.length === 0) return null
+
+            const date = new Date(label)
+            const formattedDate = timeRange === "1d"
+              ? date.toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit"
+                })
+              : date.toLocaleDateString("en-US", {
                   month: "short",
                   day: "numeric",
                   year: timeRange === "all" ? "numeric" : undefined,
                 })
-              }}
-              indicator="dot"
-              formatter={(value) => `$${typeof value === 'number' ? value.toFixed(2) : value}`}
-            />
-          }
+
+            return (
+              <div className="rounded-lg border bg-card p-2 shadow-sm">
+                <div className="grid gap-2">
+                  <div className="font-medium text-sm">{formattedDate}</div>
+                  <div className="grid gap-1.5">
+                    {payload.map((item, index) => {
+                      if (!item.value) return null
+                      
+                      // Only show items for visible series
+                      if (item.dataKey === "indexPrice" && !showIndexPrice) return null
+                      if (item.dataKey === "marketPrice" && !showMarketPrice) return null
+                      
+                      const label = item.dataKey === "indexPrice" ? "Index Price" : "Market Price"
+                      const color = item.color || (item.dataKey === "indexPrice" ? chartConfig.indexPrice.color : chartConfig.marketPrice.color)
+                      
+                      return (
+                        <div key={index} className="flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="h-2.5 w-2.5 rounded-[2px] shrink-0"
+                              style={{ backgroundColor: color }}
+                            />
+                            <span className="text-sm text-muted-foreground">{label}</span>
+                          </div>
+                          <span 
+                            className="text-sm font-mono font-medium tabular-nums text-foreground"
+                            style={{ color: color }}
+                          >
+                            ${typeof item.value === 'number' ? item.value.toFixed(2) : item.value}
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+            )
+          }}
+        />
+        <Legend
+          content={({ payload }) => {
+            if (!payload || payload.length === 0) return null
+            
+            return (
+              <div className="flex items-center justify-center gap-6 mt-4">
+                {payload.map((entry, index) => {
+                  if (!entry.value) return null
+                  
+                  // Only show legend items for visible series
+                  if (entry.value === "indexPrice" && !showIndexPrice) return null
+                  if (entry.value === "marketPrice" && !showMarketPrice) return null
+                  
+                  return (
+                    <div key={`legend-${index}`} className="flex items-center gap-2">
+                      <div
+                        className="w-3 h-3 rounded-sm"
+                        style={{
+                          backgroundColor: entry.color,
+                        }}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {entry.value === "indexPrice" ? "Index Price" : "Market Price"}
+                      </span>
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          }}
         />
         {showIndexPrice && (
           <Area

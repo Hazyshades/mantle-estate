@@ -17,9 +17,17 @@ import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import type { CityMetrics } from "~backend/city/get_metrics";
 import backend from "~backend/client";
-import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown } from "lucide-react";
+import { Building2, Wallet, ArrowLeft, Info, TrendingUp, TrendingDown, Maximize2, Minimize2, X } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import PriceChartShadcn from "@/components/PriceChartShadcn";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type TimeRange = "1d" | "1w" | "1m" | "all";
 
@@ -40,6 +48,8 @@ export default function CityDetailPage() {
   const [size, setSize] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isChartFullscreen, setIsChartFullscreen] = useState(false);
+  const [showTradeConfirm, setShowTradeConfirm] = useState(false);
   const { toast } = useToast();
   const backendClient = useBackend();
 
@@ -342,25 +352,26 @@ export default function CityDetailPage() {
     }
   };
 
-  const handleTrade = async () => {
+  const handleTradeClick = () => {
+    if (!canTrade) return;
+    setShowTradeConfirm(true);
+  };
+
+  const handleTradeConfirm = async () => {
     if (!city) return;
     
-    if (!amount && !size) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Enter amount or position size",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
+    setShowTradeConfirm(false);
 
     try {
       const amountNum = amount ? parseFloat(amount) : parseFloat(size) * pricePerSqft;
       
       if (amountNum <= 0) {
         throw new Error("Amount must be positive");
+      }
+
+      if (amountNum > balance) {
+        throw new Error("Insufficient balance");
       }
 
       const response = await backendClient.trading.openPosition({
@@ -409,7 +420,7 @@ export default function CityDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="container mx-auto px-4 py-8">
           <Skeleton className="h-9 w-24 mb-6" />
           <div className="space-y-6">
@@ -446,9 +457,20 @@ export default function CityDetailPage() {
   const sizeNum = parseFloat(size) || 0;
   const calculatedSize = amountNum > 0 ? amountNum / pricePerSqft : sizeNum;
   const calculatedAmount = sizeNum > 0 ? sizeNum * pricePerSqft : amountNum;
+  
+  // Calculate estimated fill price (using current index price with slippage)
+  const slippage = 0.02; // 2% slippage
+  const estFillPrice = indexPrice * (1 + (tradeType === "long" ? slippage : -slippage));
+  const estFillPriceFormatted = estFillPrice.toFixed(2);
+  
+  // Validation
+  const isValidAmount = amountNum > 0 && amountNum <= balance;
+  const isValidSize = sizeNum > 0 && calculatedAmount <= balance;
+  const hasError = (amount && !isValidAmount) || (size && !isValidSize);
+  const canTrade = (amountNum > 0 || sizeNum > 0) && isValidAmount && isValidSize;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <div className="container mx-auto px-4 py-8">
         {/* Back button */}
         <Button
@@ -469,9 +491,9 @@ export default function CityDetailPage() {
                   <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{city.name.split(",")[0]}</h2>
+                  <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">{city.name.split(",")[0]}</h2>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-lg font-semibold">${indexPrice.toFixed(2)}</span>
+                    <span className="text-lg font-semibold text-foreground">${indexPrice.toFixed(2)}</span>
                     <span className={`text-sm leading-none font-medium ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {priceChange >= 0 ? "+" : ""}${Math.abs(priceChange).toFixed(2)} ({priceChangePercent >= 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%) past week
                     </span>
@@ -490,8 +512,8 @@ export default function CityDetailPage() {
 
             <TabsContent value="pricing" className="space-y-6 mt-6">
               {/* Market metrics */}
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" role="region" aria-label="Market metrics">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">Market Price</p>
                     <Tooltip>
@@ -503,12 +525,12 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold">${marketPrice.toFixed(2)}</p>
+                  <p className="text-lg font-semibold text-foreground">${marketPrice.toFixed(2)}</p>
                   <p className="text-sm leading-none font-medium text-muted-foreground">
                     Diff: {((indexPrice - marketPrice) / marketPrice * 100).toFixed(2)}%
                   </p>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">24h Volume</p>
                     <Tooltip>
@@ -520,9 +542,9 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold">{formatVolume(volume24h)}</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(volume24h)}</p>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">Open Interest</p>
                     <Tooltip>
@@ -534,10 +556,14 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold">{formatVolume(openInterest)}</p>
-                  <p className="text-sm leading-none font-medium text-muted-foreground">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(openInterest)}</p>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">
+                    {openInterest > 0 
+                      ? `${((longOI / openInterest) * 100).toFixed(2)}% ${((shortOI / openInterest) * 100).toFixed(2)}%`
+                      : "N/A"}
+                  </p>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">Funding Rate</p>
                     <Tooltip>
@@ -556,7 +582,7 @@ export default function CityDetailPage() {
                     {city.fundingRate >= 0 ? "Longs pay" : "Shorts pay"}
                   </p>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Long</p>
                     <Tooltip>
@@ -568,14 +594,14 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold">{formatVolume(longOIAvailable)}</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(longOIAvailable)}</p>
                   <p className="text-sm leading-none font-medium text-muted-foreground">
                     {longOIAvailable > 0 
                       ? formatVolume(longOIAvailable * 0.1)
                       : "N/A"}
                   </p>
                 </div>
-                <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
+                <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
                     <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Short</p>
                     <Tooltip>
@@ -587,7 +613,7 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold">{formatVolume(shortOIAvailable)}</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(shortOIAvailable)}</p>
                   <p className="text-sm leading-none font-medium text-muted-foreground">
                     {shortOIAvailable > 0 
                       ? formatVolume(shortOIAvailable * 1.3)
@@ -597,14 +623,14 @@ export default function CityDetailPage() {
               </div>
 
               {/* Checkboxes and time interval */}
-              <div className="flex flex-wrap items-center gap-4">
+              <div className="flex flex-wrap items-center gap-4" role="group" aria-label="Chart display settings">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id="index-price"
                     checked={showIndexPrice}
                     onCheckedChange={(checked) => setShowIndexPrice(checked === true)}
                   />
-                  <label htmlFor="index-price" className="text-sm leading-none font-medium cursor-pointer">
+                  <label htmlFor="index-price" className="text-sm leading-none font-medium cursor-pointer text-foreground">
                     Index Price ${indexPrice.toFixed(2)}
                   </label>
                 </div>
@@ -614,12 +640,12 @@ export default function CityDetailPage() {
                     checked={showMarketPrice}
                     onCheckedChange={(checked) => setShowMarketPrice(checked === true)}
                   />
-                  <label htmlFor="market-price" className="text-sm leading-none font-medium cursor-pointer">
+                  <label htmlFor="market-price" className="text-sm leading-none font-medium cursor-pointer text-foreground">
                     Market Price ${marketPrice.toFixed(2)}
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm leading-none font-medium flex items-center gap-1">
+                  <span className="text-sm leading-none font-medium flex items-center gap-1 text-foreground">
                     FPU {(indexPrice - marketPrice).toFixed(2)}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -632,7 +658,7 @@ export default function CityDetailPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">
+                  <span className="text-sm text-foreground">
                     Volume {formatVolume(volume24h)}
                   </span>
                 </div>
@@ -652,8 +678,17 @@ export default function CityDetailPage() {
               </div>
 
               {/* Chart and Transaction panel */}
-              <div className="flex gap-4">
-                <div className="w-1/2 bg-white rounded-lg p-4 border border-border shadow-sm">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="w-full lg:w-1/2 bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm relative group">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => setIsChartFullscreen(true)}
+                    aria-label="Open chart in fullscreen mode"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </Button>
                   {filteredPriceHistory.length > 0 ? (
                     <PriceChartShadcn
                       data={filteredPriceHistory}
@@ -668,30 +703,80 @@ export default function CityDetailPage() {
                   )}
                 </div>
 
+                {/* Fullscreen Chart Dialog */}
+                <Dialog open={isChartFullscreen} onOpenChange={setIsChartFullscreen}>
+                  <DialogContent 
+                    className="!max-w-none !max-h-none !w-screen !h-screen !p-6 !m-0 !rounded-none !top-0 !left-0 !translate-x-0 !translate-y-0 flex flex-col" 
+                    showCloseButton={false}
+                    style={{ width: '100vw', height: '100vh', maxWidth: '100vw', maxHeight: '100vh' }}
+                  >
+                    <DialogHeader className="flex-shrink-0">
+                      <DialogTitle className="flex items-center justify-between">
+                        <span>Price Chart - {city.name.split(",")[0]}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setIsChartFullscreen(false)}
+                          aria-label="Close fullscreen mode"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="flex-1 mt-4 min-h-0">
+                      {filteredPriceHistory.length > 0 ? (
+                        <PriceChartShadcn
+                          data={filteredPriceHistory}
+                          showIndexPrice={showIndexPrice}
+                          showMarketPrice={showMarketPrice}
+                          timeRange={timeRange}
+                          height={window.innerHeight - 150}
+                        />
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-muted-foreground">
+                          Loading data...
+                        </div>
+                      )}
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
                 {/* Transaction panel */}
-                <div className="w-1/2 bg-white rounded-lg p-6 border border-border shadow-sm">
+                <div className="w-full lg:w-1/2 bg-white dark:bg-card rounded-lg p-6 border border-border shadow-sm">
             <ToggleGroup
               type="single"
               value={tradeType}
               onValueChange={(value) => {
                 if (value) setTradeType(value as "long" | "short");
               }}
-              className="mb-4 bg-muted p-1 rounded-lg"
+              className="mb-4 bg-muted p-1 rounded-lg grid grid-cols-2 gap-2"
+              role="radiogroup"
+              aria-label="Select position type"
             >
               <ToggleGroupItem
                 value="long"
-                aria-label="Long"
-                className={tradeType === "long" ? "bg-green-600 hover:bg-green-700 text-white data-[state=on]:bg-green-600" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                aria-label="Long position"
+                className={cn(
+                  "h-12 text-base font-semibold",
+                  tradeType === "long" 
+                    ? "bg-green-600 hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600 text-white data-[state=on]:bg-green-600" 
+                    : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
               >
-                <TrendingUp className="h-4 w-4 mr-2" />
+                <TrendingUp className="h-5 w-5 mr-2" />
                 Long
               </ToggleGroupItem>
               <ToggleGroupItem
                 value="short"
-                aria-label="Short"
-                className={tradeType === "short" ? "bg-red-600 hover:bg-red-700 text-white data-[state=on]:bg-red-600" : "bg-transparent text-muted-foreground hover:text-foreground"}
+                aria-label="Short position"
+                className={cn(
+                  "h-12 text-base font-semibold",
+                  tradeType === "short" 
+                    ? "bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white data-[state=on]:bg-red-600" 
+                    : "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
               >
-                <TrendingDown className="h-4 w-4 mr-2" />
+                <TrendingDown className="h-5 w-5 mr-2" />
                 Short
               </ToggleGroupItem>
             </ToggleGroup>
@@ -701,10 +786,11 @@ export default function CityDetailPage() {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm leading-none font-medium text-muted-foreground">Amount (USD)</label>
-                  <span className="text-sm leading-none font-medium text-muted-foreground">Max: ${balance.toFixed(2)}</span>
+                  <label className="text-sm leading-none font-medium text-muted-foreground" htmlFor="amount-input">Amount (USD)</label>
+                  <span className="text-sm leading-none font-medium text-muted-foreground" aria-label={`Maximum balance: $${balance.toFixed(2)}`}>Max: ${balance.toFixed(2)}</span>
                 </div>
                 <Input
+                  id="amount-input"
                   type="number"
                   placeholder="0"
                   value={amount}
@@ -716,8 +802,14 @@ export default function CityDetailPage() {
                       setSize("");
                     }
                   }}
-                  className="mb-2"
+                  className={cn("mb-2", hasError && amount && !isValidAmount && "border-red-500 focus-visible:ring-red-500")}
+                  {...(hasError && amount && !isValidAmount ? { "aria-invalid": true as const, "aria-describedby": "amount-error" } : {})}
                 />
+                {hasError && amount && !isValidAmount && (
+                  <p id="amount-error" className="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
+                    {amountNum > balance ? "Balance exceeded" : "Enter a valid amount"}
+                  </p>
+                )}
                 {balance > 0 && (
                   <Slider
                     value={[amountNum]}
@@ -771,18 +863,27 @@ export default function CityDetailPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Est. Fill Price</span>
-                  <span className="text-foreground">--</span>
+                  <span className="text-foreground font-semibold" aria-label={`Estimated fill price: $${estFillPriceFormatted}`}>
+                    ${estFillPriceFormatted}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Est. Fill Price</span>
-                  <span className="text-foreground">--</span>
+                  <span className="text-muted-foreground">Est. Size</span>
+                  <span className="text-foreground font-semibold" aria-label={`Estimated size: ${calculatedSize.toFixed(2)} sqft`}>
+                    {calculatedSize.toFixed(2)} sqft
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Slippage</span>
+                  <span className="text-foreground">2.00%</span>
                 </div>
               </div>
 
               <Button
-                onClick={handleTrade}
-                disabled={isSubmitting || (!amount && !size)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={handleTradeClick}
+                disabled={isSubmitting || !canTrade}
+                className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white touch-manipulation"
+                aria-label={tradeType === "long" ? "Open long position" : "Open short position"}
               >
                 {isSubmitting ? (
                   <>
@@ -791,13 +892,12 @@ export default function CityDetailPage() {
                   </>
                 ) : (
                   <>
-                    <Wallet className="h-4 w-4 mr-2" />
+                    <Wallet className="h-5 w-5 mr-2" />
                     Connect Wallet
                   </>
                 )}
               </Button>
 
-              <p className="text-sm leading-none font-medium text-center text-muted-foreground">Slippage 2.00%</p>
             </div>
                 </div>
               </div>
@@ -805,9 +905,50 @@ export default function CityDetailPage() {
           </Tabs>
         </div>
       </div>
+
+      {/* Trade Confirmation Dialog */}
+      <Dialog open={showTradeConfirm} onOpenChange={setShowTradeConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Trade Confirmation</DialogTitle>
+            <DialogDescription>
+              Please confirm your trade details before execution.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Position Type:</span>
+                <span className="text-sm font-semibold">{tradeType === "long" ? "Long" : "Short"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Amount:</span>
+                <span className="text-sm font-semibold">${calculatedAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Size:</span>
+                <span className="text-sm font-semibold">{calculatedSize.toFixed(2)} sqft</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">Estimated Price:</span>
+                <span className="text-sm font-semibold">${estFillPriceFormatted}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-muted-foreground">City:</span>
+                <span className="text-sm font-semibold">{city.name.split(",")[0]}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button variant="outline" onClick={() => setShowTradeConfirm(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleTradeConfirm} disabled={isSubmitting}>
+              {isSubmitting ? "Processing..." : "Confirm"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
-
-
-

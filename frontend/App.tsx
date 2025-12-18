@@ -2,8 +2,10 @@ import { ClerkProvider, SignedIn, SignedOut, SignIn, useUser } from "@clerk/cler
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "./components/ThemeProvider";
 import Dashboard from "./components/Dashboard";
 import CityDetailPage from "./pages/CityDetailPage";
+import SettingsPage from "./pages/SettingsPage";
 import { Building2 } from "lucide-react";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
@@ -37,6 +39,9 @@ function AppInner() {
             <Routes>
               <Route path="/home-value-index/:cityCode" element={<CityDetailPage />} />
               <Route path="/markets" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
+              <Route path="/positions" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
+              <Route path="/history" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
+              <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
               <Route path="/" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
             </Routes>
           </SignedIn>
@@ -50,7 +55,9 @@ function AppInner() {
 export default function App() {
   return (
     <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <AppInner />
+      <ThemeProvider>
+        <AppInner />
+      </ThemeProvider>
     </ClerkProvider>
   );
 }

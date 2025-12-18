@@ -147,12 +147,25 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
   return (
     <>
-      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer p-0 bg-white border border-slate-200/80 shadow-sm" onClick={handleCardClick}>
+      <Card 
+        className="overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer p-0 bg-white dark:bg-card border border-slate-200/80 dark:border-slate-700/50 shadow-sm hover:scale-[1.02] group" 
+        onClick={handleCardClick}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open market details for ${cityDisplayName}`}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handleCardClick();
+          }
+        }}
+      >
         {/* City Image */}
-        <div className="relative w-full overflow-hidden rounded-t-xl aspect-[16/9]">
+        <div className="relative w-full overflow-hidden rounded-t-xl aspect-[16/9] group-hover:scale-105 transition-transform duration-300">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
           <img
             src={getCityImageUrl()}
-            alt={city.name}
+            alt={`Skyline of ${cityDisplayName}`}
             className="w-full h-full object-cover"
             loading="lazy"
             referrerPolicy="no-referrer"
@@ -165,10 +178,10 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
         <div className="p-5 space-y-3">
           {/* City Name */}
-          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900">{cityDisplayName}</h3>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">{cityDisplayName}</h3>
 
           {/* Transaction Volume */}
-          <p className="text-sm leading-none font-medium text-slate-600">
+          <p className="text-sm leading-none font-medium text-slate-600 dark:text-slate-400" aria-label={`Transaction volume: ${formatTransactionVolume(transactionVolume)}`}>
             Transaction Volume {formatTransactionVolume(transactionVolume)}
           </p>
 
@@ -191,23 +204,29 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
           </div>
 
           {/* Price per Square Foot */}
-          <p className="text-lg font-semibold text-slate-900">
+          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100" aria-label={`Price per square foot: $${city.averagePropertySizeSqft ? (city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2) : city.indexPriceUsd.toFixed(2)}`}>
             {city.averagePropertySizeSqft 
               ? `$${(city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
               : `$${city.indexPriceUsd.toFixed(2)}`}
           </p>
 
           {/* Market Price and FPU */}
-          <div className="text-sm leading-none font-medium text-slate-500 space-y-1">
-            <p>Market: ${city.marketPriceUsd.toFixed(2)}</p>
-            <p className={city.indexPriceUsd > city.marketPriceUsd ? "text-green-500" : "text-red-500"}>
+          <div className="text-sm leading-none font-medium text-slate-500 dark:text-slate-400 space-y-1">
+            <p aria-label={`Market price: $${city.marketPriceUsd.toFixed(2)}`}>Market: ${city.marketPriceUsd.toFixed(2)}</p>
+            <p 
+              className={city.indexPriceUsd > city.marketPriceUsd ? "text-green-600 dark:text-green-400 font-semibold" : "text-red-600 dark:text-red-400 font-semibold"}
+              aria-label={`FPU: ${((city.indexPriceUsd - city.marketPriceUsd) / city.marketPriceUsd * 100).toFixed(2)}%`}
+            >
               FPU: {((city.indexPriceUsd - city.marketPriceUsd) / city.marketPriceUsd * 100).toFixed(2)}%
             </p>
-            <p>Funding: {(city.fundingRate * 100).toFixed(4)}%</p>
+            <p aria-label={`Funding rate: ${(city.fundingRate * 100).toFixed(4)}%`}>Funding: {(city.fundingRate * 100).toFixed(4)}%</p>
           </div>
 
           {/* Price Change */}
-          <p className={`text-sm leading-none font-medium ${changeColor}`}>
+          <p 
+            className={`text-sm leading-none font-medium ${priceChange24h >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+            aria-label={`24h price change: ${priceChange24h >= 0 ? "+" : ""}${priceChange24h.toFixed(2)}%`}
+          >
             {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
           </p>
         </div>
@@ -268,20 +287,21 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance text-slate-900">Available Real Estate Deals</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance text-slate-900 dark:text-slate-100">Available Real Estate Deals</h1>
         <PriceUpdateTimer variant="compact" />
       </div>
 
       {/* Control Panel */}
       <div className="flex items-center gap-4 flex-wrap">
-        {/* Search Input */}
-        <div className="relative flex-1 min-w-[200px] max-w-md">
+        {/* Search Input - Sticky on mobile */}
+        <div className="relative flex-1 min-w-[200px] max-w-md sticky top-0 z-20 bg-background/95 backdrop-blur sm:static sm:bg-transparent sm:backdrop-blur-none">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input
             placeholder={`${filteredCities.length} Markets`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-10 rounded-lg border-gray-200 bg-white"
+            className="pl-10 rounded-lg border-gray-200 dark:border-slate-700 bg-white dark:bg-card"
+            aria-label="Search markets"
           />
         </div>
 
@@ -290,7 +310,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="rounded-lg border-gray-200 bg-white hover:bg-slate-100 text-slate-700 shadow-sm"
+              className="rounded-lg border-gray-200 dark:border-slate-700 bg-white dark:bg-card hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 shadow-sm"
             >
               <Filter className="h-4 w-4 mr-2" />
               Filters
@@ -378,7 +398,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
 
       {/* Market Cards Grid */}
       {filteredCities.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of available real estate markets">
           {filteredCities.map((city) => (
             <MarketCard
               key={city.id}
