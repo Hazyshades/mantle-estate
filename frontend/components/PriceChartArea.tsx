@@ -81,8 +81,8 @@ export default function PriceChartArea({ data }: PriceChartAreaProps) {
     const max = Math.max(...values)
     const range = max - min
     
-    // Add 5% padding on top and bottom
-    const padding = range * 0.05 || (max * 0.05)
+    // Add 10% padding on top and bottom to prevent clipping
+    const padding = range * 0.1 || (max * 0.1)
     const domainMin = Math.max(0, min - padding)
     const domainMax = max + padding
     
@@ -98,7 +98,11 @@ export default function PriceChartArea({ data }: PriceChartAreaProps) {
       config={chartConfig}
       className="aspect-auto h-[250px] w-full"
     >
-      <AreaChart data={chartData} accessibilityLayer>
+      <AreaChart 
+        data={chartData} 
+        accessibilityLayer
+        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      >
         <defs>
           <linearGradient id={`fillValue-${gradientId}`} x1="0" y1="0" x2="0" y2="1">
             <stop

@@ -16,6 +16,7 @@ interface PriceChartShadcnProps {
   showIndexPrice?: boolean
   showMarketPrice?: boolean
   timeRange?: "1d" | "1w" | "1m" | "all"
+  height?: number
 }
 
 const chartConfig = {
@@ -33,7 +34,8 @@ export default function PriceChartShadcn({
   data, 
   showIndexPrice = true, 
   showMarketPrice = false,
-  timeRange = "all"
+  timeRange = "all",
+  height = 384
 }: PriceChartShadcnProps) {
   // Unique IDs for gradients
   const gradientIdIndex = React.useId().replace(/:/g, "")
@@ -111,8 +113,8 @@ export default function PriceChartShadcn({
     const max = Math.max(...values)
     const range = max - min
     
-    // Add 5% padding on top and bottom
-    const padding = range * 0.05 || (max * 0.05)
+    // Add 10% padding on top and bottom to prevent clipping
+    const padding = range * 0.1 || (max * 0.1)
     const domainMin = Math.max(0, min - padding)
     const domainMax = max + padding
     
@@ -126,9 +128,14 @@ export default function PriceChartShadcn({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[384px] w-full"
+      className="aspect-auto w-full"
+      style={{ height: `${height}px` }}
     >
-      <AreaChart data={chartData} accessibilityLayer>
+      <AreaChart 
+        data={chartData} 
+        accessibilityLayer
+        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+      >
         <defs>
           {showIndexPrice && (
             <linearGradient id={`fillIndex-${gradientIdIndex}`} x1="0" y1="0" x2="0" y2="1">
@@ -207,7 +214,7 @@ export default function PriceChartShadcn({
                 })
               }}
               indicator="dot"
-              formatter={(value: number) => `$${value.toFixed(2)}`}
+              formatter={(value) => `$${typeof value === 'number' ? value.toFixed(2) : value}`}
             />
           }
         />

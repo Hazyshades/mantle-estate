@@ -57,7 +57,7 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-lg">{position.cityName}</CardTitle>
+                <CardTitle className="scroll-m-20 text-2xl font-semibold tracking-tight">{position.cityName}</CardTitle>
                 <Badge variant={position.positionType === "long" ? "default" : "secondary"}>
                   {position.positionType === "long" ? (
                     <>
@@ -90,25 +90,25 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Quantity</p>
-                <p className="font-medium">{position.quantitySqm.toFixed(2)} sqm</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Quantity</p>
+                <p className="text-lg font-semibold">{position.quantitySqm.toFixed(2)} sqm</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Entry Price</p>
-                <p className="font-medium">${position.entryPrice.toFixed(2)}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Entry Price</p>
+                <p className="text-lg font-semibold">${position.entryPrice.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Current Price</p>
-                <p className="font-medium">${position.currentPrice.toFixed(2)}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Current Price</p>
+                <p className="text-lg font-semibold">${position.currentPrice.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Unrealized P&L</p>
-                <p className={`font-bold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Unrealized P&L</p>
+                <p className={`text-lg font-semibold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
                   {position.unrealizedPnl >= 0 ? "+" : ""}${position.unrealizedPnl.toFixed(2)}
                 </p>
               </div>
             </div>
-            <div className="mt-3 text-xs text-muted-foreground">
+            <div className="mt-3 text-sm leading-none font-medium text-muted-foreground">
               Opened: {new Date(position.openedAt).toLocaleString()}
             </div>
           </CardContent>

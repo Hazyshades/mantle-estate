@@ -63,8 +63,8 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className="text-2xl font-bold">${city.currentPriceUsd.toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground">per sqm</p>
+            <p className="text-lg font-semibold">${city.currentPriceUsd.toFixed(2)}</p>
+            <p className="text-sm leading-none font-medium text-muted-foreground">per sqm</p>
           </div>
 
           {priceHistory.length > 0 && <PriceChartArea data={priceHistory} />}

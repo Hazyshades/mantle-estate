@@ -24,8 +24,8 @@ function AppInner() {
                       <Building2 className="h-8 w-8 text-primary" />
                     </div>
                   </div>
-                  <h1 className="text-2xl font-bold">Real Estate Trading</h1>
-                  <p className="text-muted-foreground">
+                  <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading</h1>
+                  <p className="text-muted-foreground text-xl">
                     Trade synthetic real estate assets from cities worldwide
                   </p>
                 </div>

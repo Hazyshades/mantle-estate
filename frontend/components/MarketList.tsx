@@ -165,10 +165,10 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
         <div className="p-5 space-y-3">
           {/* City Name */}
-          <h3 className="text-xl font-bold text-slate-900">{cityDisplayName}</h3>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900">{cityDisplayName}</h3>
 
           {/* Transaction Volume */}
-          <p className="text-sm text-slate-600">
+          <p className="text-sm leading-none font-medium text-slate-600">
             Transaction Volume {formatTransactionVolume(transactionVolume)}
           </p>
 
@@ -191,14 +191,14 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
           </div>
 
           {/* Price per Square Foot */}
-          <p className="text-lg font-bold text-slate-900">
+          <p className="text-lg font-semibold text-slate-900">
             {city.averagePropertySizeSqft 
               ? `$${(city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
               : `$${city.indexPriceUsd.toFixed(2)}`}
           </p>
 
           {/* Market Price and FPU */}
-          <div className="text-xs text-slate-500 space-y-1">
+          <div className="text-sm leading-none font-medium text-slate-500 space-y-1">
             <p>Market: ${city.marketPriceUsd.toFixed(2)}</p>
             <p className={city.indexPriceUsd > city.marketPriceUsd ? "text-green-500" : "text-red-500"}>
               FPU: {((city.indexPriceUsd - city.marketPriceUsd) / city.marketPriceUsd * 100).toFixed(2)}%
@@ -207,7 +207,7 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
           </div>
 
           {/* Price Change */}
-          <p className={`text-sm font-medium ${changeColor}`}>
+          <p className={`text-sm leading-none font-medium ${changeColor}`}>
             {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
           </p>
         </div>
@@ -268,7 +268,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-slate-900">Available Real Estate Deals</h1>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance text-slate-900">Available Real Estate Deals</h1>
         <PriceUpdateTimer variant="compact" />
       </div>
 
@@ -304,7 +304,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
           <PopoverContent className="w-80" align="start">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium">Filters</h4>
+                <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">Filters</h4>
                 {activeFiltersCount > 0 && (
                   <Button
                     variant="ghost"
@@ -325,12 +325,12 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                     checked={filterByCountry}
                     onCheckedChange={(checked) => setFilterByCountry(checked === true)}
                   />
-                  <Label htmlFor="country-filter" className="text-sm font-normal cursor-pointer">
+                  <Label htmlFor="country-filter" className="text-sm leading-none font-medium cursor-pointer">
                     US Cities Only
                   </Label>
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm">Price Range (USD/sqft)</Label>
+                  <Label className="text-sm leading-none font-medium">Price Range (USD/sqft)</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Input

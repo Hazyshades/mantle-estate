@@ -84,7 +84,7 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Transaction History</CardTitle>
+          <CardTitle className="scroll-m-20 text-3xl font-semibold tracking-tight">Transaction History</CardTitle>
           <Button onClick={handleExport} disabled={isExporting} size="sm">
             {isExporting ? (
               <>

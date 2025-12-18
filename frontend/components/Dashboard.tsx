@@ -137,8 +137,8 @@ export default function Dashboard({ userId }: DashboardProps) {
               <Building2 className="h-7 w-7" />
             </div>
             <div>
-              <p className="text-xs uppercase text-muted-foreground tracking-[0.12em]">Synthetic Real Estate</p>
-              <h1 className="text-2xl font-bold">Real Estate Trading Desk</h1>
+              <p className="text-sm leading-none font-medium text-muted-foreground uppercase tracking-[0.12em]">Synthetic Real Estate</p>
+              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading Desk</h1>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export default function Dashboard({ userId }: DashboardProps) {
                     {user.firstName?.[0] || user.emailAddresses[0]?.emailAddress[0] || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm text-muted-foreground hidden sm:inline">
+                <span className="text-sm leading-none font-medium text-muted-foreground hidden sm:inline">
                   {user.fullName || user.emailAddresses[0]?.emailAddress}
                 </span>
               </div>
@@ -177,9 +177,9 @@ export default function Dashboard({ userId }: DashboardProps) {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
           <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="col-span-1 md:col-span-2 space-y-2">
-              <p className="text-sm text-muted-foreground">Summary metrics</p>
-              <h2 className="text-3xl font-bold">Welcome back</h2>
-              <p className="text-sm text-muted-foreground max-w-xl">
+              <p className="text-sm leading-none font-medium text-muted-foreground">Summary metrics</p>
+              <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">Welcome back</h2>
+              <p className="leading-7 text-muted-foreground max-w-xl [&:not(:first-child)]:mt-6">
                 Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
             </div>
@@ -198,7 +198,7 @@ export default function Dashboard({ userId }: DashboardProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${balance.toFixed(2)}</div>
+                <div className="text-lg font-semibold">${balance.toFixed(2)}</div>
               </CardContent>
             </Card>
             <Card className="bg-white shadow-sm border-border">
@@ -216,8 +216,8 @@ export default function Dashboard({ userId }: DashboardProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{positions.length}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className="text-lg font-semibold">{positions.length}</div>
+                <p className="text-sm leading-none font-medium text-muted-foreground">
                   Unrealized P&amp;L:{" "}
                   <span className={totalUnrealizedPnl >= 0 ? "text-green-400" : "text-red-400"}>
                     ${totalUnrealizedPnl.toFixed(2)}
@@ -225,27 +225,31 @@ export default function Dashboard({ userId }: DashboardProps) {
                 </p>
               </CardContent>
             </Card>
-            <Card className="bg-white shadow-sm border-border">
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-1">
-                  <CardTitle className="text-xs uppercase text-muted-foreground">Realized P&amp;L</CardTitle>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Total profit/loss from closed positions</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className={`text-2xl font-bold ${totalRealizedPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
-                  ${totalRealizedPnl.toFixed(2)}
-                </div>
-                <p className="text-xs text-muted-foreground">From closed trades</p>
-              </CardContent>
-            </Card>
+            <div className="hidden md:block"></div>
+            <div className="hidden md:block"></div>
+            <div className="md:col-start-3 md:col-span-2 flex justify-center">
+              <Card className="bg-white shadow-sm border-border max-w-[calc(25%-1.125rem)] w-full">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center gap-1">
+                    <CardTitle className="text-xs uppercase text-muted-foreground">Realized P&amp;L</CardTitle>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Total profit/loss from closed positions</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className={`text-lg font-semibold ${totalRealizedPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
+                    ${totalRealizedPnl.toFixed(2)}
+                  </div>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">From closed trades</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
 

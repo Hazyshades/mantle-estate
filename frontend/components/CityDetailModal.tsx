@@ -379,10 +379,10 @@ export default function CityDetailModal({
                   <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">{city.name.split(",")[0]}</h2>
+                  <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{city.name.split(",")[0]}</h2>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold">${indexPrice.toFixed(2)}</span>
-                    <span className={`text-sm ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+                    <span className="text-lg font-semibold">${indexPrice.toFixed(2)}</span>
+                    <span className={`text-sm leading-none font-medium ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {priceChange >= 0 ? "+" : ""}${Math.abs(priceChange).toFixed(2)} ({priceChangePercent >= 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%) past week
                     </span>
                   </div>
@@ -402,7 +402,7 @@ export default function CityDetailModal({
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Market Price</p>
+                    <p className="text-sm leading-none font-medium text-slate-400">Market Price</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-slate-400 cursor-help" />
@@ -418,8 +418,8 @@ export default function CityDetailModal({
                   </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">24h Volume</p>
-                  <p className="text-lg font-bold">{formatVolume(volume24h)}</p>
+                  <p className="text-sm leading-none font-medium text-slate-400 mb-1">24h Volume</p>
+                  <p className="text-lg font-semibold">{formatVolume(volume24h)}</p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <p className="text-xs text-slate-400 mb-1">Open Interest</p>
@@ -428,7 +428,7 @@ export default function CityDetailModal({
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-slate-400">Funding Rate</p>
+                    <p className="text-sm leading-none font-medium text-slate-400">Funding Rate</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-slate-400 cursor-help" />
@@ -438,26 +438,26 @@ export default function CityDetailModal({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className={`text-lg font-bold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
+                  <p className={`text-lg font-semibold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
                     {(city.fundingRate * 100).toFixed(4)}%
                   </p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm leading-none font-medium text-slate-400">
                     {city.fundingRate >= 0 ? "Longs pay" : "Shorts pay"}
                   </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">OI Avail. Long</p>
-                  <p className="text-lg font-bold">{formatVolume(longOIAvailable)}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm leading-none font-medium text-slate-400 mb-1">OI Avail. Long</p>
+                  <p className="text-lg font-semibold">{formatVolume(longOIAvailable)}</p>
+                  <p className="text-sm leading-none font-medium text-slate-400">
                     {longOIAvailable > 0 
                       ? formatVolume(longOIAvailable * 0.1)
                       : "N/A"}
                   </p>
                 </div>
                 <div className="bg-slate-800 rounded-lg p-4 border border-slate-700">
-                  <p className="text-xs text-slate-400 mb-1">OI Avail. Short</p>
-                  <p className="text-lg font-bold">{formatVolume(shortOIAvailable)}</p>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-sm leading-none font-medium text-slate-400 mb-1">OI Avail. Short</p>
+                  <p className="text-lg font-semibold">{formatVolume(shortOIAvailable)}</p>
+                  <p className="text-sm leading-none font-medium text-slate-400">
                     {shortOIAvailable > 0 
                       ? formatVolume(shortOIAvailable * 1.3)
                       : "N/A"}
@@ -473,7 +473,7 @@ export default function CityDetailModal({
                     checked={showIndexPrice}
                     onCheckedChange={(checked) => setShowIndexPrice(checked === true)}
                   />
-                  <label htmlFor="index-price" className="text-sm cursor-pointer">
+                  <label htmlFor="index-price" className="text-sm leading-none font-medium cursor-pointer">
                     Index Price ${indexPrice.toFixed(2)}
                   </label>
                 </div>
@@ -493,7 +493,7 @@ export default function CityDetailModal({
                     checked={showFPU}
                     onCheckedChange={(checked) => setShowFPU(checked === true)}
                   />
-                  <label htmlFor="fpu" className="text-sm cursor-pointer flex items-center gap-1">
+                  <label htmlFor="fpu" className="text-sm leading-none font-medium cursor-pointer flex items-center gap-1">
                     FPU {(indexPrice - marketPrice).toFixed(2)}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -511,7 +511,7 @@ export default function CityDetailModal({
                     checked={showVolume}
                     onCheckedChange={(checked) => setShowVolume(checked === true)}
                   />
-                  <label htmlFor="volume" className="text-sm cursor-pointer">
+                  <label htmlFor="volume" className="text-sm leading-none font-medium cursor-pointer">
                     Volume ${(volume24h / 1000).toFixed(1)}K
                   </label>
                 </div>
@@ -569,7 +569,7 @@ export default function CityDetailModal({
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm text-slate-400 mb-1 block">Max: ${balance.toFixed(2)}</label>
+                <label className="text-sm leading-none font-medium text-slate-400 mb-1 block">Max: ${balance.toFixed(2)}</label>
                 <Input
                   type="number"
                   placeholder="0"
@@ -624,7 +624,7 @@ export default function CityDetailModal({
                 {isSubmitting ? "Processing..." : "Connect Wallet"}
               </Button>
 
-              <p className="text-xs text-center text-slate-400">Slippage 2.00%</p>
+              <p className="text-sm leading-none font-medium text-center text-slate-400">Slippage 2.00%</p>
             </div>
           </div>
         </div>

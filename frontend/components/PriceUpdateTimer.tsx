@@ -129,7 +129,14 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
   }
 
   return (
-    <div className={cn("flex items-center gap-2 px-3 py-2 bg-slate-800 rounded-lg border border-slate-700", className)}>
+    <div 
+      className={cn("flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 rounded-lg border", className)}
+      style={{
+        borderColor: "var(--card-foreground)",
+        borderImage: "none",
+        color: "rgba(229, 220, 220, 1)"
+      }}
+    >
       <Clock className="h-4 w-4 text-slate-400" />
       <div className="flex flex-col">
         <span className="text-xs text-slate-400">Next price update</span>

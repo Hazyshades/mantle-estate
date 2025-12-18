@@ -282,6 +282,11 @@ export default function CityDetailPage() {
   const marketPrice = city?.marketPriceUsd || 0;
   const indexPrice = city?.indexPriceUsd || 0;
   
+  // Calculate price per sqft
+  const pricePerSqft = city?.averagePropertySizeSqft 
+    ? indexPrice / city.averagePropertySizeSqft 
+    : indexPrice; // Fallback to indexPrice if averagePropertySizeSqft is not available
+  
   // Use real metrics from API
   const volume24h = cityMetrics?.volume24h || 0;
   const openInterest = cityMetrics?.openInterest || 0;
@@ -352,7 +357,7 @@ export default function CityDetailPage() {
     setIsSubmitting(true);
 
     try {
-      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * indexPrice;
+      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * pricePerSqft;
       
       if (amountNum <= 0) {
         throw new Error("Amount must be positive");
@@ -367,7 +372,7 @@ export default function CityDetailPage() {
 
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Sold"} ${response.quantitySqm.toFixed(2)} sqm at $${response.entryPrice.toFixed(2)}/sqm`,
+        description: `${tradeType === "long" ? "Bought" : "Sold"} ${response.quantitySqm.toFixed(2)} sqft at $${response.entryPrice.toFixed(2)}/sqft`,
       });
 
       loadBalance();
@@ -439,8 +444,8 @@ export default function CityDetailPage() {
 
   const amountNum = parseFloat(amount) || 0;
   const sizeNum = parseFloat(size) || 0;
-  const calculatedSize = amountNum > 0 ? amountNum / indexPrice : sizeNum;
-  const calculatedAmount = sizeNum > 0 ? sizeNum * indexPrice : amountNum;
+  const calculatedSize = amountNum > 0 ? amountNum / pricePerSqft : sizeNum;
+  const calculatedAmount = sizeNum > 0 ? sizeNum * pricePerSqft : amountNum;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
@@ -464,10 +469,10 @@ export default function CityDetailPage() {
                   <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-3xl font-bold">{city.name.split(",")[0]}</h2>
+                  <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{city.name.split(",")[0]}</h2>
                   <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-2xl font-bold">${indexPrice.toFixed(2)}</span>
-                    <span className={`text-sm ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
+                    <span className="text-lg font-semibold">${indexPrice.toFixed(2)}</span>
+                    <span className={`text-sm leading-none font-medium ${priceChange >= 0 ? "text-green-500" : "text-red-500"}`}>
                       {priceChange >= 0 ? "+" : ""}${Math.abs(priceChange).toFixed(2)} ({priceChangePercent >= 0 ? "+" : ""}{priceChangePercent.toFixed(2)}%) past week
                     </span>
                   </div>
@@ -488,7 +493,7 @@ export default function CityDetailPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">Market Price</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">Market Price</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -498,14 +503,14 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">${marketPrice.toFixed(2)}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-lg font-semibold">${marketPrice.toFixed(2)}</p>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">
                     Diff: {((indexPrice - marketPrice) / marketPrice * 100).toFixed(2)}%
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">24h Volume</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">24h Volume</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -515,11 +520,11 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">{formatVolume(volume24h)}</p>
+                  <p className="text-lg font-semibold">{formatVolume(volume24h)}</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">Open Interest</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">Open Interest</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -529,12 +534,12 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">{formatVolume(openInterest)}</p>
-                  <p className="text-xs text-muted-foreground">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
+                  <p className="text-lg font-semibold">{formatVolume(openInterest)}</p>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">{((longOI / openInterest) * 100).toFixed(2)}% {((shortOI / openInterest) * 100).toFixed(2)}%</p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">Funding Rate</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">Funding Rate</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -544,16 +549,16 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className={`text-lg font-bold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
+                  <p className={`text-lg font-semibold ${city.fundingRate >= 0 ? "text-red-500" : "text-green-500"}`}>
                     {(city.fundingRate * 100).toFixed(4)}%
                   </p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm leading-none font-medium text-muted-foreground">
                     {city.fundingRate >= 0 ? "Longs pay" : "Shorts pay"}
                   </p>
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">OI Avail. Long</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Long</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -563,8 +568,8 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">{formatVolume(longOIAvailable)}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-lg font-semibold">{formatVolume(longOIAvailable)}</p>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">
                     {longOIAvailable > 0 
                       ? formatVolume(longOIAvailable * 0.1)
                       : "N/A"}
@@ -572,7 +577,7 @@ export default function CityDetailPage() {
                 </div>
                 <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-xs text-muted-foreground">OI Avail. Short</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Short</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -582,8 +587,8 @@ export default function CityDetailPage() {
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-bold">{formatVolume(shortOIAvailable)}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-lg font-semibold">{formatVolume(shortOIAvailable)}</p>
+                  <p className="text-sm leading-none font-medium text-muted-foreground">
                     {shortOIAvailable > 0 
                       ? formatVolume(shortOIAvailable * 1.3)
                       : "N/A"}
@@ -599,7 +604,7 @@ export default function CityDetailPage() {
                     checked={showIndexPrice}
                     onCheckedChange={(checked) => setShowIndexPrice(checked === true)}
                   />
-                  <label htmlFor="index-price" className="text-sm cursor-pointer">
+                  <label htmlFor="index-price" className="text-sm leading-none font-medium cursor-pointer">
                     Index Price ${indexPrice.toFixed(2)}
                   </label>
                 </div>
@@ -609,17 +614,12 @@ export default function CityDetailPage() {
                     checked={showMarketPrice}
                     onCheckedChange={(checked) => setShowMarketPrice(checked === true)}
                   />
-                  <label htmlFor="market-price" className="text-sm cursor-pointer">
+                  <label htmlFor="market-price" className="text-sm leading-none font-medium cursor-pointer">
                     Market Price ${marketPrice.toFixed(2)}
                   </label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="fpu"
-                    checked={showFPU}
-                    onCheckedChange={(checked) => setShowFPU(checked === true)}
-                  />
-                  <label htmlFor="fpu" className="text-sm cursor-pointer flex items-center gap-1">
+                  <span className="text-sm leading-none font-medium flex items-center gap-1">
                     FPU {(indexPrice - marketPrice).toFixed(2)}
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -629,17 +629,12 @@ export default function CityDetailPage() {
                         <p>Fair Price Uncertainty - difference between Index and Market price</p>
                       </TooltipContent>
                     </Tooltip>
-                  </label>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="volume"
-                    checked={showVolume}
-                    onCheckedChange={(checked) => setShowVolume(checked === true)}
-                  />
-                  <label htmlFor="volume" className="text-sm cursor-pointer">
+                  <span className="text-sm">
                     Volume {formatVolume(volume24h)}
-                  </label>
+                  </span>
                 </div>
                 <div className="ml-auto flex gap-2">
                   {(["1d", "1w", "1m", "all"] as TimeRange[]).map((range) => (
@@ -656,26 +651,25 @@ export default function CityDetailPage() {
                 </div>
               </div>
 
-              {/* Chart */}
-              <div className="bg-white rounded-lg p-4 border border-border shadow-sm">
-                {filteredPriceHistory.length > 0 ? (
-                  <PriceChartShadcn
-                    data={filteredPriceHistory}
-                    showIndexPrice={showIndexPrice}
-                    showMarketPrice={showMarketPrice}
-                    timeRange={timeRange}
-                  />
-                ) : (
-                  <div className="h-96 flex items-center justify-center text-muted-foreground">
-                    Loading data...
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-          </Tabs>
+              {/* Chart and Transaction panel */}
+              <div className="flex gap-4">
+                <div className="w-1/2 bg-white rounded-lg p-4 border border-border shadow-sm">
+                  {filteredPriceHistory.length > 0 ? (
+                    <PriceChartShadcn
+                      data={filteredPriceHistory}
+                      showIndexPrice={showIndexPrice}
+                      showMarketPrice={showMarketPrice}
+                      timeRange={timeRange}
+                    />
+                  ) : (
+                    <div className="h-96 flex items-center justify-center text-muted-foreground">
+                      Loading data...
+                    </div>
+                  )}
+                </div>
 
-          {/* Transaction panel */}
-          <div className="bg-white rounded-lg p-6 border border-border shadow-sm">
+                {/* Transaction panel */}
+                <div className="w-1/2 bg-white rounded-lg p-6 border border-border shadow-sm">
             <ToggleGroup
               type="single"
               value={tradeType}
@@ -707,8 +701,8 @@ export default function CityDetailPage() {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-muted-foreground">Amount (USD)</label>
-                  <span className="text-xs text-muted-foreground">Max: ${balance.toFixed(2)}</span>
+                  <label className="text-sm leading-none font-medium text-muted-foreground">Amount (USD)</label>
+                  <span className="text-sm leading-none font-medium text-muted-foreground">Max: ${balance.toFixed(2)}</span>
                 </div>
                 <Input
                   type="number"
@@ -717,7 +711,7 @@ export default function CityDetailPage() {
                   onChange={(e) => {
                     setAmount(e.target.value);
                     if (e.target.value) {
-                      setSize((parseFloat(e.target.value) / indexPrice).toFixed(2));
+                      setSize((parseFloat(e.target.value) / pricePerSqft).toFixed(2));
                     } else {
                       setSize("");
                     }
@@ -732,7 +726,7 @@ export default function CityDetailPage() {
                     onValueChange={(values) => {
                       const val = values[0].toString();
                       setAmount(val);
-                      setSize((values[0] / indexPrice).toFixed(2));
+                      setSize((values[0] / pricePerSqft).toFixed(2));
                     }}
                     className="w-full"
                   />
@@ -741,8 +735,8 @@ export default function CityDetailPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-muted-foreground">Size (sqm)</label>
-                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} sqm</span>
+                  <label className="text-sm text-muted-foreground">Size (sqft)</label>
+                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} sqft</span>
                 </div>
                 <Input
                   type="number"
@@ -751,7 +745,7 @@ export default function CityDetailPage() {
                   onChange={(e) => {
                     setSize(e.target.value);
                     if (e.target.value) {
-                      setAmount((parseFloat(e.target.value) * indexPrice).toFixed(2));
+                      setAmount((parseFloat(e.target.value) * pricePerSqft).toFixed(2));
                     } else {
                       setAmount("");
                     }
@@ -761,12 +755,12 @@ export default function CityDetailPage() {
                 {balance > 0 && (
                   <Slider
                     value={[sizeNum]}
-                    max={balance / indexPrice}
+                    max={balance / pricePerSqft}
                     step={0.1}
                     onValueChange={(values) => {
                       const val = values[0].toFixed(2);
                       setSize(val);
-                      setAmount((values[0] * indexPrice).toFixed(2));
+                      setAmount((values[0] * pricePerSqft).toFixed(2));
                     }}
                     className="w-full"
                   />
@@ -803,9 +797,12 @@ export default function CityDetailPage() {
                 )}
               </Button>
 
-              <p className="text-xs text-center text-muted-foreground">Slippage 2.00%</p>
+              <p className="text-sm leading-none font-medium text-center text-muted-foreground">Slippage 2.00%</p>
             </div>
-          </div>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

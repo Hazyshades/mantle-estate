@@ -95,10 +95,10 @@ export default function TradeDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="scroll-m-20 text-2xl font-semibold tracking-tight">
             {tradeType === "long" ? "Buy Long" : "Sell Short"} - {city.name}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground text-xl">
             Current price: ${city.currentPriceUsd.toFixed(2)} per sqm
           </DialogDescription>
         </DialogHeader>
@@ -116,7 +116,7 @@ export default function TradeDialog({
               onChange={(e) => setAmount(e.target.value)}
               required
             />
-            <p className="text-xs text-muted-foreground">Available balance: ${balance.toFixed(2)}</p>
+            <p className="text-sm leading-none font-medium text-muted-foreground">Available balance: ${balance.toFixed(2)}</p>
           </div>
 
           <div className="space-y-2">
@@ -135,16 +135,16 @@ export default function TradeDialog({
           {amountNum > 0 && (
             <div className="rounded-lg bg-muted p-4 space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Position size:</span>
-                <span className="font-medium">{positionSize.toFixed(2)} sqm</span>
+                <span className="text-sm leading-none font-medium text-muted-foreground">Position size:</span>
+                <span className="text-lg font-semibold">{positionSize.toFixed(2)} sqm</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Trading fee (0.1%):</span>
-                <span className="font-medium">${fee.toFixed(2)}</span>
+                <span className="text-sm leading-none font-medium text-muted-foreground">Trading fee (0.1%):</span>
+                <span className="text-lg font-semibold">${fee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2">
-                <span className="font-medium">Total cost:</span>
-                <span className="font-bold">${totalCost.toFixed(2)}</span>
+                <span className="text-lg font-semibold">Total cost:</span>
+                <span className="text-lg font-semibold">${totalCost.toFixed(2)}</span>
               </div>
             </div>
           )}
