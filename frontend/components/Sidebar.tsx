@@ -13,9 +13,10 @@ import {
 
 interface SidebarProps {
   positionsCount?: number;
+  onTabChange?: (tab: "markets" | "positions" | "history") => void;
 }
 
-export function Sidebar({ positionsCount = 0 }: SidebarProps) {
+export function Sidebar({ positionsCount = 0, onTabChange }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,9 +52,18 @@ export function Sidebar({ positionsCount = 0 }: SidebarProps) {
     },
   ];
 
-  const isActive = (path: string) => {
-    if (path === "/") {
+  const isActive = (path: string, id: string) => {
+    if (path === "/" || id === "markets") {
       return location.pathname === "/" || location.pathname === "/markets";
+    }
+    if (id === "positions") {
+      return location.pathname === "/positions";
+    }
+    if (id === "history") {
+      return location.pathname === "/history";
+    }
+    if (id === "settings") {
+      return location.pathname === "/settings";
     }
     return location.pathname.startsWith(path);
   };
@@ -62,7 +72,6 @@ export function Sidebar({ positionsCount = 0 }: SidebarProps) {
     <aside
       className={cn(
         "fixed left-0 top-0 z-40 h-screen border-r bg-sidebar transition-all duration-300",
-        "hidden lg:block", // Hide on mobile, show on large screens
         collapsed ? "w-16" : "w-64"
       )}
       aria-label="Sidebar navigation"
@@ -97,13 +106,23 @@ export function Sidebar({ positionsCount = 0 }: SidebarProps) {
         <nav className="flex-1 space-y-1 p-4" aria-label="Main navigation">
           {menuItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.path);
+            const active = isActive(item.path, item.id);
             
             return (
               <button
                 key={item.id}
                 onClick={() => {
-                  navigate(item.path);
+                  if (item.id === "settings") {
+                    // Settings has its own page
+                    navigate("/settings");
+                  } else if (item.id === "markets") {
+                    // Navigate to markets (or home)
+                    navigate("/markets");
+                  } else {
+                    // Positions, History use tabs in Dashboard
+                    // Navigate to the appropriate route - Dashboard will sync the tab via useEffect
+                    navigate(item.path);
+                  }
                 }}
                 className={cn(
                   "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",

@@ -14,8 +14,11 @@ import type { Position } from "~backend/trading/get_positions";
 import type { Transaction } from "~backend/trading/get_transactions";
 import PositionsList from "./PositionsList";
 import TransactionHistory from "./TransactionHistory";
-import { Building2, LogOut, Info, AlertCircle } from "lucide-react";
+import { Building2, LogOut, Info, AlertCircle, Bell } from "lucide-react";
 import MarketList from "./MarketList";
+import { Sidebar } from "./Sidebar";
+import { ThemeToggle } from "./ThemeToggle";
+import { useLocation } from "react-router-dom";
 
 interface DashboardProps {
   userId: string;
@@ -27,10 +30,29 @@ export default function Dashboard({ userId }: DashboardProps) {
   const [positions, setPositions] = useState<Position[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const location = useLocation();
   const { toast } = useToast();
   const { signOut } = useClerk();
   const { user } = useUser();
   const backend = useBackend();
+
+  // Initialize activeTab based on current URL
+  const [activeTab, setActiveTab] = useState<"markets" | "positions" | "history">(() => {
+    if (location.pathname === "/positions") return "positions";
+    if (location.pathname === "/history") return "history";
+    return "markets";
+  });
+
+  // Sync tab with URL path
+  useEffect(() => {
+    if (location.pathname === "/positions") {
+      setActiveTab("positions");
+    } else if (location.pathname === "/history") {
+      setActiveTab("history");
+    } else if (location.pathname === "/" || location.pathname === "/markets") {
+      setActiveTab("markets");
+    }
+  }, [location.pathname]);
 
   const loadData = async () => {
     try {
@@ -70,28 +92,30 @@ export default function Dashboard({ userId }: DashboardProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
-        <header className="border-b border-border bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
-          <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-12 w-12 rounded-xl" />
-              <div className="space-y-2">
-                <Skeleton className="h-3 w-32" />
-                <Skeleton className="h-6 w-48" />
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <Sidebar />
+        <div className="ml-0 lg:ml-64 transition-all duration-300">
+          <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
+            <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
+              <div className="flex items-center gap-3">
+                <Skeleton className="h-12 w-12 rounded-xl" />
+                <div className="space-y-2">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-6 w-48" />
+                </div>
               </div>
+              <Skeleton className="h-9 w-24" />
             </div>
-            <Skeleton className="h-9 w-24" />
-          </div>
-        </header>
-        <div className="container mx-auto px-4 py-8 space-y-8">
-          <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white p-6 shadow-sm">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          </header>
+          <div className="container mx-auto px-4 py-8 space-y-8">
+          <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white dark:from-slate-900 dark:via-primary/10 dark:to-slate-900 p-6 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div className="col-span-1 md:col-span-2 space-y-3">
                 <Skeleton className="h-4 w-32" />
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-4 w-full max-w-xl" />
               </div>
-              <Card className="bg-white shadow-sm border-border">
+              <Card className="shadow-sm border-border">
                 <CardHeader className="pb-2">
                   <Skeleton className="h-3 w-20" />
                 </CardHeader>
@@ -99,7 +123,7 @@ export default function Dashboard({ userId }: DashboardProps) {
                   <Skeleton className="h-8 w-24" />
                 </CardContent>
               </Card>
-              <Card className="bg-white shadow-sm border-border">
+              <Card className="shadow-sm border-border">
                 <CardHeader className="pb-2">
                   <Skeleton className="h-3 w-24" />
                 </CardHeader>
@@ -108,7 +132,7 @@ export default function Dashboard({ userId }: DashboardProps) {
                   <Skeleton className="h-3 w-32 mt-2" />
                 </CardContent>
               </Card>
-              <Card className="bg-white shadow-sm border-border">
+              <Card className="shadow-sm border-border">
                 <CardHeader className="pb-2">
                   <Skeleton className="h-3 w-24" />
                 </CardHeader>
@@ -123,47 +147,56 @@ export default function Dashboard({ userId }: DashboardProps) {
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-64 w-full" />
           </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-900">
-      <header className="border-b border-border bg-white/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
-        <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-primary/15 p-3 text-primary">
-              <Building2 className="h-7 w-7" />
-            </div>
-            <div>
-              <p className="text-sm leading-none font-medium text-muted-foreground uppercase tracking-[0.12em]">Synthetic Real Estate</p>
-              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading Desk</h1>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            {user && (
-              <div className="flex items-center gap-2">
-                <Avatar>
-                  <AvatarImage src={user.imageUrl} alt={user.fullName || ""} />
-                  <AvatarFallback>
-                    {user.firstName?.[0] || user.emailAddresses[0]?.emailAddress[0] || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm leading-none font-medium text-muted-foreground hidden sm:inline">
-                  {user.fullName || user.emailAddresses[0]?.emailAddress}
-                </span>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
+      <Sidebar positionsCount={positions.length} onTabChange={setActiveTab} />
+      
+      <div className="ml-0 lg:ml-64 transition-all duration-300">
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
+          <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-xl bg-primary/15 p-3 text-primary">
+                <Building2 className="h-7 w-7" />
               </div>
-            )}
-            <Button variant="outline" onClick={() => signOut()}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
+              <div>
+                <p className="text-sm leading-none font-medium text-muted-foreground uppercase tracking-[0.12em]">Synthetic Real Estate</p>
+                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading Desk</h1>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" aria-label="Notifications">
+                <Bell className="h-5 w-5" />
+                <span className="sr-only">Notifications</span>
+              </Button>
+              <ThemeToggle />
+              {user && (
+                <div className="flex items-center gap-2">
+                  <Avatar>
+                    <AvatarImage src={user.imageUrl} alt={user.fullName || ""} />
+                    <AvatarFallback>
+                      {user.firstName?.[0] || user.emailAddresses[0]?.emailAddress[0] || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm leading-none font-medium text-muted-foreground hidden sm:inline">
+                    {user.fullName || user.emailAddresses[0]?.emailAddress}
+                  </span>
+                </div>
+              )}
+              <Button variant="outline" onClick={() => signOut()} aria-label="Exit from account">
+                <LogOut className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="container mx-auto px-4 py-8 space-y-8">
+        <div className="container mx-auto px-4 py-8 space-y-8">
         {balance < 1000 && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
@@ -173,17 +206,17 @@ export default function Dashboard({ userId }: DashboardProps) {
             </AlertDescription>
           </Alert>
         )}
-        <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white p-6 shadow-sm">
+        <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white dark:from-slate-900 dark:via-primary/10 dark:to-slate-900 p-6 shadow-sm">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
-          <div className="relative grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="relative grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="col-span-1 md:col-span-2 space-y-2">
               <p className="text-sm leading-none font-medium text-muted-foreground">Summary metrics</p>
-              <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">Welcome back</h2>
+              <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Welcome back</h2>
               <p className="leading-7 text-muted-foreground max-w-xl [&:not(:first-child)]:mt-6">
                 Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
             </div>
-            <Card className="bg-white shadow-sm border-border">
+            <Card className="shadow-sm border-border">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-1">
                   <CardTitle className="text-xs uppercase text-muted-foreground">Balance</CardTitle>
@@ -198,10 +231,10 @@ export default function Dashboard({ userId }: DashboardProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-semibold">${balance.toFixed(2)}</div>
+                <div className="text-lg font-semibold text-card-foreground">${balance.toFixed(2)}</div>
               </CardContent>
             </Card>
-            <Card className="bg-white shadow-sm border-border">
+            <Card className="shadow-sm border-border">
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-1">
                   <CardTitle className="text-xs uppercase text-muted-foreground">Open positions</CardTitle>
@@ -216,44 +249,40 @@ export default function Dashboard({ userId }: DashboardProps) {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-lg font-semibold">{positions.length}</div>
+                <div className="text-lg font-semibold text-card-foreground">{positions.length}</div>
                 <p className="text-sm leading-none font-medium text-muted-foreground">
                   Unrealized P&amp;L:{" "}
-                  <span className={totalUnrealizedPnl >= 0 ? "text-green-400" : "text-red-400"}>
+                  <span className={totalUnrealizedPnl >= 0 ? "text-green-400 dark:text-green-500" : "text-red-400 dark:text-red-500"}>
                     ${totalUnrealizedPnl.toFixed(2)}
                   </span>
                 </p>
               </CardContent>
             </Card>
-            <div className="hidden md:block"></div>
-            <div className="hidden md:block"></div>
-            <div className="md:col-start-3 md:col-span-2 flex justify-center">
-              <Card className="bg-white shadow-sm border-border max-w-[calc(25%-1.125rem)] w-full">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-1">
-                    <CardTitle className="text-xs uppercase text-muted-foreground">Realized P&amp;L</CardTitle>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Info className="h-3 w-3 text-muted-foreground cursor-help" />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Total profit/loss from closed positions</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-lg font-semibold ${totalRealizedPnl >= 0 ? "text-green-400" : "text-red-400"}`}>
-                    ${totalRealizedPnl.toFixed(2)}
-                  </div>
-                  <p className="text-sm leading-none font-medium text-muted-foreground">From closed trades</p>
-                </CardContent>
-              </Card>
-            </div>
+            <Card className="shadow-sm border-border">
+              <CardHeader className="pb-2">
+                <div className="flex items-center gap-1">
+                  <CardTitle className="text-xs uppercase text-muted-foreground">Realized P&amp;L</CardTitle>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="h-3 w-3 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Total profit/loss from closed positions</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-lg font-semibold ${totalRealizedPnl >= 0 ? "text-green-400 dark:text-green-500" : "text-red-400 dark:text-red-500"}`}>
+                  ${totalRealizedPnl.toFixed(2)}
+                </div>
+                <p className="text-sm leading-none font-medium text-muted-foreground">From closed trades</p>
+              </CardContent>
+            </Card>
           </div>
         </div>
 
-        <Tabs defaultValue="markets" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="markets">Markets</TabsTrigger>
             <TabsTrigger value="positions">Positions ({positions.length})</TabsTrigger>
@@ -272,6 +301,7 @@ export default function Dashboard({ userId }: DashboardProps) {
             <TransactionHistory transactions={transactions} />
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </div>
   );
