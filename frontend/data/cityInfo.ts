@@ -54,3 +54,4 @@ export function getCityInfo(cityName: string): CityInfo | null {
   
   return null;
 }
+

@@ -245,3 +245,4 @@ exportDatabase()
     console.error("Export failed:", error);
     process.exit(1);
   });
+

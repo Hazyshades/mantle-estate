@@ -6,3 +6,4 @@ ADD COLUMN IF NOT EXISTS last_market_price_update TIMESTAMP;
 UPDATE cities 
 SET last_market_price_update = NOW()
 WHERE last_market_price_update IS NULL;
+

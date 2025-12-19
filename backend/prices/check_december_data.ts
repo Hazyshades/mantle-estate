@@ -93,3 +93,4 @@ export const checkDecemberData = api<void, {
     return result;
   }
 );
+

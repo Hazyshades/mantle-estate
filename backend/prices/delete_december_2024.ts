@@ -76,3 +76,4 @@ export const deleteDecember2024 = api<void, {
     };
   }
 );
+

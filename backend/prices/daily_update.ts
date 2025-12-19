@@ -98,3 +98,4 @@ const dailyPriceUpdate = new CronJob("daily-price-update", {
   schedule: "0 */6 * * *", // Every 6 hours at the start of the hour
   endpoint: dailyPriceUpdateEndpoint,
 });
+

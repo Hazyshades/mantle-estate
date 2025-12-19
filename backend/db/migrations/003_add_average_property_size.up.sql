@@ -22,3 +22,4 @@ UPDATE cities SET average_property_size_sqft = 1500 WHERE name = 'Dubai' AND cou
 
 
 
+

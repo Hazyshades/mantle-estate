@@ -47,3 +47,4 @@ export const nextUpdate = api<void, NextUpdateResponse>(
     };
   }
 );
+
