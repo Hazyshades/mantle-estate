@@ -19,7 +19,7 @@ interface CityInfoModalProps {
 }
 
 export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalProps) {
-  const [imageError, setImageError] = useState(false);
+  const [imageErrors, setImageErrors] = useState<{ sights: boolean; outdoors: boolean }>({ sights: false, outdoors: false });
   const [currentPairIndex, setCurrentPairIndex] = useState(0);
   
   if (!city) return null;
@@ -32,8 +32,12 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
   const outdoorsImages = cityImages?.outdoors || [];
   
   // Get current images for both cards based on pair index
-  const currentSightsImage = sightsImages[Math.min(currentPairIndex, sightsImages.length - 1)] || sightsImages[0];
-  const currentOutdoorsImage = outdoorsImages[Math.min(currentPairIndex, outdoorsImages.length - 1)] || outdoorsImages[0];
+  const currentSightsImage = sightsImages.length > 0 
+    ? sightsImages[Math.min(currentPairIndex, sightsImages.length - 1)] 
+    : null;
+  const currentOutdoorsImage = outdoorsImages.length > 0 
+    ? outdoorsImages[Math.min(currentPairIndex, outdoorsImages.length - 1)] 
+    : null;
   
   // Calculate max pairs (maximum of both arrays)
   const maxPairs = Math.max(sightsImages.length, outdoorsImages.length);
@@ -114,13 +118,17 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
             <div className="relative px-8">
               <div className="grid grid-cols-2 gap-3">
                 {/* Sights Card */}
-                {sightsImages.length > 0 && currentSightsImage && (
+                {sightsImages.length > 0 && currentSightsImage && !imageErrors.sights && (
                   <div className="relative rounded-lg overflow-hidden h-48 group">
                     <img
                       src={currentSightsImage}
                       alt={`${city.name} sights`}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      onError={() => setImageError(true)}
+                      onError={() => {
+                        console.error(`Failed to load sights image for ${city.name}:`, currentSightsImage);
+                        setImageErrors(prev => ({ ...prev, sights: true }));
+                      }}
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
@@ -128,20 +136,34 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                     </div>
                   </div>
                 )}
+                {imageErrors.sights && (
+                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-800 flex items-center justify-center">
+                    <span className="text-slate-400 text-sm">Sights image failed to load</span>
+                  </div>
+                )}
                 
                 {/* Outdoors Card */}
-                {outdoorsImages.length > 0 && currentOutdoorsImage && (
+                {outdoorsImages.length > 0 && currentOutdoorsImage && !imageErrors.outdoors && (
                   <div className="relative rounded-lg overflow-hidden h-48 group">
                     <img
                       src={currentOutdoorsImage}
                       alt={`${city.name} outdoors`}
                       className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                      onError={() => setImageError(true)}
+                      onError={() => {
+                        console.error(`Failed to load outdoors image for ${city.name}:`, currentOutdoorsImage);
+                        setImageErrors(prev => ({ ...prev, outdoors: true }));
+                      }}
+                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0" />
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <span className="text-white font-semibold text-sm">Outdoors</span>
                     </div>
+                  </div>
+                )}
+                {imageErrors.outdoors && (
+                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-800 flex items-center justify-center">
+                    <span className="text-slate-400 text-sm">Outdoors image failed to load</span>
                   </div>
                 )}
               </div>
