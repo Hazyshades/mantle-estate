@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Empty } from "@/components/ui/empty";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { Position } from "~backend/trading/get_positions";
-import { TrendingDown, TrendingUp, X } from "lucide-react";
+import { TrendingDown, TrendingUp, X, Wallet } from "lucide-react";
 import { useState } from "react";
 
 interface PositionsListProps {
@@ -41,12 +42,11 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
 
   if (positions.length === 0) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No open positions</p>
-          <p className="text-sm text-muted-foreground mt-2">Start trading to see your positions here</p>
-        </CardContent>
-      </Card>
+      <Empty
+        title="No open positions"
+        description="Start trading to see your positions here. Open a long or short position on any market to get started."
+        icon={<Wallet className="h-12 w-12 text-muted-foreground" />}
+      />
     );
   }
 
@@ -57,7 +57,7 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <CardTitle className="text-lg">{position.cityName}</CardTitle>
+                <CardTitle className="scroll-m-20 text-2xl font-semibold tracking-tight">{position.cityName}</CardTitle>
                 <Badge variant={position.positionType === "long" ? "default" : "secondary"}>
                   {position.positionType === "long" ? (
                     <>
@@ -90,25 +90,25 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <p className="text-muted-foreground">Quantity</p>
-                <p className="font-medium">{position.quantitySqm.toFixed(2)} sqm</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Quantity</p>
+                <p className="text-lg font-semibold">{position.quantitySqm.toFixed(2)} sqm</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Entry Price</p>
-                <p className="font-medium">${position.entryPrice.toFixed(2)}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Entry Price</p>
+                <p className="text-lg font-semibold">${position.entryPrice.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Current Price</p>
-                <p className="font-medium">${position.currentPrice.toFixed(2)}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Current Price</p>
+                <p className="text-lg font-semibold">${position.currentPrice.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-muted-foreground">Unrealized P&L</p>
-                <p className={`font-bold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Unrealized P&L</p>
+                <p className={`text-lg font-semibold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
                   {position.unrealizedPnl >= 0 ? "+" : ""}${position.unrealizedPnl.toFixed(2)}
                 </p>
               </div>
             </div>
-            <div className="mt-3 text-xs text-muted-foreground">
+            <div className="mt-3 text-sm leading-none font-medium text-muted-foreground">
               Opened: {new Date(position.openedAt).toLocaleString()}
             </div>
           </CardContent>
