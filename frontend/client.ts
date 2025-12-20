@@ -127,6 +127,8 @@ export namespace city {
             // Convert our params into the objects we need for the request
             const query = makeRecord<string, string | string[]>({
                 hours: params.hours === undefined ? undefined : String(params.hours),
+                days: params.days === undefined ? undefined : String(params.days),
+                years: params.years === undefined ? undefined : String(params.years),
             })
 
             // Now make the actual call to the API

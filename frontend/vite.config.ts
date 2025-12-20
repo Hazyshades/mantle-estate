@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react-swc'
 
 export default defineConfig({
   resolve: {
@@ -14,7 +14,7 @@ export default defineConfig({
   plugins: [
     tailwindcss(), 
     react({
-      // Using SWC instead of Babel for JSX compilation
+      // Using SWC for JSX compilation (no Babel required)
       jsxRuntime: 'automatic',
     })
   ],

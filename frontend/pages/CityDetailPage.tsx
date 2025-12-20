@@ -29,6 +29,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+// Импортируем иконки городов
+import nyIcon from "@/components/ui/icon/NY.png";
+import miamiIcon from "@/components/ui/icon/miami.png";
+import laIcon from "@/components/ui/icon/LA.png";
+import chicagoIcon from "@/components/ui/icon/chicago.png";
+import dallasIcon from "@/components/ui/icon/dallas.png";
+import houstonIcon from "@/components/ui/icon/houston.png";
+import washingtonIcon from "@/components/ui/icon/Washington.png";
+import philadelphiaIcon from "@/components/ui/icon/Philadelphia.png";
+
+// Function for get a parth to city icon
+const getCityIcon = (cityName: string): string | null => {
+  const cityNameOnly = cityName.split(",")[0].trim().toLowerCase();
+  
+  const iconMap: Record<string, string> = {
+    "new york": nyIcon,
+    "miami": miamiIcon,
+    "los angeles": laIcon,
+    "chicago": chicagoIcon,
+    "dallas": dallasIcon,
+    "houston": houstonIcon,
+    "washington": washingtonIcon,
+    "philadelphia": philadelphiaIcon,
+  };
+  
+  return iconMap[cityNameOnly] || null;
+};
 
 type TimeRange = "1d" | "1w" | "1m" | "all";
 
@@ -77,10 +104,11 @@ export default function CityDetailPage() {
       const cityResponse = await backend.city.getByCode({ code: cityCode });
       setCity(cityResponse.city);
       
-      // Load price history
+      // Load price history - use large number to get all data
+      // For "all" period we need all data from DB, not just last 25 years
       const priceResponse = await backend.city.getPriceHistory({ 
         cityId: cityResponse.city.id, 
-        years: 25 
+        years: 30 // Increased to ensure we get all data (data starts from 2000, so 30 years covers everything)
       });
       setPriceHistory(priceResponse.prices);
     } catch (error) {
@@ -179,6 +207,25 @@ export default function CityDetailPage() {
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
   };
 
+  // Helper function to get the most recent point or city's current price
+  const getLastKnownPoint = (): PricePoint | null => {
+    if (priceHistory.length > 0) {
+      return priceHistory.reduce((latest, current) => 
+        new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
+      );
+    }
+    if (city) {
+      return {
+        price: city.indexPriceUsd || city.currentPriceUsd,
+        indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+        marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+        fundingRate: city.fundingRate || 0,
+        timestamp: city.lastUpdated || new Date(),
+      };
+    }
+    return null;
+  };
+
   // Filter data by selected time range
   const filteredPriceHistory = useMemo(() => {
     if (!priceHistory.length || !city) return [];
@@ -192,16 +239,130 @@ export default function CityDetailPage() {
         cutoffDate.setDate(now.getDate() - 1);
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
         break;
-      case "1w":
+      case "1w": {
         cutoffDate.setDate(now.getDate() - 7);
+        cutoffDate.setHours(0, 0, 0, 0); // Start of day
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
-        // Aggregate by day for 1w
-        return aggregateByDay(filtered);
-      case "1m":
+        
+        // Aggregate by day first
+        const aggregated = aggregateByDay(filtered);
+        
+        // Create array for 7 days (from 7 days ago to today)
+        const dailyPoints: PricePoint[] = [];
+        const aggregatedMap = new Map<string, PricePoint>();
+        
+        // Create map of aggregated data by day key
+        aggregated.forEach((point) => {
+          const date = new Date(point.timestamp);
+          const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          aggregatedMap.set(dayKey, point);
+        });
+        
+        // Initialize lastKnownPoint with most recent data or city's current price
+        let lastKnownPoint: PricePoint | null = getLastKnownPoint();
+        
+        for (let i = 6; i >= 0; i--) {
+          const targetDate = new Date(now);
+          targetDate.setDate(now.getDate() - i);
+          targetDate.setHours(12, 0, 0, 0); // Set to noon for consistent display
+          
+          const dayKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+          
+          // Check if we have data for this day
+          const dayData = aggregatedMap.get(dayKey);
+          
+          if (dayData) {
+            // Use aggregated data for this day
+            dailyPoints.push({
+              ...dayData,
+              timestamp: targetDate, // Use target date for consistent display
+            });
+            lastKnownPoint = dayData;
+          } else if (lastKnownPoint) {
+            // Use last known values if no data for this day
+            dailyPoints.push({
+              price: lastKnownPoint.price,
+              indexPrice: lastKnownPoint.indexPrice || lastKnownPoint.price,
+              marketPrice: lastKnownPoint.marketPrice || lastKnownPoint.price,
+              fundingRate: lastKnownPoint.fundingRate || 0,
+              timestamp: targetDate,
+            });
+          } else {
+            // Final fallback: use city's current price if available
+            if (city) {
+              dailyPoints.push({
+                price: city.indexPriceUsd || city.currentPriceUsd,
+                indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+                marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+                fundingRate: city.fundingRate || 0,
+                timestamp: targetDate,
+              });
+            }
+          }
+        }
+        
+        return dailyPoints;
+      }
+      case "1m": {
         cutoffDate.setMonth(now.getMonth() - 1);
+        cutoffDate.setHours(0, 0, 0, 0);
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
-        // Aggregate by day for 1m
-        return aggregateByDay(filtered);
+        
+        // Aggregate by day first
+        const aggregated = aggregateByDay(filtered);
+        
+        // Create array for 30 days (from 30 days ago to today)
+        const dailyPoints: PricePoint[] = [];
+        const aggregatedMap = new Map<string, PricePoint>();
+        
+        // Create map of aggregated data by day key
+        aggregated.forEach((point) => {
+          const date = new Date(point.timestamp);
+          const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+          aggregatedMap.set(dayKey, point);
+        });
+        
+        // Initialize lastKnownPoint with most recent data or city's current price
+        let lastKnownPoint: PricePoint | null = getLastKnownPoint();
+        
+        // Generate points for each of the 30 days
+        for (let i = 29; i >= 0; i--) {
+          const targetDate = new Date(now);
+          targetDate.setDate(now.getDate() - i);
+          targetDate.setHours(12, 0, 0, 0);
+          
+          const dayKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}-${String(targetDate.getDate()).padStart(2, '0')}`;
+          
+          // Check if we have data for this day
+          const dayData = aggregatedMap.get(dayKey);
+          
+          if (dayData) {
+            dailyPoints.push({
+              ...dayData,
+              timestamp: targetDate,
+            });
+            lastKnownPoint = dayData;
+          } else if (lastKnownPoint) {
+            dailyPoints.push({
+              price: lastKnownPoint.price,
+              indexPrice: lastKnownPoint.indexPrice || lastKnownPoint.price,
+              marketPrice: lastKnownPoint.marketPrice || lastKnownPoint.price,
+              fundingRate: lastKnownPoint.fundingRate || 0,
+              timestamp: targetDate,
+            });
+          } else if (city) {
+            dailyPoints.push({
+              price: city.indexPriceUsd || city.currentPriceUsd,
+              indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+              marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+              fundingRate: city.fundingRate || 0,
+              timestamp: targetDate,
+            });
+          }
+        }
+        
+        return dailyPoints;
+      }
       case "all": {
         // Aggregate data by month: for each month, calculate average price
         const monthlyData = new Map<string, {
@@ -258,7 +419,121 @@ export default function CityDetailPage() {
           })
           .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
-        return aggregated;
+        // If no data, return empty array
+        if (priceHistory.length === 0) {
+          return [];
+        }
+
+        // Find the earliest and latest timestamps from all data in DB
+        let earliestTime = new Date(priceHistory[0].timestamp).getTime();
+        let latestTime = earliestTime;
+        
+        priceHistory.forEach((point) => {
+          const pointTime = new Date(point.timestamp).getTime();
+          if (pointTime < earliestTime) earliestTime = pointTime;
+          if (pointTime > latestTime) latestTime = pointTime;
+        });
+        
+        // Create map of aggregated data by month key
+        const aggregatedMap = new Map<string, PricePoint>();
+        aggregated.forEach((point) => {
+          const date = new Date(point.timestamp);
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+          aggregatedMap.set(monthKey, point);
+        });
+        
+        // Generate points for each month from earliest month to latest month
+        const monthlyPoints: PricePoint[] = [];
+        let lastKnownPoint: PricePoint | null = aggregated.length > 0 ? aggregated[0] : null;
+        
+        // Start from the first day of the earliest month
+        const earliestDate = new Date(earliestTime);
+        let currentYear = earliestDate.getFullYear();
+        let currentMonth = earliestDate.getMonth();
+        
+        // End at the last month (inclusive)
+        const latestDate = new Date(latestTime);
+        const endYear = latestDate.getFullYear();
+        const endMonth = latestDate.getMonth();
+        
+        // Safety check: ensure we have valid dates
+        if (isNaN(currentYear) || isNaN(currentMonth) || isNaN(endYear) || isNaN(endMonth)) {
+          console.error("Invalid date range for All period", { currentYear, currentMonth, endYear, endMonth, earliestTime, latestTime });
+          return aggregated; // Fallback to aggregated data
+        }
+        
+        // Generate points for each month from earliest to latest (inclusive)
+        // Use a counter to prevent infinite loops
+        let iterations = 0;
+        const maxIterations = (endYear - currentYear) * 12 + (endMonth - currentMonth) + 1;
+        
+        while ((currentYear < endYear || (currentYear === endYear && currentMonth <= endMonth)) && iterations < maxIterations + 12) {
+          iterations++;
+          const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+          const monthData = aggregatedMap.get(monthKey);
+          
+          // Create timestamp for this month (first day at noon)
+          const monthTimestamp = new Date(currentYear, currentMonth, 1, 12, 0, 0, 0);
+          
+          if (monthData) {
+            monthlyPoints.push({
+              ...monthData,
+              timestamp: monthTimestamp,
+            });
+            lastKnownPoint = monthData;
+          } else if (lastKnownPoint) {
+            monthlyPoints.push({
+              price: lastKnownPoint.price,
+              indexPrice: lastKnownPoint.indexPrice || lastKnownPoint.price,
+              marketPrice: lastKnownPoint.marketPrice || lastKnownPoint.price,
+              fundingRate: lastKnownPoint.fundingRate || 0,
+              timestamp: monthTimestamp,
+            });
+          } else if (city) {
+            // Fallback to city's current price if no data at all
+            monthlyPoints.push({
+              price: city.indexPriceUsd || city.currentPriceUsd,
+              indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+              marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+              fundingRate: city.fundingRate || 0,
+              timestamp: monthTimestamp,
+            });
+            if (!lastKnownPoint) {
+              lastKnownPoint = {
+                price: city.indexPriceUsd || city.currentPriceUsd,
+                indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+                marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+                fundingRate: city.fundingRate || 0,
+                timestamp: city.lastUpdated || new Date(),
+              };
+            }
+          }
+          
+          // Move to next month
+          currentMonth++;
+          if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+          }
+        }
+        
+        // Debug log
+        if (monthlyPoints.length === 0) {
+          console.warn("No monthly points generated for All period", {
+            priceHistoryLength: priceHistory.length,
+            aggregatedLength: aggregated.length,
+            earliestTime: new Date(earliestTime).toISOString(),
+            latestTime: new Date(latestTime).toISOString(),
+            startYear: earliestDate.getFullYear(),
+            startMonth: earliestDate.getMonth(),
+            endYear,
+            endMonth,
+          });
+          // Fallback: return aggregated data if we couldn't generate monthly points
+          return aggregated;
+        }
+        
+        return monthlyPoints;
       }
     }
     
@@ -326,33 +601,6 @@ export default function CityDetailPage() {
     fundingRate: point.fundingRate || 0,
     volume: volume24h / filteredPriceHistory.length,
   }));
-
-  const getDateLabel = (timestamp: Date | number) => {
-    const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-    
-    // Formatting depends on the selected time range
-    switch (timeRange) {
-      case "1d":
-        // For day, show time
-        return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      
-      case "1w":
-        // For week, show weekday and day number
-        return date.toLocaleDateString([], { weekday: "short", day: "numeric" });
-      
-      case "1m":
-        // For month, show each day: "Dec 1", "Dec 2", etc.
-        return date.toLocaleDateString([], { month: "short", day: "numeric" });
-      
-      case "all":
-        // For all period, show date with year (unified format)
-        return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
-      
-      default:
-        // Fallback
-        return date.toLocaleDateString([], { month: "short", day: "numeric" });
-    }
-  };
 
   const handleTradeClick = () => {
     if (!canTrade) return;
@@ -470,6 +718,9 @@ export default function CityDetailPage() {
   const isValidSize = sizeNum > 0 && calculatedAmount <= balance;
   const hasError = (amount && !isValidAmount) || (size && !isValidSize);
   const canTrade = (amountNum > 0 || sizeNum > 0) && isValidAmount && isValidSize;
+  
+  // GEt icon cities
+  const cityIcon = getCityIcon(city.name);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
@@ -489,9 +740,15 @@ export default function CityDetailPage() {
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <div className="rounded-full bg-primary/20 p-3">
-                  <Building2 className="h-6 w-6 text-primary" />
-                </div>
+                {cityIcon ? (
+                  <img 
+                    src={cityIcon} 
+                    alt={city.name.split(",")[0]} 
+                    className="h-16 w-16 object-contain"
+                  />
+                ) : (
+                  <Building2 className="h-16 w-16 text-primary" />
+                )}
                 <div>
                   <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">{city.name.split(",")[0]}</h2>
                   <div className="flex items-baseline gap-2 mt-1">
@@ -517,7 +774,6 @@ export default function CityDetailPage() {
                 onClick={() => setShowCityInfo(true)}
                 className="flex items-center gap-2"
               >
-                <Info className="h-4 w-4" />
                 Info
               </Button>
             </div>
