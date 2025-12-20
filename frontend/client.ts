@@ -104,6 +104,8 @@ export namespace auth {
  */
 import { list as api_city_list_list } from "~backend/city/list";
 import { getPriceHistory as api_city_price_history_getPriceHistory } from "~backend/city/price_history";
+import { getByCode as api_city_get_by_code_getByCode } from "~backend/city/get_by_code";
+import { getCityMetrics as api_city_get_metrics_getCityMetrics } from "~backend/city/get_metrics";
 
 export namespace city {
 
@@ -114,6 +116,8 @@ export namespace city {
             this.baseClient = baseClient
             this.getPriceHistory = this.getPriceHistory.bind(this)
             this.list = this.list.bind(this)
+            this.getByCode = this.getByCode.bind(this)
+            this.getCityMetrics = this.getCityMetrics.bind(this)
         }
 
         /**
@@ -137,6 +141,24 @@ export namespace city {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/cities`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_list_list>
+        }
+
+        /**
+         * Get city by code (e.g., "NY-NYC")
+         */
+        public async getByCode(params: RequestType<typeof api_city_get_by_code_getByCode>): Promise<ResponseType<typeof api_city_get_by_code_getByCode>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/cities/code/${encodeURIComponent(params.code)}`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_get_by_code_getByCode>
+        }
+
+        /**
+         * Get market metrics for a city
+         */
+        public async getCityMetrics(params: RequestType<typeof api_city_get_metrics_getCityMetrics>): Promise<ResponseType<typeof api_city_get_metrics_getCityMetrics>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/cities/${encodeURIComponent(params.cityId)}/metrics`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_get_metrics_getCityMetrics>
         }
     }
 }
