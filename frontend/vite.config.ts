@@ -11,7 +11,13 @@ export default defineConfig({
       '~backend': path.resolve(__dirname, '../backend'),
     },
   },
-  plugins: [tailwindcss(), react()],
+  plugins: [
+    tailwindcss(), 
+    react({
+      // Using SWC instead of Babel for JSX compilation
+      jsxRuntime: 'automatic',
+    })
+  ],
   mode: "development",
   build: {
     minify: false,
