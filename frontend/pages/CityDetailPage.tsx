@@ -596,7 +596,7 @@ export default function CityDetailPage() {
                 </div>
                 <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Long</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">Longs</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -615,7 +615,7 @@ export default function CityDetailPage() {
                 </div>
                 <div className="bg-white dark:bg-card rounded-lg p-4 border border-border shadow-sm">
                   <div className="flex items-center gap-1 mb-1">
-                    <p className="text-sm leading-none font-medium text-muted-foreground">OI Avail. Short</p>
+                    <p className="text-sm leading-none font-medium text-muted-foreground">Shorts</p>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
@@ -903,10 +903,7 @@ export default function CityDetailPage() {
                     Processing...
                   </>
                 ) : (
-                  <>
-                    <Wallet className="h-5 w-5 mr-2" />
-                    Connect Wallet
-                  </>
+                  tradeType === "long" ? "Long" : "Short"
                 )}
               </Button>
 

@@ -68,10 +68,36 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
     loadCityMetrics();
   }, [city.id]);
 
-  const priceChange24h =
-    priceHistory.length >= 2
-      ? ((city.indexPriceUsd - priceHistory[0].indexPrice) / priceHistory[0].indexPrice) * 100
-      : 0;
+  // Calculate 24h price change: find price from 24 hours ago
+  const priceChange24h = useMemo(() => {
+    if (priceHistory.length < 2) return 0;
+    
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    // Find the price point closest to 24 hours ago
+    let price24hAgo: number | null = null;
+    let closestTimeDiff = Infinity;
+    
+    for (const point of priceHistory) {
+      const pointTime = new Date(point.timestamp);
+      const timeDiff = Math.abs(pointTime.getTime() - twentyFourHoursAgo.getTime());
+      
+      if (timeDiff < closestTimeDiff) {
+        closestTimeDiff = timeDiff;
+        price24hAgo = point.indexPrice;
+      }
+    }
+    
+    // If we found a price within 2 hours of 24h ago, use it
+    // Otherwise, use the oldest price in history as fallback
+    if (price24hAgo !== null && closestTimeDiff < 2 * 60 * 60 * 1000) {
+      return ((city.indexPriceUsd - price24hAgo) / price24hAgo) * 100;
+    }
+    
+    // Fallback: if no recent data, return 0
+    return 0;
+  }, [priceHistory, city.indexPriceUsd]);
 
   const changeColor = priceChange24h >= 0 ? "text-green-500" : "text-red-500";
 

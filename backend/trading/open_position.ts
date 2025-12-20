@@ -71,7 +71,7 @@ export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(
       // Calculate current skew
       const currentSkew = metrics.totalLongValue - metrics.totalShortValue;
       
-      // Calculate fill price according to Parcl v3
+      // Calculate fill price
       const { fillPrice } = calculateFillPrice(
         city.index_price_usd,
         currentSkew,

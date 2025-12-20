@@ -620,8 +620,7 @@ export default function CityDetailModal({
                 disabled={isSubmitting || (!amount && !size)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               >
-                <Wallet className="h-4 w-4 mr-2" />
-                {isSubmitting ? "Processing..." : "Connect Wallet"}
+                {isSubmitting ? "Processing..." : tradeType === "long" ? "Long" : "Short"}
               </Button>
 
               <p className="text-sm leading-none font-medium text-center text-slate-400">Slippage 2.00%</p>
@@ -632,6 +631,7 @@ export default function CityDetailModal({
     </Dialog>
   );
 }
+
 
 
 

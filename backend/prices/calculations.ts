@@ -1,4 +1,4 @@
-// Constants for calculation (according to Parcl v3)
+// Constants for calculation
 const MAX_PREMIUM = 0.05; // Maximum premium 5%
 const LIQUIDITY_THRESHOLD = 1000000; // Liquidity threshold in USD
 // SkewScale should be large enough so that Index Price change when buying $100 is < 0.01 USD
@@ -18,7 +18,7 @@ export interface MarketMetrics {
 
 /**
  * Calculate Index Price based on Market Price and trading metrics
- * According to Parcl v3: Index Price changes very smoothly based on skew
+ * Index Price changes very smoothly based on skew
  */
 export function calculateIndexPrice(
   marketPrice: number,
@@ -42,7 +42,7 @@ export function calculateIndexPrice(
 }
 
 /**
- * Calculate Funding Rate according to Parcl v3 formula
+ * Calculate Funding Rate
  */
 export function calculateFundingRate(
   currentRate: number,
@@ -63,7 +63,7 @@ export function calculateFundingRate(
 }
 
 /**
- * Calculate Fill Price for trade according to Parcl v3
+ * Calculate Fill Price for trade
  * Formula: fillPrice = (indexPrice * (1 + skew/skewScale) + indexPrice * (1 + (skew + tradeSize)/skewScale)) / 2
  * Simplified: fillPrice = indexPrice * (1 + (skew + tradeSize/2) / skewScale)
  * 
@@ -78,7 +78,7 @@ export function calculateFillPrice(
   // Sign of tradeSize depends on direction
   const signedTradeSize = direction === "long" ? tradeSize : -tradeSize;
   
-  // Calculate fillPrice according to Parcl v3 formula
+  // Calculate fillPrice
   // fillPrice = indexPrice * (1 + (skew + tradeSize/2) / skewScale)
   const fillPrice = indexPrice * (1 + (currentSkew + signedTradeSize / 2) / SKEW_SCALE);
   

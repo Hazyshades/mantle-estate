@@ -35,9 +35,10 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
         margin_required: number;
         opening_fee: number;
         closed_at: Date | null;
+        opened_at: Date;
       }>`
         SELECT user_id, city_id, position_type, quantity_sqm, entry_price,
-               margin_required, opening_fee, closed_at
+               margin_required, opening_fee, closed_at, opened_at
         FROM positions
         WHERE id = ${positionId}
         FOR UPDATE
@@ -129,14 +130,28 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
       const newIndexPrice = calculateIndexPrice(city.market_price_usd, updatedMetrics);
       
       // Calculate Funding Rate
-      const lastUpdate = city.last_funding_update ? new Date(city.last_funding_update) : new Date();
-      const daysSinceLastUpdate = 
-        (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-      const newFundingRate = calculateFundingRate(
-        city.funding_rate,
-        updatedMetrics,
-        daysSinceLastUpdate
-      );
+      // When closing a position, the skew changes instantly, so we need to recalculate
+      // funding rate based on the new skew.
+      const newSkew = updatedMetrics.totalLongValue - updatedMetrics.totalShortValue;
+      const normalizedSkew = Math.max(-1, Math.min(1, newSkew / 10000000)); // SKEW_SCALE = 10M
+      
+      // If skew is 0 (all positions closed), move funding rate towards 0
+      // Use a decay factor to gradually reduce the funding rate
+      let newFundingRate: number;
+      if (Math.abs(normalizedSkew) < 0.0001) {
+        // Skew is effectively 0, decay funding rate towards 0
+        // Use 50% decay per day to move towards 0
+        const DECAY_FACTOR = 0.5;
+        newFundingRate = city.funding_rate * DECAY_FACTOR;
+      } else {
+        // Normal calculation with instant update (1 day) to reflect new skew
+        const INSTANT_UPDATE_DAYS = 1.0;
+        newFundingRate = calculateFundingRate(
+          city.funding_rate,
+          updatedMetrics,
+          INSTANT_UPDATE_DAYS
+        );
+      }
       
       // Update Index Price and Funding Rate in DB
       await tx.exec`
