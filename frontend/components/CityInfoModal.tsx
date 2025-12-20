@@ -6,8 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Users, ArrowUp, Square, Navigation, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, ArrowUp, Square, Share2, ChevronLeft, ChevronRight } from "lucide-react";
 import { getCityDetails, getCityMapIframeUrl } from "@/data/cityDetails";
 import { getCityImages } from "@/data/cityImages";
 import type { City } from "~backend/city/list";
@@ -43,14 +42,14 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
   const maxPairs = Math.max(sightsImages.length, outdoorsImages.length);
   const hasMultiplePairs = maxPairs > 1;
 
-  // Format city location (e.g., "City · Illinois, US")
+  // Format city location (e.g., "Illinois, US")
   const getLocationText = () => {
     const parts = city.name.split(",");
     if (parts.length > 1) {
       const state = parts[1].trim();
-      return `City · ${state}, ${city.country}`;
+      return `${state}, ${city.country}`;
     }
-    return `City · ${city.country}`;
+    return city.country;
   };
 
   // Format population with commas
@@ -69,20 +68,6 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
               {getLocationText()}
             </DialogDescription>
           </div>
-
-          {/* Directions Button */}
-          <Button 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white h-12 text-base font-medium"
-            onClick={() => {
-              if (cityDetails?.coordinates) {
-                const url = `https://maps.apple.com/?q=${cityDetails.coordinates.lat},${cityDetails.coordinates.lng}`;
-                window.open(url, '_blank');
-              }
-            }}
-          >
-            <Navigation className="h-5 w-5 mr-2" />
-            Directions
-          </Button>
 
           {/* Statistics */}
           {cityDetails && (
