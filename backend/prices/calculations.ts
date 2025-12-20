@@ -49,17 +49,34 @@ export function calculateFundingRate(
   metrics: MarketMetrics,
   daysElapsed: number
 ): number {
-  const { totalLongValue, totalShortValue } = metrics;
+  const { totalLongValue, totalShortValue, totalOI } = metrics;
+  
+  // If there are no open positions, funding rate should be 0
+  if (totalOI === 0) {
+    return 0;
+  }
+  
   const skew = totalLongValue - totalShortValue;
   
   // Normalize skew
   const normalizedSkew = Math.max(-1, Math.min(1, skew / SKEW_SCALE));
   
-  // Calculate rate change
+  // Calculate rate change based on skew
   const deltaRate = normalizedSkew * MAX_FUNDING_VELOCITY * daysElapsed;
   
   // New funding rate
-  return currentRate + deltaRate;
+  const newRate = currentRate + deltaRate;
+  
+  // If skew is zero (balanced positions), funding rate should decay towards 0
+  if (Math.abs(normalizedSkew) < 0.0001) {
+    // Decay towards 0 when positions are balanced
+    // Use faster decay when rate is small to avoid lingering near zero
+    const decayRate = Math.abs(currentRate) > 0.0001 ? 0.5 : 0.1; // Faster decay for small rates
+    const decayFactor = Math.pow(decayRate, daysElapsed);
+    return newRate * decayFactor;
+  }
+  
+  return newRate;
 }
 
 /**
@@ -158,6 +175,7 @@ export async function getMarketMetrics(
     volume24h: volume24h?.volume || 0,
   };
 }
+
 
 
 
