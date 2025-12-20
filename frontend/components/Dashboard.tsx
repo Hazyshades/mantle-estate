@@ -294,7 +294,7 @@ export default function Dashboard({ userId }: DashboardProps) {
           </TabsContent>
 
           <TabsContent value="positions">
-            <PositionsList positions={positions} onCloseComplete={loadData} />
+            <PositionsList positions={positions} cities={cities} onCloseComplete={loadData} />
           </TabsContent>
 
           <TabsContent value="history">

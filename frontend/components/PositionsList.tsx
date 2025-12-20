@@ -5,18 +5,39 @@ import { Empty } from "@/components/ui/empty";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
 import type { Position } from "~backend/trading/get_positions";
+import type { City } from "~backend/city/list";
 import { TrendingDown, TrendingUp, X, Wallet } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface PositionsListProps {
   positions: Position[];
+  cities: City[];
   onCloseComplete: () => void;
 }
 
-export default function PositionsList({ positions, onCloseComplete }: PositionsListProps) {
+export default function PositionsList({ positions, cities, onCloseComplete }: PositionsListProps) {
   const [closingPositionId, setClosingPositionId] = useState<number | null>(null);
   const { toast } = useToast();
   const backend = useBackend();
+  const navigate = useNavigate();
+
+  // Функция для генерации cityCode из названия города и страны
+  const getCityCode = (cityName: string, country: string): string => {
+    const countryCode = country.substring(0, 2).toUpperCase();
+    const cityNameOnly = cityName.split(",")[0].trim();
+    const cityCode = cityNameOnly.substring(0, 3).toUpperCase();
+    return `${countryCode}-${cityCode}`;
+  };
+
+  // Обработчик клика по карточке позиции
+  const handleCardClick = (position: Position) => {
+    const city = cities.find(c => c.id === position.cityId);
+    if (city) {
+      const cityCode = getCityCode(city.name, city.country);
+      navigate(`/home-value-index/${cityCode}`);
+    }
+  };
 
   const handleClose = async (positionId: number) => {
     setClosingPositionId(positionId);
@@ -53,7 +74,20 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
   return (
     <div className="space-y-4">
       {positions.map((position) => (
-        <Card key={position.id}>
+        <Card 
+          key={position.id}
+          className="cursor-pointer hover:shadow-lg transition-all duration-300 hover:scale-[1.01]"
+          onClick={() => handleCardClick(position)}
+          role="button"
+          tabIndex={0}
+          aria-label={`Open city details for ${position.cityName}`}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleCardClick(position);
+            }
+          }}
+        >
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -80,7 +114,10 @@ export default function PositionsList({ positions, onCloseComplete }: PositionsL
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleClose(position.id)}
+                onClick={(e) => {
+                  e.stopPropagation(); // Предотвращаем всплытие события клика
+                  handleClose(position.id);
+                }}
                 disabled={closingPositionId === position.id}
               >
                 <X className="h-4 w-4" />
