@@ -6,7 +6,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Users, ArrowUp, Square, Share2, ChevronLeft, ChevronRight } from "lucide-react";
+import { DollarSign, TrendingDown, ShieldAlert, ChevronLeft, ChevronRight } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getCityDetails, getCityMapIframeUrl } from "@/data/cityDetails";
 import { getCityImages } from "@/data/cityImages";
 import type { City } from "~backend/city/list";
@@ -52,9 +53,48 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
     return city.country;
   };
 
-  // Format population with commas
-  const formatPopulation = (pop: number) => {
-    return pop.toLocaleString();
+  // Functions to determine color of indicators
+  const getCostOfLivingColor = (index: number): "green" | "yellow" | "red" => {
+    if (index < 100) return "green";
+    if (index > 120) return "red";
+    return "yellow";
+  };
+
+  const getUnemploymentColor = (rate: number): "green" | "yellow" | "red" => {
+    if (rate < 4.6) return "green";
+    if (rate > 5.0) return "red";
+    return "yellow";
+  };
+
+  const getCrimeColor = (crimes: number): "green" | "yellow" | "red" => {
+    if (crimes < 380) return "green";
+    if (crimes > 500) return "red";
+    return "yellow";
+  };
+
+  // Get CSS classes for colors
+  const getColorClass = (color: "green" | "yellow" | "red"): string => {
+    switch (color) {
+      case "green":
+        return "text-green-400";
+      case "yellow":
+        return "text-yellow-400";
+      case "red":
+        return "text-red-400";
+    }
+  };
+
+  // Format values
+  const formatCostOfLiving = (index: number): string => {
+    return `~${index}`;
+  };
+
+  const formatUnemploymentRate = (rate: number): string => {
+    return `~${rate}%`;
+  };
+
+  const formatCrimes = (crimes: number): string => {
+    return `~${crimes}`;
   };
 
   return (
@@ -72,26 +112,58 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
           {/* Statistics */}
           {cityDetails && (
             <div className="grid grid-cols-3 gap-4 pt-2">
+              {/* Index of Cost of Living */}
               <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-1">
-                  <Users className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs text-slate-400 uppercase">Population</span>
-                </div>
-                <span className="text-lg font-semibold">{formatPopulation(cityDetails.population)}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 mb-1 cursor-help">
+                      <DollarSign className="h-4 w-4 text-slate-400" />
+                      <span className="text-xs text-slate-400 uppercase">COL Index</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Index of Cost of Living</p>
+                  </TooltipContent>
+                </Tooltip>
+                <span className={`text-lg font-semibold ${getColorClass(getCostOfLivingColor(cityDetails.costOfLivingIndex))}`}>
+                  {formatCostOfLiving(cityDetails.costOfLivingIndex)}
+                </span>
               </div>
+              
+              {/* Unemployment Rate */}
               <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-1">
-                  <ArrowUp className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs text-slate-400 uppercase">Elevation</span>
-                </div>
-                <span className="text-lg font-semibold">{cityDetails.elevation}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 mb-1 cursor-help">
+                      <TrendingDown className="h-4 w-4 text-slate-400" />
+                      <span className="text-xs text-slate-400 uppercase">Unemployment</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Unemployment Rate</p>
+                  </TooltipContent>
+                </Tooltip>
+                <span className={`text-lg font-semibold ${getColorClass(getUnemploymentColor(cityDetails.unemploymentRate))}`}>
+                  {formatUnemploymentRate(cityDetails.unemploymentRate)}
+                </span>
               </div>
+              
+              {/* Violent Crimes */}
               <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-1">
-                  <Square className="h-4 w-4 text-slate-400" />
-                  <span className="text-xs text-slate-400 uppercase">Area</span>
-                </div>
-                <span className="text-lg font-semibold">{cityDetails.area}</span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 mb-1 cursor-help">
+                      <ShieldAlert className="h-4 w-4 text-slate-400" />
+                      <span className="text-xs text-slate-400 uppercase">Crime Rate</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Violent Crimes per 100k</p>
+                  </TooltipContent>
+                </Tooltip>
+                <span className={`text-lg font-semibold ${getColorClass(getCrimeColor(cityDetails.violentCrimesPer100k))}`}>
+                  {formatCrimes(cityDetails.violentCrimesPer100k)}
+                </span>
               </div>
             </div>
           )}

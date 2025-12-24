@@ -22,25 +22,25 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
   const backend = useBackend();
   const navigate = useNavigate();
 
-  // Функция для генерации cityCode из названия города и страны (использует код штата, если есть)
+  // Function to generate cityCode from city name and country (uses state code if available)
   const getCityCode = (cityName: string, country: string): string => {
     const parts = cityName.split(",");
     if (parts.length > 1) {
-      // Если есть запятая, используем код штата (например, "Chicago, IL" -> "IL-CHI")
+      // If comma exists, use state code (e.g., "Chicago, IL" -> "IL-CHI")
       const state = parts[1].trim();
       const cityNameOnly = parts[0].trim();
       const stateCode = state.length === 2 ? state.toUpperCase() : state.substring(0, 3).toUpperCase();
       const cityCode = cityNameOnly.substring(0, 3).toUpperCase();
       return `${stateCode}-${cityCode}`;
     }
-    // Если нет запятой, используем код страны
+    // If no comma, use country code
     const countryCode = country.substring(0, 2).toUpperCase();
     const cityNameOnly = cityName.split(",")[0].trim();
     const cityCode = cityNameOnly.substring(0, 3).toUpperCase();
     return `${countryCode}-${cityCode}`;
   };
 
-  // Обработчик клика по карточке позиции
+  // Handler for position card click
   const handleCardClick = (position: Position) => {
     const city = cities.find(c => c.id === position.cityId);
     if (city) {
@@ -125,7 +125,7 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 variant="ghost"
                 size="sm"
                 onClick={(e) => {
-                  e.stopPropagation(); // Предотвращаем всплытие события клика
+                  e.stopPropagation(); // Prevent click event bubbling
                   handleClose(position.id);
                 }}
                 disabled={closingPositionId === position.id}

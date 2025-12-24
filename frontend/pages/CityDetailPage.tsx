@@ -29,7 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-// Импортируем иконки городов
+// Import city icons
 import nyIcon from "@/components/ui/icon/NY.png";
 import miamiIcon from "@/components/ui/icon/miami.png";
 import laIcon from "@/components/ui/icon/LA.png";

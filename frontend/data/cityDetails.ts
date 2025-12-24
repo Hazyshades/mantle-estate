@@ -3,6 +3,9 @@ export interface CityDetails {
   population: number;
   elevation: string; // e.g., "597 ft"
   area: string; // e.g., "234 mi²"
+  costOfLivingIndex: number; // Index of Cost of Living
+  unemploymentRate: number; // Unemployment Rate
+  violentCrimesPer100k: number; // Violent Crimes per 100k
   coordinates: {
     lat: number;
     lng: number;
@@ -17,6 +20,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 2746388,
     elevation: "597 ft",
     area: "234 mi²",
+    costOfLivingIndex: 118,
+    unemploymentRate: 4.8,
+    violentCrimesPer100k: 850,
     coordinates: { lat: 41.8781, lng: -87.6298 },
     description: "Chicago is the most populous city in the U.S. state of Illinois and in the Midwestern United States. With a population of 2,746,388, as of the 2020 census, it is the third-most populous city in the United States after New York City and Los Angeles.",
     trendSummary: "Home prices rose moderately by 2-7% early in the year but cooled slightly towards year-end, with average values up 2.2% overall."
@@ -26,6 +32,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 8336817,
     elevation: "33 ft",
     area: "302.6 mi²",
+    costOfLivingIndex: 161,
+    unemploymentRate: 4.75, // average between 4.5 and 5
+    violentCrimesPer100k: 450,
     coordinates: { lat: 40.7128, lng: -74.0060 },
     description: "New York City is the most populous city in the United States. Located at the southern tip of New York State, the city is the center of the New York metropolitan area, the largest metropolitan area in the world by urban landmass.",
     trendSummary: "Prices increased by about 3%, driven by revitalization in key areas like Manhattan, where medians hit post-pandemic highs."
@@ -35,6 +44,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 442241,
     elevation: "6 ft",
     area: "55.27 mi²",
+    costOfLivingIndex: 125,
+    unemploymentRate: 4.5,
+    violentCrimesPer100k: 550,
     coordinates: { lat: 25.7617, lng: -80.1918 },
     description: "Miami is a coastal metropolis and the seat of Miami-Dade County in South Florida. With a population of 442,241 as of 2020, it is the second-most populous city in Florida after Jacksonville.",
     trendSummary: "Market cooled with prices down 3-6% year-over-year, amid higher inventory and moderating demand."
@@ -44,6 +56,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 3898747,
     elevation: "305 ft",
     area: "502.7 mi²",
+    costOfLivingIndex: 135,
+    unemploymentRate: 5.3,
+    violentCrimesPer100k: 550,
     coordinates: { lat: 34.0522, lng: -118.2437 },
     description: "Los Angeles is the most populous city in California and the second-most populous city in the United States. It is known for its Mediterranean climate, ethnic diversity, and the entertainment industry.",
     trendSummary: "Prices fluctuated modestly, ending with 2-3% growth despite early dips, supported by steady demand."
@@ -53,6 +68,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 1304379,
     elevation: "430 ft",
     area: "385.8 mi²",
+    costOfLivingIndex: 102,
+    unemploymentRate: 4.2,
+    violentCrimesPer100k: 450,
     coordinates: { lat: 32.7767, lng: -96.7970 },
     description: "Dallas is a city in Texas and the most populous city in the Dallas–Fort Worth metroplex, the fourth-largest metropolitan area in the United States at 7.5 million people.",
     trendSummary: "Prices moderated with declines of 4-7% in some counties, though medians rose 12% in core areas due to inventory shifts."
@@ -62,6 +80,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 2304580,
     elevation: "80 ft",
     area: "669.8 mi²",
+    costOfLivingIndex: 97,
+    unemploymentRate: 4.5,
+    violentCrimesPer100k: 850,
     coordinates: { lat: 29.7604, lng: -95.3698 },
     description: "Houston is the most populous city in Texas and the fourth-most populous city in the United States. It is the largest city in the Southern United States and the largest city in the U.S. state of Texas.",
     trendSummary: "Modest growth of 3-4% prevailed, with median prices up amid resilient sales and population inflows."
@@ -71,6 +92,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 689545,
     elevation: "409 ft",
     area: "68.34 mi²",
+    costOfLivingIndex: 145,
+    unemploymentRate: 5.5,
+    violentCrimesPer100k: 900,
     coordinates: { lat: 38.9072, lng: -77.0369 },
     description: "Washington, D.C., formally the District of Columbia, is the capital city and federal district of the United States. It is located on the east bank of the Potomac River.",
     trendSummary: "Prices declined by 3-11% year-to-date, cooling due to policy changes and increased supply."
@@ -80,6 +104,9 @@ export const cityDetailsData: Record<string, CityDetails> = {
     population: 1584064,
     elevation: "39 ft",
     area: "142.6 mi²",
+    costOfLivingIndex: 112,
+    unemploymentRate: 5.0,
+    violentCrimesPer100k: 750,
     coordinates: { lat: 39.9526, lng: -75.1652 },
     description: "Philadelphia, colloquially referred to as Philly, is the most populous city in Pennsylvania and the sixth-most populous city in the United States.",
     trendSummary: "Competitive market drove 3-6% price increases, with low inventory and strong buyer interest."
@@ -145,4 +172,6 @@ export function getCityMapIframeUrl(cityName: string, coordinates?: { lat: numbe
   // Use OpenStreetMap embed with marker
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${coords.lat},${coords.lng}`;
 }
+
+
 
