@@ -17,6 +17,8 @@ import { Separator } from "@/components/ui/separator";
 import { Search, Filter, List, Settings, X } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MarketListProps {
   cities: City[];
@@ -24,13 +26,24 @@ interface MarketListProps {
   onTradeComplete: () => void;
 }
 
+// APAC countries list - defined outside component
+const APAC_COUNTRIES = [
+  "Japan",
+  "Singapore",
+  "Hong Kong",
+  "China",
+  "Australia",
+  "South Korea",
+];
+
 interface MarketRowProps {
   city: City;
   balance: number;
   onTradeComplete: () => void;
+  unitType: "sqft" | "sqm";
 }
 
-function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
+function MarketCard({ city, balance, onTradeComplete, unitType }: MarketRowProps) {
   const navigate = useNavigate();
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [cityMetrics, setCityMetrics] = useState<CityMetrics | null>(null);
@@ -216,12 +229,28 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
             </div>
           </div>
 
-          {/* Price per Square Foot */}
-          <p className="text-lg font-semibold text-slate-900 dark:text-slate-100" aria-label={`Price per square foot: $${city.averagePropertySizeSqft ? (city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2) : city.indexPriceUsd.toFixed(2)}`}>
-            {city.averagePropertySizeSqft 
-              ? `$${(city.indexPriceUsd / city.averagePropertySizeSqft).toFixed(2)} / Sqft`
-              : `$${city.indexPriceUsd.toFixed(2)}`}
-          </p>
+          {/* Full House Price */}
+          <div className="space-y-1">
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100" aria-label={`Full house price: $${city.indexPriceUsd.toFixed(2)}`}>
+              ${city.indexPriceUsd.toFixed(2)}
+            </p>
+            
+            {/* Price per Square Unit */}
+            {city.averagePropertySizeSqft && (() => {
+              const SQFT_TO_SQM = 0.092903; // 1 sqft = 0.092903 sqm
+              const averageSizeInUnit = unitType === "sqm" 
+                ? city.averagePropertySizeSqft * SQFT_TO_SQM
+                : city.averagePropertySizeSqft;
+              const pricePerUnit = city.indexPriceUsd / averageSizeInUnit;
+              const unitLabel = unitType === "sqm" ? "Sqm" : "Sqft";
+              
+              return (
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400" aria-label={`Price per ${unitLabel.toLowerCase()}: $${pricePerUnit.toFixed(2)}`}>
+                  ${pricePerUnit.toFixed(2)} / {unitLabel}
+                </p>
+              );
+            })()}
+          </div>
 
           {/* Market Price and FPU */}
           <div className="text-sm leading-none font-medium text-slate-500 dark:text-slate-400 space-y-1">
@@ -251,17 +280,13 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 export default function MarketList({ cities, balance, onTradeComplete }: MarketListProps) {
   const [search, setSearch] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  const [filterByCountry, setFilterByCountry] = useState(true);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
 
-  const filteredCities = useMemo(() => {
+  // Filter cities by search and price range
+  const baseFilteredCities = useMemo(() => {
     return cities.filter((city) => {
-      // Filter by country
-      if (filterByCountry && city.country !== "USA") {
-        return false;
-      }
-      
       // Filter by search
       const matchesSearch =
         city.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -280,21 +305,37 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
 
       return true;
     });
-  }, [cities, search, filterByCountry, minPrice, maxPrice]);
+  }, [cities, search, minPrice, maxPrice]);
+
+  // Separate cities into APAC and USA
+  const { apacCities, usaCities } = useMemo(() => {
+    const apac: typeof cities = [];
+    const usa: typeof cities = [];
+
+    baseFilteredCities.forEach((city) => {
+      if (city.country === "USA") {
+        usa.push(city);
+      } else if (APAC_COUNTRIES.includes(city.country)) {
+        apac.push(city);
+      }
+      // Other cities (Europe, etc.) are excluded for now
+      // Only APAC and USA cities are shown
+    });
+
+    return { apacCities: apac, usaCities: usa };
+  }, [baseFilteredCities, cities]);
 
   const clearFilters = () => {
-    setFilterByCountry(true);
     setMinPrice("");
     setMaxPrice("");
   };
 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
-    if (filterByCountry) count++;
     if (minPrice) count++;
     if (maxPrice) count++;
     return count;
-  }, [filterByCountry, minPrice, maxPrice]);
+  }, [minPrice, maxPrice]);
 
   return (
     <div className="space-y-6">
@@ -310,7 +351,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
         <div className="relative flex-1 min-w-[200px] max-w-md sticky top-0 z-20 bg-background/95 backdrop-blur sm:static sm:bg-transparent sm:backdrop-blur-none">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
           <Input
-            placeholder={`${filteredCities.length} Markets`}
+            placeholder={`${baseFilteredCities.length} Markets`}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 rounded-lg border-gray-200 dark:border-slate-700 bg-white dark:bg-card"
@@ -352,16 +393,6 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
               </div>
               <Separator />
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="country-filter"
-                    checked={filterByCountry}
-                    onCheckedChange={(checked) => setFilterByCountry(checked === true)}
-                  />
-                  <Label htmlFor="country-filter" className="text-sm leading-none font-medium cursor-pointer">
-                    US Cities Only
-                  </Label>
-                </div>
                 <div className="space-y-2">
                   <Label className="text-sm leading-none font-medium">Price Range (USD/sqft)</Label>
                   <div className="grid grid-cols-2 gap-2">
@@ -390,6 +421,40 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
           </PopoverContent>
         </Popover>
 
+        {/* Unit Type Toggle */}
+        <ToggleGroup 
+          type="single" 
+          value={unitType}
+          onValueChange={(value) => {
+            if (value && (value === "sqft" || value === "sqm")) {
+              setUnitType(value);
+            }
+          }}
+          variant="outline"
+          className="border-gray-200 dark:border-slate-700"
+        >
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="sqft" aria-label="Square feet">
+                Sqft
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Square feet</p>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <ToggleGroupItem value="sqm" aria-label="Square meters">
+                Sqm
+              </ToggleGroupItem>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Square meters</p>
+            </TooltipContent>
+          </Tooltip>
+        </ToggleGroup>
+
         {/* View Toggle Icons */}
         <div className="flex items-center gap-2">
           <Button
@@ -409,19 +474,48 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
         </div>
       </div>
 
-      {/* Market Cards Grid */}
-      {filteredCities.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of available real estate markets">
-          {filteredCities.map((city) => (
-            <MarketCard
-              key={city.id}
-              city={city}
-              balance={balance}
-              onTradeComplete={onTradeComplete}
-            />
-          ))}
+      {/* Market Cards Grid - APAC Section */}
+      {apacCities.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            APAC Markets
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of APAC real estate markets">
+            {apacCities.map((city) => (
+              <MarketCard
+                key={city.id}
+                city={city}
+                balance={balance}
+                onTradeComplete={onTradeComplete}
+                unitType={unitType}
+              />
+            ))}
+          </div>
         </div>
-      ) : (
+      )}
+
+      {/* Market Cards Grid - USA Section */}
+      {usaCities.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+            USA Markets
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of USA real estate markets">
+            {usaCities.map((city) => (
+              <MarketCard
+                key={city.id}
+                city={city}
+                balance={balance}
+                onTradeComplete={onTradeComplete}
+                unitType={unitType}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Empty State */}
+      {apacCities.length === 0 && usaCities.length === 0 && (
         <Empty
           title="No markets found"
           description="Try adjusting your search or filters to find more markets"
