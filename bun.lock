@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@clerk/backend": "^1.27.0",
-        "encore.dev": "^1.53.2",
+        "encore.dev": "^1.53.4",
       },
       "devDependencies": {
         "typescript": "^5.8.3",
@@ -474,7 +474,7 @@
 
     "electron-to-chromium": ["electron-to-chromium@1.5.267", "", {}, "sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw=="],
 
-    "encore.dev": ["encore.dev@1.53.2", "", {}, "sha512-NfQuUe/Vvm77KkkVywI3zYxEOg9r3xDyYVIg/z0uskwj2IxIEY1501ForA27/kv+Q5m2OdXiS6x6Ox62ckCptQ=="],
+    "encore.dev": ["encore.dev@1.53.4", "", {}, "sha512-WTU/9Jo7d+wks5cwg2ajm2YBJcI6Peuf3R6kvz/9rK+ZUEi/MhQvZewWfXs8JD5qmJk0458RXv4dLEORQppJQQ=="],
 
     "enhanced-resolve": ["enhanced-resolve@5.18.4", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.2.0" } }, "sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q=="],
 

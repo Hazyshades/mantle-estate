@@ -155,53 +155,33 @@ export default function CityDetailPage() {
 
   // Helper function to aggregate data by day
   const aggregateByDay = (data: PricePoint[]): PricePoint[] => {
-    const dailyData = new Map<string, {
-      prices: number[];
-      indexPrices: number[];
-      marketPrices: number[];
-      timestamps: Date[];
-      fundingRates: number[];
-    }>();
+    const dailyData = new Map<string, PricePoint[]>();
 
     data.forEach((point) => {
       const date = new Date(point.timestamp);
       const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       
       if (!dailyData.has(dayKey)) {
-        dailyData.set(dayKey, {
-          prices: [],
-          indexPrices: [],
-          marketPrices: [],
-          timestamps: [],
-          fundingRates: [],
-        });
+        dailyData.set(dayKey, []);
       }
       
-      const dayData = dailyData.get(dayKey)!;
-      dayData.prices.push(point.price);
-      dayData.indexPrices.push(point.indexPrice);
-      dayData.marketPrices.push(point.marketPrice);
-      dayData.timestamps.push(new Date(point.timestamp));
-      dayData.fundingRates.push(point.fundingRate);
+      dailyData.get(dayKey)!.push(point);
     });
 
     return Array.from(dailyData.entries())
-      .map(([dayKey, data]) => {
-        const avgPrice = data.prices.reduce((a, b) => a + b, 0) / data.prices.length;
-        const avgIndexPrice = data.indexPrices.reduce((a, b) => a + b, 0) / data.indexPrices.length;
-        const avgMarketPrice = data.marketPrices.reduce((a, b) => a + b, 0) / data.marketPrices.length;
-        const avgFundingRate = data.fundingRates.reduce((a, b) => a + b, 0) / data.fundingRates.length;
-        
-        const lastTimestamp = data.timestamps.reduce((latest, current) => 
-          current > latest ? current : latest
+      .map(([dayKey, points]) => {
+        const sortedPoints = points.sort((a, b) => 
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
+        
+        const lastPoint = sortedPoints[sortedPoints.length - 1];
 
         return {
-          price: avgPrice,
-          indexPrice: avgIndexPrice,
-          marketPrice: avgMarketPrice,
-          fundingRate: avgFundingRate,
-          timestamp: lastTimestamp,
+          price: lastPoint.price,
+          indexPrice: lastPoint.indexPrice,
+          marketPrice: lastPoint.marketPrice,
+          fundingRate: lastPoint.fundingRate,
+          timestamp: lastPoint.timestamp,
         };
       })
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -235,34 +215,10 @@ export default function CityDetailPage() {
     let filtered: PricePoint[] = [];
     
     switch (timeRange) {
-      case "1d": {
+      case "1d":
         cutoffDate.setDate(now.getDate() - 1);
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
-        
-        // If no data for today, add current city price to show current state
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const hasTodayData = filtered.some((point) => {
-          const pointDate = new Date(point.timestamp);
-          pointDate.setHours(0, 0, 0, 0);
-          return pointDate.getTime() === today.getTime();
-        });
-        
-        if (!hasTodayData && city) {
-          // Add current price as today's point
-          filtered.push({
-            price: city.indexPriceUsd || city.currentPriceUsd,
-            indexPrice: city.indexPriceUsd || city.currentPriceUsd,
-            marketPrice: city.marketPriceUsd || city.currentPriceUsd,
-            fundingRate: city.fundingRate || 0,
-            timestamp: now, // Use current time for today
-          });
-        }
-        
-        // Sort by timestamp to ensure correct order
-        filtered.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
         break;
-      }
       case "1w": {
         cutoffDate.setDate(now.getDate() - 7);
         cutoffDate.setHours(0, 0, 0, 0); // Start of day

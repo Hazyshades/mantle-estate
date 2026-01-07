@@ -85,53 +85,33 @@ export default function CityDetailModal({
 
   // Helper function to aggregate data by day
   const aggregateByDay = (data: PricePoint[]): PricePoint[] => {
-    const dailyData = new Map<string, {
-      prices: number[];
-      indexPrices: number[];
-      marketPrices: number[];
-      timestamps: Date[];
-      fundingRates: number[];
-    }>();
+    const dailyData = new Map<string, PricePoint[]>();
 
     data.forEach((point) => {
       const date = new Date(point.timestamp);
       const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       
       if (!dailyData.has(dayKey)) {
-        dailyData.set(dayKey, {
-          prices: [],
-          indexPrices: [],
-          marketPrices: [],
-          timestamps: [],
-          fundingRates: [],
-        });
+        dailyData.set(dayKey, []);
       }
       
-      const dayData = dailyData.get(dayKey)!;
-      dayData.prices.push(point.price);
-      dayData.indexPrices.push(point.indexPrice);
-      dayData.marketPrices.push(point.marketPrice);
-      dayData.timestamps.push(new Date(point.timestamp));
-      dayData.fundingRates.push(point.fundingRate);
+      dailyData.get(dayKey)!.push(point);
     });
 
     return Array.from(dailyData.entries())
-      .map(([dayKey, data]) => {
-        const avgPrice = data.prices.reduce((a, b) => a + b, 0) / data.prices.length;
-        const avgIndexPrice = data.indexPrices.reduce((a, b) => a + b, 0) / data.indexPrices.length;
-        const avgMarketPrice = data.marketPrices.reduce((a, b) => a + b, 0) / data.marketPrices.length;
-        const avgFundingRate = data.fundingRates.reduce((a, b) => a + b, 0) / data.fundingRates.length;
-        
-        const lastTimestamp = data.timestamps.reduce((latest, current) => 
-          current > latest ? current : latest
+      .map(([dayKey, points]) => {
+        const sortedPoints = points.sort((a, b) => 
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
+        
+        const lastPoint = sortedPoints[sortedPoints.length - 1];
 
         return {
-          price: avgPrice,
-          indexPrice: avgIndexPrice,
-          marketPrice: avgMarketPrice,
-          fundingRate: avgFundingRate,
-          timestamp: lastTimestamp,
+          price: lastPoint.price,
+          indexPrice: lastPoint.indexPrice,
+          marketPrice: lastPoint.marketPrice,
+          fundingRate: lastPoint.fundingRate,
+          timestamp: lastPoint.timestamp,
         };
       })
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
