@@ -35,6 +35,30 @@ export const cityInfoData: Record<string, CityInfo> = {
   "Philadelphia, PA": {
     city: "Philadelphia, PA",
     trendSummary: "Competitive market drove 3-6% price increases, with low inventory and strong buyer interest."
+  },
+  "Tokyo, Japan": {
+    city: "Tokyo, Japan",
+    trendSummary: "Prices surged 8-12% amid strong urban demand, foreign investment, and low yen, though growth moderated slightly later in the year."
+  },
+  "Singapore, Singapore": {
+    city: "Singapore, Singapore",
+    trendSummary: "Residential prices rose 3-5%, the slowest since 2020, with landed properties leading gains despite softer secondary market activity."
+  },
+  "Hong Kong, Hong Kong": {
+    city: "Hong Kong, Hong Kong",
+    trendSummary: "Prices stabilized with a modest 1-2% rise, marking a recovery from prior declines amid low rates and improved market sentiment."
+  },
+  "Shanghai, China": {
+    city: "Shanghai, China",
+    trendSummary: "New home prices rose 5-10%, supported by luxury demand, while second-hand fell 2-5%, reflecting ongoing national market challenges."
+  },
+  "Sydney, Australia": {
+    city: "Sydney, Australia",
+    trendSummary: "Prices grew 5-6%, with a slight dip at year-end, driven by demand outstripping supply despite affordability pressures."
+  },
+  "Seoul, South Korea": {
+    city: "Seoul, South Korea",
+    trendSummary: "Apartment prices jumped 4-9%, the fastest in nearly two decades, concentrated in the capital amid strong demand and inflows."
   }
 };
 
@@ -54,4 +78,10 @@ export function getCityInfo(cityName: string): CityInfo | null {
   
   return null;
 }
+
+
+
+
+
+
 

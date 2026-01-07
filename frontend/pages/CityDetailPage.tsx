@@ -228,170 +228,17 @@ export default function CityDetailPage() {
 
   // Filter data by selected time range
   const filteredPriceHistory = useMemo(() => {
-    if (!city) return [];
+    if (!priceHistory.length || !city) return [];
     
     const now = new Date();
     let cutoffDate = new Date();
     let filtered: PricePoint[] = [];
     
     switch (timeRange) {
-      case "1d": {
-        // For 1d, we can show data even if priceHistory is empty, using city's current price
-        if (!priceHistory.length) {
-          // No price history - create points from city's current price
-          const fallbackPoint: PricePoint = {
-            price: city.indexPriceUsd || city.currentPriceUsd,
-            indexPrice: city.indexPriceUsd || city.currentPriceUsd,
-            marketPrice: city.marketPriceUsd || city.currentPriceUsd,
-            fundingRate: city.fundingRate || 0,
-            timestamp: city.lastUpdated || new Date(),
-          };
-          
-          const hourlyPoints: PricePoint[] = [];
-          const startTime = new Date(now);
-          startTime.setHours(now.getHours() - 24, 0, 0, 0);
-          
-          hourlyPoints.push({
-            ...fallbackPoint,
-            timestamp: startTime,
-          });
-          
-          for (let i = 1; i < 4; i++) {
-            const intermediateTime = new Date(startTime);
-            intermediateTime.setHours(startTime.getHours() + i * 6);
-            hourlyPoints.push({
-              ...fallbackPoint,
-              timestamp: intermediateTime,
-            });
-          }
-          
-          hourlyPoints.push({
-            ...fallbackPoint,
-            timestamp: now,
-          });
-          
-          return hourlyPoints;
-        }
-        
+      case "1d":
         cutoffDate.setDate(now.getDate() - 1);
-        cutoffDate.setHours(0, 0, 0, 0); // Start of day yesterday
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
-        
-        // Get today's start
-        const todayStart = new Date(now);
-        todayStart.setHours(0, 0, 0, 0);
-        
-        // Filter data for today only
-        const todayData = filtered.filter((point) => new Date(point.timestamp) >= todayStart);
-        
-        // Get the last known price before today (from yesterday or earlier)
-        let lastKnownPoint: PricePoint | null = null;
-        const beforeTodayData = filtered.filter((point) => new Date(point.timestamp) < todayStart);
-        if (beforeTodayData.length > 0) {
-          lastKnownPoint = beforeTodayData.reduce((latest, current) => 
-            new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest
-          );
-        }
-        
-        // If no data before today, use getLastKnownPoint() which falls back to city's current price
-        if (!lastKnownPoint) {
-          lastKnownPoint = getLastKnownPoint();
-        }
-        
-        // If we have trades today, create points from start of day to trades
-        if (todayData.length > 0) {
-          const hourlyPoints: PricePoint[] = [];
-          
-          // Sort today's data by timestamp
-          const sortedTodayData = [...todayData].sort((a, b) => 
-            new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-          );
-          
-          // If we have lastKnownPoint, add a point at the start of today
-          if (lastKnownPoint) {
-            hourlyPoints.push({
-              ...lastKnownPoint,
-              timestamp: todayStart,
-            });
-          }
-          
-          // Add all trades from today
-          hourlyPoints.push(...sortedTodayData);
-          
-          return hourlyPoints;
-        } else {
-          // No trades today - show flat line at last known price for the last 24 hours
-          if (lastKnownPoint) {
-            // Create points for the last 24 hours at the last known price
-            const hourlyPoints: PricePoint[] = [];
-            const startTime = new Date(now);
-            startTime.setHours(now.getHours() - 24, 0, 0, 0);
-            
-            // Add point at start of 24h period
-            hourlyPoints.push({
-              ...lastKnownPoint,
-              timestamp: startTime,
-            });
-            
-            // Add a few intermediate points for smoother line display
-            for (let i = 1; i < 4; i++) {
-              const intermediateTime = new Date(startTime);
-              intermediateTime.setHours(startTime.getHours() + i * 6);
-              hourlyPoints.push({
-                ...lastKnownPoint,
-                timestamp: intermediateTime,
-              });
-            }
-            
-            // Add point at current time
-            hourlyPoints.push({
-              ...lastKnownPoint,
-              timestamp: now,
-            });
-            
-            return hourlyPoints;
-          }
-          
-          // Fallback: if no lastKnownPoint, create points from city's current price
-          if (city) {
-            const fallbackPoint: PricePoint = {
-              price: city.indexPriceUsd || city.currentPriceUsd,
-              indexPrice: city.indexPriceUsd || city.currentPriceUsd,
-              marketPrice: city.marketPriceUsd || city.currentPriceUsd,
-              fundingRate: city.fundingRate || 0,
-              timestamp: city.lastUpdated || new Date(),
-            };
-            
-            const hourlyPoints: PricePoint[] = [];
-            const startTime = new Date(now);
-            startTime.setHours(now.getHours() - 24, 0, 0, 0);
-            
-            hourlyPoints.push({
-              ...fallbackPoint,
-              timestamp: startTime,
-            });
-            
-            for (let i = 1; i < 4; i++) {
-              const intermediateTime = new Date(startTime);
-              intermediateTime.setHours(startTime.getHours() + i * 6);
-              hourlyPoints.push({
-                ...fallbackPoint,
-                timestamp: intermediateTime,
-              });
-            }
-            
-            hourlyPoints.push({
-              ...fallbackPoint,
-              timestamp: now,
-            });
-            
-            return hourlyPoints;
-          }
-          
-          // Final fallback: return filtered data even if empty
-          return filtered;
-        }
-      }
+        break;
       case "1w": {
         cutoffDate.setDate(now.getDate() - 7);
         cutoffDate.setHours(0, 0, 0, 0); // Start of day
@@ -457,7 +304,6 @@ export default function CityDetailPage() {
         return dailyPoints;
       }
       case "1m": {
-        if (!priceHistory.length) return [];
         cutoffDate.setMonth(now.getMonth() - 1);
         cutoffDate.setHours(0, 0, 0, 0);
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
@@ -518,7 +364,6 @@ export default function CityDetailPage() {
         return dailyPoints;
       }
       case "all": {
-        if (!priceHistory.length) return [];
         // Aggregate data by month: for each month, calculate average price
         const monthlyData = new Map<string, {
           prices: number[];

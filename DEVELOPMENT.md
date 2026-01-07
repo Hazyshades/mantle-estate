@@ -61,6 +61,40 @@ To generate the frontend client, run the following command in the `backend` dire
 encore gen client --target leap
 ```
 
+## Importing Data
+
+### Import APAC Cities Data
+
+To import price history data for APAC cities (Tokyo, Singapore, Hong Kong, Shanghai, Sydney, Seoul) from the `apac.csv` file:
+
+**Option 1: Using API endpoint (recommended when backend is running)**
+
+1. Make sure your backend is running (`encore run`)
+2. Send a POST request to the import endpoint:
+   ```bash
+   curl -X POST http://localhost:4000/cities/import-apac-prices
+   ```
+
+**Option 2: Using script directly**
+
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+
+2. Run the import script:
+   ```bash
+   bun run import-apac
+   ```
+
+The script will:
+- Read data from `backend/db/csv_data/apac.csv`
+- Create cities if they don't exist (Tokyo, Singapore, Hong Kong, Shanghai, Sydney, Seoul)
+- Import price history for all available dates
+- Update current prices, index prices, and market prices
+
+**Note:** The cities should already be created by the migration `002_seed_cities.up.sql`, but the script will create them if they're missing.
+
 ## Deployment
 
 ### Self-hosting

@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Search, Filter, List, Settings, X } from "lucide-react";
+import { Search, Filter, List, Settings, X, ChevronDown, ChevronUp } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -283,6 +283,8 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
+  const [isApacExpanded, setIsApacExpanded] = useState(true);
+  const [isUsaExpanded, setIsUsaExpanded] = useState(true);
 
   // Filter cities by search and price range
   const baseFilteredCities = useMemo(() => {
@@ -477,40 +479,74 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
       {/* Market Cards Grid - APAC Section */}
       {apacCities.length > 0 && (
         <div className="space-y-4">
-          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            APAC Markets
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of APAC real estate markets">
-            {apacCities.map((city) => (
-              <MarketCard
-                key={city.id}
-                city={city}
-                balance={balance}
-                onTradeComplete={onTradeComplete}
-                unitType={unitType}
-              />
-            ))}
+          <div className="flex items-center justify-between">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              APAC Markets
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsApacExpanded(!isApacExpanded)}
+              className="h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label={isApacExpanded ? "Скрыть раздел APAC" : "Показать раздел APAC"}
+            >
+              {isApacExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              )}
+            </Button>
           </div>
+          {isApacExpanded && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of APAC real estate markets">
+              {apacCities.map((city) => (
+                <MarketCard
+                  key={city.id}
+                  city={city}
+                  balance={balance}
+                  onTradeComplete={onTradeComplete}
+                  unitType={unitType}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Market Cards Grid - USA Section */}
       {usaCities.length > 0 && (
         <div className="space-y-4">
-          <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            USA Markets
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of USA real estate markets">
-            {usaCities.map((city) => (
-              <MarketCard
-                key={city.id}
-                city={city}
-                balance={balance}
-                onTradeComplete={onTradeComplete}
-                unitType={unitType}
-              />
-            ))}
+          <div className="flex items-center justify-between">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              USA Markets
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsUsaExpanded(!isUsaExpanded)}
+              className="h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label={isUsaExpanded ? "Скрыть раздел USA" : "Показать раздел USA"}
+            >
+              {isUsaExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              )}
+            </Button>
           </div>
+          {isUsaExpanded && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of USA real estate markets">
+              {usaCities.map((city) => (
+                <MarketCard
+                  key={city.id}
+                  city={city}
+                  balance={balance}
+                  onTradeComplete={onTradeComplete}
+                  unitType={unitType}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
