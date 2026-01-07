@@ -5,7 +5,8 @@
   "packageManager": "bun",
   "scripts": {
     "build": "cd ../frontend && bun install && npx vite build --outDir=../backend/frontend/dist",
-    "import-apac": "bun run scripts/import_apac_prices.ts"
+    "import-apac": "bun run scripts/import_apac_prices.ts",
+    "generate-prices": "bun run scripts/generate_prices.ts"
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",

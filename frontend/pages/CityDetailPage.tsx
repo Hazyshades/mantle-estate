@@ -235,10 +235,34 @@ export default function CityDetailPage() {
     let filtered: PricePoint[] = [];
     
     switch (timeRange) {
-      case "1d":
+      case "1d": {
         cutoffDate.setDate(now.getDate() - 1);
         filtered = priceHistory.filter((point) => new Date(point.timestamp) >= cutoffDate);
+        
+        // If no data for today, add current city price to show current state
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const hasTodayData = filtered.some((point) => {
+          const pointDate = new Date(point.timestamp);
+          pointDate.setHours(0, 0, 0, 0);
+          return pointDate.getTime() === today.getTime();
+        });
+        
+        if (!hasTodayData && city) {
+          // Add current price as today's point
+          filtered.push({
+            price: city.indexPriceUsd || city.currentPriceUsd,
+            indexPrice: city.indexPriceUsd || city.currentPriceUsd,
+            marketPrice: city.marketPriceUsd || city.currentPriceUsd,
+            fundingRate: city.fundingRate || 0,
+            timestamp: now, // Use current time for today
+          });
+        }
+        
+        // Sort by timestamp to ensure correct order
+        filtered.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
         break;
+      }
       case "1w": {
         cutoffDate.setDate(now.getDate() - 7);
         cutoffDate.setHours(0, 0, 0, 0); // Start of day

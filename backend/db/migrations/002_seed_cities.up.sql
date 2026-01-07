@@ -60,138 +60,146 @@ BEGIN
   END IF;
 END $$;
 
--- Update existing cities with latest prices from CSV data
--- Update USA cities (update all price fields if they exist)
+-- Update existing cities with latest prices from CSV data (only if prices are NULL or 0)
+-- Update USA cities (update all price fields if they exist and are NULL or 0)
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns 
              WHERE table_name = 'cities' AND column_name = 'index_price_usd') THEN
     UPDATE cities 
     SET current_price_usd = CASE 
-      WHEN name = 'New York, NY' AND country = 'USA' THEN 699394.63
-      WHEN name = 'Miami, FL' AND country = 'USA' THEN 467083.41
-      WHEN name = 'Los Angeles, CA' AND country = 'USA' THEN 932886.24
-      WHEN name = 'Chicago, IL' AND country = 'USA' THEN 334511.79
-      WHEN name = 'Dallas, TX' AND country = 'USA' THEN 359523.20
-      WHEN name = 'Houston, TX' AND country = 'USA' THEN 303674.54
-      WHEN name = 'Washington, DC' AND country = 'USA' THEN 567339.74
-      WHEN name = 'Philadelphia, PA' AND country = 'USA' THEN 375500.89
+      WHEN name = 'New York, NY' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 699394.63
+      WHEN name = 'Miami, FL' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 467083.41
+      WHEN name = 'Los Angeles, CA' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 932886.24
+      WHEN name = 'Chicago, IL' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 334511.79
+      WHEN name = 'Dallas, TX' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 359523.20
+      WHEN name = 'Houston, TX' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 303674.54
+      WHEN name = 'Washington, DC' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 567339.74
+      WHEN name = 'Philadelphia, PA' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 375500.89
       ELSE current_price_usd
     END,
     index_price_usd = CASE 
-      WHEN name = 'New York, NY' AND country = 'USA' THEN 699394.63
-      WHEN name = 'Miami, FL' AND country = 'USA' THEN 467083.41
-      WHEN name = 'Los Angeles, CA' AND country = 'USA' THEN 932886.24
-      WHEN name = 'Chicago, IL' AND country = 'USA' THEN 334511.79
-      WHEN name = 'Dallas, TX' AND country = 'USA' THEN 359523.20
-      WHEN name = 'Houston, TX' AND country = 'USA' THEN 303674.54
-      WHEN name = 'Washington, DC' AND country = 'USA' THEN 567339.74
-      WHEN name = 'Philadelphia, PA' AND country = 'USA' THEN 375500.89
+      WHEN name = 'New York, NY' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 699394.63
+      WHEN name = 'Miami, FL' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 467083.41
+      WHEN name = 'Los Angeles, CA' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 932886.24
+      WHEN name = 'Chicago, IL' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 334511.79
+      WHEN name = 'Dallas, TX' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 359523.20
+      WHEN name = 'Houston, TX' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 303674.54
+      WHEN name = 'Washington, DC' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 567339.74
+      WHEN name = 'Philadelphia, PA' AND country = 'USA' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 375500.89
       ELSE index_price_usd
     END,
     market_price_usd = CASE 
-      WHEN name = 'New York, NY' AND country = 'USA' THEN 699394.63
-      WHEN name = 'Miami, FL' AND country = 'USA' THEN 467083.41
-      WHEN name = 'Los Angeles, CA' AND country = 'USA' THEN 932886.24
-      WHEN name = 'Chicago, IL' AND country = 'USA' THEN 334511.79
-      WHEN name = 'Dallas, TX' AND country = 'USA' THEN 359523.20
-      WHEN name = 'Houston, TX' AND country = 'USA' THEN 303674.54
-      WHEN name = 'Washington, DC' AND country = 'USA' THEN 567339.74
-      WHEN name = 'Philadelphia, PA' AND country = 'USA' THEN 375500.89
+      WHEN name = 'New York, NY' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 699394.63
+      WHEN name = 'Miami, FL' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 467083.41
+      WHEN name = 'Los Angeles, CA' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 932886.24
+      WHEN name = 'Chicago, IL' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 334511.79
+      WHEN name = 'Dallas, TX' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 359523.20
+      WHEN name = 'Houston, TX' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 303674.54
+      WHEN name = 'Washington, DC' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 567339.74
+      WHEN name = 'Philadelphia, PA' AND country = 'USA' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 375500.89
       ELSE market_price_usd
     END,
     last_updated = NOW()
-    WHERE (name = 'New York, NY' AND country = 'USA')
+    WHERE ((name = 'New York, NY' AND country = 'USA')
        OR (name = 'Miami, FL' AND country = 'USA')
        OR (name = 'Los Angeles, CA' AND country = 'USA')
        OR (name = 'Chicago, IL' AND country = 'USA')
        OR (name = 'Dallas, TX' AND country = 'USA')
        OR (name = 'Houston, TX' AND country = 'USA')
        OR (name = 'Washington, DC' AND country = 'USA')
-       OR (name = 'Philadelphia, PA' AND country = 'USA');
+       OR (name = 'Philadelphia, PA' AND country = 'USA'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0 
+            OR index_price_usd IS NULL OR index_price_usd = 0 
+            OR market_price_usd IS NULL OR market_price_usd = 0);
   ELSE
     UPDATE cities 
     SET current_price_usd = CASE 
-      WHEN name = 'New York, NY' AND country = 'USA' THEN 699394.63
-      WHEN name = 'Miami, FL' AND country = 'USA' THEN 467083.41
-      WHEN name = 'Los Angeles, CA' AND country = 'USA' THEN 932886.24
-      WHEN name = 'Chicago, IL' AND country = 'USA' THEN 334511.79
-      WHEN name = 'Dallas, TX' AND country = 'USA' THEN 359523.20
-      WHEN name = 'Houston, TX' AND country = 'USA' THEN 303674.54
-      WHEN name = 'Washington, DC' AND country = 'USA' THEN 567339.74
-      WHEN name = 'Philadelphia, PA' AND country = 'USA' THEN 375500.89
+      WHEN name = 'New York, NY' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 699394.63
+      WHEN name = 'Miami, FL' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 467083.41
+      WHEN name = 'Los Angeles, CA' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 932886.24
+      WHEN name = 'Chicago, IL' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 334511.79
+      WHEN name = 'Dallas, TX' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 359523.20
+      WHEN name = 'Houston, TX' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 303674.54
+      WHEN name = 'Washington, DC' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 567339.74
+      WHEN name = 'Philadelphia, PA' AND country = 'USA' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 375500.89
       ELSE current_price_usd
     END,
     last_updated = NOW()
-    WHERE (name = 'New York, NY' AND country = 'USA')
+    WHERE ((name = 'New York, NY' AND country = 'USA')
        OR (name = 'Miami, FL' AND country = 'USA')
        OR (name = 'Los Angeles, CA' AND country = 'USA')
        OR (name = 'Chicago, IL' AND country = 'USA')
        OR (name = 'Dallas, TX' AND country = 'USA')
        OR (name = 'Houston, TX' AND country = 'USA')
        OR (name = 'Washington, DC' AND country = 'USA')
-       OR (name = 'Philadelphia, PA' AND country = 'USA');
+       OR (name = 'Philadelphia, PA' AND country = 'USA'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0);
   END IF;
 END $$;
 
--- Update APAC cities (update all price fields if they exist)
+-- Update APAC cities (update all price fields if they exist and are NULL or 0)
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns 
              WHERE table_name = 'cities' AND column_name = 'index_price_usd') THEN
     UPDATE cities 
     SET current_price_usd = CASE 
-      WHEN name = 'Tokyo' AND country = 'Japan' THEN 699913.14
-      WHEN name = 'Singapore' AND country = 'Singapore' THEN 1209533.18
-      WHEN name = 'Hong Kong' AND country = 'Hong Kong' THEN 1112948.42
-      WHEN name = 'Shanghai' AND country = 'China' THEN 694201.56
-      WHEN name = 'Sydney' AND country = 'Australia' THEN 990457.34
-      WHEN name = 'Seoul' AND country = 'South Korea' THEN 824345.17
+      WHEN name = 'Tokyo' AND country = 'Japan' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 699913.14
+      WHEN name = 'Singapore' AND country = 'Singapore' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 1209533.18
+      WHEN name = 'Hong Kong' AND country = 'Hong Kong' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 1112948.42
+      WHEN name = 'Shanghai' AND country = 'China' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 694201.56
+      WHEN name = 'Sydney' AND country = 'Australia' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 990457.34
+      WHEN name = 'Seoul' AND country = 'South Korea' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 824345.17
       ELSE current_price_usd
     END,
     index_price_usd = CASE 
-      WHEN name = 'Tokyo' AND country = 'Japan' THEN 699913.14
-      WHEN name = 'Singapore' AND country = 'Singapore' THEN 1209533.18
-      WHEN name = 'Hong Kong' AND country = 'Hong Kong' THEN 1112948.42
-      WHEN name = 'Shanghai' AND country = 'China' THEN 694201.56
-      WHEN name = 'Sydney' AND country = 'Australia' THEN 990457.34
-      WHEN name = 'Seoul' AND country = 'South Korea' THEN 824345.17
+      WHEN name = 'Tokyo' AND country = 'Japan' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 699913.14
+      WHEN name = 'Singapore' AND country = 'Singapore' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 1209533.18
+      WHEN name = 'Hong Kong' AND country = 'Hong Kong' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 1112948.42
+      WHEN name = 'Shanghai' AND country = 'China' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 694201.56
+      WHEN name = 'Sydney' AND country = 'Australia' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 990457.34
+      WHEN name = 'Seoul' AND country = 'South Korea' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 824345.17
       ELSE index_price_usd
     END,
     market_price_usd = CASE 
-      WHEN name = 'Tokyo' AND country = 'Japan' THEN 699913.14
-      WHEN name = 'Singapore' AND country = 'Singapore' THEN 1209533.18
-      WHEN name = 'Hong Kong' AND country = 'Hong Kong' THEN 1112948.42
-      WHEN name = 'Shanghai' AND country = 'China' THEN 694201.56
-      WHEN name = 'Sydney' AND country = 'Australia' THEN 990457.34
-      WHEN name = 'Seoul' AND country = 'South Korea' THEN 824345.17
+      WHEN name = 'Tokyo' AND country = 'Japan' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 699913.14
+      WHEN name = 'Singapore' AND country = 'Singapore' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 1209533.18
+      WHEN name = 'Hong Kong' AND country = 'Hong Kong' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 1112948.42
+      WHEN name = 'Shanghai' AND country = 'China' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 694201.56
+      WHEN name = 'Sydney' AND country = 'Australia' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 990457.34
+      WHEN name = 'Seoul' AND country = 'South Korea' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 824345.17
       ELSE market_price_usd
     END,
     last_updated = NOW()
-    WHERE (name = 'Tokyo' AND country = 'Japan')
+    WHERE ((name = 'Tokyo' AND country = 'Japan')
        OR (name = 'Singapore' AND country = 'Singapore')
        OR (name = 'Hong Kong' AND country = 'Hong Kong')
        OR (name = 'Shanghai' AND country = 'China')
        OR (name = 'Sydney' AND country = 'Australia')
-       OR (name = 'Seoul' AND country = 'South Korea');
+       OR (name = 'Seoul' AND country = 'South Korea'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0 
+            OR index_price_usd IS NULL OR index_price_usd = 0 
+            OR market_price_usd IS NULL OR market_price_usd = 0);
   ELSE
     UPDATE cities 
     SET current_price_usd = CASE 
-      WHEN name = 'Tokyo' AND country = 'Japan' THEN 699913.14
-      WHEN name = 'Singapore' AND country = 'Singapore' THEN 1209533.18
-      WHEN name = 'Hong Kong' AND country = 'Hong Kong' THEN 1112948.42
-      WHEN name = 'Shanghai' AND country = 'China' THEN 694201.56
-      WHEN name = 'Sydney' AND country = 'Australia' THEN 990457.34
-      WHEN name = 'Seoul' AND country = 'South Korea' THEN 824345.17
+      WHEN name = 'Tokyo' AND country = 'Japan' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 699913.14
+      WHEN name = 'Singapore' AND country = 'Singapore' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 1209533.18
+      WHEN name = 'Hong Kong' AND country = 'Hong Kong' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 1112948.42
+      WHEN name = 'Shanghai' AND country = 'China' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 694201.56
+      WHEN name = 'Sydney' AND country = 'Australia' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 990457.34
+      WHEN name = 'Seoul' AND country = 'South Korea' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 824345.17
       ELSE current_price_usd
     END,
     last_updated = NOW()
-    WHERE (name = 'Tokyo' AND country = 'Japan')
+    WHERE ((name = 'Tokyo' AND country = 'Japan')
        OR (name = 'Singapore' AND country = 'Singapore')
        OR (name = 'Hong Kong' AND country = 'Hong Kong')
        OR (name = 'Shanghai' AND country = 'China')
        OR (name = 'Sydney' AND country = 'Australia')
-       OR (name = 'Seoul' AND country = 'South Korea');
+       OR (name = 'Seoul' AND country = 'South Korea'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0);
   END IF;
 END $$;
 
