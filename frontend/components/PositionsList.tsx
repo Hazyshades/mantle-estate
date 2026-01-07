@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Empty } from "@/components/ui/empty";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { Position } from "~backend/trading/get_positions";
 import type { City } from "~backend/city/list";
 import { TrendingDown, TrendingUp, X, Wallet } from "lucide-react";
@@ -21,6 +22,7 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
   const { toast } = useToast();
   const backend = useBackend();
   const navigate = useNavigate();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
 
   // Function to generate cityCode from city name and country (uses state code if available)
   const getCityCode = (cityName: string, country: string): string => {
@@ -138,7 +140,7 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground">Quantity</p>
-                <p className="text-lg font-semibold">{position.quantitySqm.toFixed(2)} sqm</p>
+                <p className="text-lg font-semibold">{convertFromSqft(position.quantitySqm).toFixed(2)} {getUnitLabelLower()}</p>
               </div>
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground">Entry Price</p>
@@ -152,6 +154,9 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 <p className="text-sm leading-none font-medium text-muted-foreground">Unrealized P&L</p>
                 <p className={`text-lg font-semibold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
                   {position.unrealizedPnl >= 0 ? "+" : ""}${position.unrealizedPnl.toFixed(2)}
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (incl. ${position.estimatedClosingFee.toFixed(2)} fee)
+                  </span>
                 </p>
               </div>
             </div>

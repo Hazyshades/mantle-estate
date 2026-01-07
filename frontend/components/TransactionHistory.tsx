@@ -7,6 +7,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { Transaction } from "~backend/trading/get_transactions";
 import { Download, History } from "lucide-react";
 import { useState } from "react";
@@ -19,6 +20,7 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
   const [isExporting, setIsExporting] = useState(false);
   const { toast } = useToast();
   const backend = useBackend();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
 
   const handleExport = async () => {
     setIsExporting(true);
@@ -123,7 +125,7 @@ export default function TransactionHistory({ transactions }: TransactionHistoryP
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium">{transaction.cityName}</TableCell>
-                  <TableCell>{transaction.quantity.toFixed(2)} sqm</TableCell>
+                  <TableCell>{convertFromSqft(transaction.quantity).toFixed(2)} {getUnitLabelLower()}</TableCell>
                   <TableCell>${transaction.price.toFixed(2)}</TableCell>
                   <TableCell>${transaction.fee.toFixed(2)}</TableCell>
                   <TableCell>

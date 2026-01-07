@@ -14,7 +14,7 @@ interface ClosePositionResponse {
   exitPrice: number;
 }
 
-const FEE_RATE = 0.001; // 0.1%
+const FEE_RATE = 0.0001; // 0.01%
 
 // Close an open position
 export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
@@ -69,7 +69,43 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
         throw APIError.notFound("City not found");
       }
 
-      const exitPrice = city.index_price_usd;
+      // Calculate exit price WITHOUT current position's influence
+      // This ensures consistency with unrealized P&L calculation
+      const allPositions = await tx.queryAll<{
+        id: number;
+        position_type: string;
+        quantity_sqm: number;
+        entry_price: number;
+      }>`
+        SELECT id, position_type, quantity_sqm, entry_price
+        FROM positions
+        WHERE city_id = ${position.city_id} AND closed_at IS NULL AND id != ${positionId}
+      `;
+
+      let totalLongValue = 0;
+      let totalShortValue = 0;
+
+      for (const pos of allPositions) {
+        const value = pos.quantity_sqm * pos.entry_price;
+        if (pos.position_type === "long") {
+          totalLongValue += value;
+        } else {
+          totalShortValue += value;
+        }
+      }
+
+      // Calculate index price without current position's influence
+      const metricsWithoutCurrent = {
+        totalLongValue,
+        totalShortValue,
+        totalOI: totalLongValue + totalShortValue,
+        volume24h: 0, // Not needed for index price calculation
+      };
+
+      const exitPrice = calculateIndexPrice(
+        city.market_price_usd,
+        metricsWithoutCurrent
+      );
 
       // Calculate P&L
       const currentValue = position.quantity_sqm * exitPrice;

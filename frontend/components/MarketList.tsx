@@ -17,8 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { Search, Filter, List, Settings, X, ChevronDown, ChevronUp } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 
 interface MarketListProps {
   cities: City[];
@@ -36,15 +35,22 @@ const APAC_COUNTRIES = [
   "South Korea",
 ];
 
+// Europe cities list - defined outside component
+const EUROPE_CITIES = [
+  "London",
+  "Paris",
+  "Berlin",
+];
+
 interface MarketRowProps {
   city: City;
   balance: number;
   onTradeComplete: () => void;
-  unitType: "sqft" | "sqm";
 }
 
-function MarketCard({ city, balance, onTradeComplete, unitType }: MarketRowProps) {
+function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
   const navigate = useNavigate();
+  const { unitType, convertFromSqft, getUnitLabel } = useUnitPreference();
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [cityMetrics, setCityMetrics] = useState<CityMetrics | null>(null);
 
@@ -237,12 +243,9 @@ function MarketCard({ city, balance, onTradeComplete, unitType }: MarketRowProps
             
             {/* Price per Square Unit */}
             {city.averagePropertySizeSqft && (() => {
-              const SQFT_TO_SQM = 0.092903; // 1 sqft = 0.092903 sqm
-              const averageSizeInUnit = unitType === "sqm" 
-                ? city.averagePropertySizeSqft * SQFT_TO_SQM
-                : city.averagePropertySizeSqft;
+              const averageSizeInUnit = convertFromSqft(city.averagePropertySizeSqft);
               const pricePerUnit = city.indexPriceUsd / averageSizeInUnit;
-              const unitLabel = unitType === "sqm" ? "Sqm" : "Sqft";
+              const unitLabel = getUnitLabel();
               
               return (
                 <p className="text-sm font-medium text-slate-600 dark:text-slate-400" aria-label={`Price per ${unitLabel.toLowerCase()}: $${pricePerUnit.toFixed(2)}`}>
@@ -282,9 +285,10 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
   const [showFilters, setShowFilters] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [unitType, setUnitType] = useState<"sqft" | "sqm">("sqft");
+  const { getUnitLabel } = useUnitPreference();
   const [isApacExpanded, setIsApacExpanded] = useState(true);
   const [isUsaExpanded, setIsUsaExpanded] = useState(true);
+  const [isEuropeExpanded, setIsEuropeExpanded] = useState(true);
 
   // Filter cities by search and price range
   const baseFilteredCities = useMemo(() => {
@@ -309,22 +313,24 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
     });
   }, [cities, search, minPrice, maxPrice]);
 
-  // Separate cities into APAC and USA
-  const { apacCities, usaCities } = useMemo(() => {
+  // Separate cities into APAC, USA, and Europe
+  const { apacCities, usaCities, europeCities } = useMemo(() => {
     const apac: typeof cities = [];
     const usa: typeof cities = [];
+    const europe: typeof cities = [];
 
     baseFilteredCities.forEach((city) => {
       if (city.country === "USA") {
         usa.push(city);
       } else if (APAC_COUNTRIES.includes(city.country)) {
         apac.push(city);
+      } else if (EUROPE_CITIES.includes(city.name)) {
+        europe.push(city);
       }
-      // Other cities (Europe, etc.) are excluded for now
-      // Only APAC and USA cities are shown
+      // Other cities are excluded for now
     });
 
-    return { apacCities: apac, usaCities: usa };
+    return { apacCities: apac, usaCities: usa, europeCities: europe };
   }, [baseFilteredCities, cities]);
 
   const clearFilters = () => {
@@ -396,7 +402,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
               <Separator />
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label className="text-sm leading-none font-medium">Price Range (USD/sqft)</Label>
+                  <Label className="text-sm leading-none font-medium">Price Range (USD/{getUnitLabel().toLowerCase()})</Label>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <Input
@@ -422,40 +428,6 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
             </div>
           </PopoverContent>
         </Popover>
-
-        {/* Unit Type Toggle */}
-        <ToggleGroup 
-          type="single" 
-          value={unitType}
-          onValueChange={(value) => {
-            if (value && (value === "sqft" || value === "sqm")) {
-              setUnitType(value);
-            }
-          }}
-          variant="outline"
-          className="border-gray-200 dark:border-slate-700"
-        >
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <ToggleGroupItem value="sqft" aria-label="Square feet">
-                Sqft
-              </ToggleGroupItem>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Square feet</p>
-            </TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <ToggleGroupItem value="sqm" aria-label="Square meters">
-                Sqm
-              </ToggleGroupItem>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Square meters</p>
-            </TooltipContent>
-          </Tooltip>
-        </ToggleGroup>
 
         {/* View Toggle Icons */}
         <div className="flex items-center gap-2">
@@ -505,7 +477,42 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                   city={city}
                   balance={balance}
                   onTradeComplete={onTradeComplete}
-                  unitType={unitType}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Market Cards Grid - Europe Section */}
+      {europeCities.length > 0 && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="scroll-m-20 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
+              Europe Markets
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsEuropeExpanded(!isEuropeExpanded)}
+              className="h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              aria-label={isEuropeExpanded ? "Hide block Europe" : "Show block Europe"}
+            >
+              {isEuropeExpanded ? (
+                <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+              )}
+            </Button>
+          </div>
+          {isEuropeExpanded && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of Europe real estate markets">
+              {europeCities.map((city) => (
+                <MarketCard
+                  key={city.id}
+                  city={city}
+                  balance={balance}
+                  onTradeComplete={onTradeComplete}
                 />
               ))}
             </div>
@@ -542,7 +549,6 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                   city={city}
                   balance={balance}
                   onTradeComplete={onTradeComplete}
-                  unitType={unitType}
                 />
               ))}
             </div>
@@ -551,7 +557,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
       )}
 
       {/* Empty State */}
-      {apacCities.length === 0 && usaCities.length === 0 && (
+      {apacCities.length === 0 && usaCities.length === 0 && europeCities.length === 0 && (
         <Empty
           title="No markets found"
           description="Try adjusting your search or filters to find more markets"

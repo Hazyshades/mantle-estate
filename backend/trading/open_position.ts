@@ -18,7 +18,7 @@ interface OpenPositionResponse {
   newBalance: number;
 }
 
-const FEE_RATE = 0.001; // 0.1%
+const FEE_RATE = 0.0001; // 0.01%
 
 // Open a new position (buy/short)
 export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(

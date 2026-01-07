@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import type { CityMetrics } from "~backend/city/get_metrics";
@@ -48,6 +49,7 @@ export default function CityDetailModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const backendClient = useBackend();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
 
   useEffect(() => {
     if (isOpen) {
@@ -301,9 +303,11 @@ export default function CityDetailModal({
         leverage: 1,
       });
 
+      const quantityInUnit = convertFromSqft(response.quantitySqm);
+      const unitLabel = getUnitLabelLower();
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Sold"} ${response.quantitySqm.toFixed(2)} sqm at $${response.entryPrice.toFixed(2)}/sqm`,
+        description: `${tradeType === "long" ? "Bought" : "Sold"} ${quantityInUnit.toFixed(2)} ${unitLabel} at $${response.entryPrice.toFixed(2)}/${unitLabel}`,
       });
 
       onTradeComplete();

@@ -15,12 +15,12 @@ BEGIN
       ('Houston, TX', 'USA', 303674.54, 303674.54, 303674.54, 0.0),
       ('Washington, DC', 'USA', 567339.74, 567339.74, 567339.74, 0.0),
       ('Philadelphia, PA', 'USA', 375500.89, 375500.89, 375500.89, 0.0),
-      ('London', 'UK', 11000.00, 11000.00, 11000.00, 0.0),
-      ('Paris', 'France', 9500.00, 9500.00, 9500.00, 0.0),
+      ('London', 'UK', 700000.00, 700000.00, 700000.00, 0.0),
+      ('Paris', 'France', 550000.00, 550000.00, 550000.00, 0.0),
       ('Tokyo', 'Japan', 699913.14, 699913.14, 699913.14, 0.0),
       ('Singapore', 'Singapore', 1209533.18, 1209533.18, 1209533.18, 0.0),
-      ('Berlin', 'Germany', 7000.00, 7000.00, 7000.00, 0.0),
-      ('Dubai', 'UAE', 5500.00, 5500.00, 5500.00, 0.0),
+      ('Berlin', 'Germany', 465000.00, 465000.00, 465000.00, 0.0),
+      ('Dubai', 'UAE', 760000.00, 760000.00, 760000.00, 0.0),
       ('Hong Kong', 'Hong Kong', 1112948.42, 1112948.42, 1112948.42, 0.0),
       ('Shanghai', 'China', 694201.56, 694201.56, 694201.56, 0.0),
       ('Sydney', 'Australia', 990457.34, 990457.34, 990457.34, 0.0),
@@ -42,12 +42,12 @@ BEGIN
       ('Houston, TX', 'USA', 303674.54),
       ('Washington, DC', 'USA', 567339.74),
       ('Philadelphia, PA', 'USA', 375500.89),
-      ('London', 'UK', 11000.00),
-      ('Paris', 'France', 9500.00),
+      ('London', 'UK', 700000.00),
+      ('Paris', 'France', 550000.00),
       ('Tokyo', 'Japan', 699913.14),
       ('Singapore', 'Singapore', 1209533.18),
-      ('Berlin', 'Germany', 7000.00),
-      ('Dubai', 'UAE', 5500.00),
+      ('Berlin', 'Germany', 465000.00),
+      ('Dubai', 'UAE', 760000.00),
       ('Hong Kong', 'Hong Kong', 1112948.42),
       ('Shanghai', 'China', 694201.56),
       ('Sydney', 'Australia', 990457.34),
@@ -199,6 +199,59 @@ BEGIN
        OR (name = 'Shanghai' AND country = 'China')
        OR (name = 'Sydney' AND country = 'Australia')
        OR (name = 'Seoul' AND country = 'South Korea'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0);
+  END IF;
+END $$;
+
+-- Update Europe and Dubai cities (update all price fields if they exist and are NULL or 0)
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns 
+             WHERE table_name = 'cities' AND column_name = 'index_price_usd') THEN
+    UPDATE cities 
+    SET current_price_usd = CASE 
+      WHEN name = 'London' AND country = 'UK' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 700000.00
+      WHEN name = 'Paris' AND country = 'France' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 550000.00
+      WHEN name = 'Berlin' AND country = 'Germany' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 465000.00
+      WHEN name = 'Dubai' AND country = 'UAE' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 760000.00
+      ELSE current_price_usd
+    END,
+    index_price_usd = CASE 
+      WHEN name = 'London' AND country = 'UK' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 700000.00
+      WHEN name = 'Paris' AND country = 'France' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 550000.00
+      WHEN name = 'Berlin' AND country = 'Germany' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 465000.00
+      WHEN name = 'Dubai' AND country = 'UAE' AND (index_price_usd IS NULL OR index_price_usd = 0) THEN 760000.00
+      ELSE index_price_usd
+    END,
+    market_price_usd = CASE 
+      WHEN name = 'London' AND country = 'UK' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 700000.00
+      WHEN name = 'Paris' AND country = 'France' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 550000.00
+      WHEN name = 'Berlin' AND country = 'Germany' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 465000.00
+      WHEN name = 'Dubai' AND country = 'UAE' AND (market_price_usd IS NULL OR market_price_usd = 0) THEN 760000.00
+      ELSE market_price_usd
+    END,
+    last_updated = NOW()
+    WHERE ((name = 'London' AND country = 'UK')
+       OR (name = 'Paris' AND country = 'France')
+       OR (name = 'Berlin' AND country = 'Germany')
+       OR (name = 'Dubai' AND country = 'UAE'))
+       AND (current_price_usd IS NULL OR current_price_usd = 0 
+            OR index_price_usd IS NULL OR index_price_usd = 0 
+            OR market_price_usd IS NULL OR market_price_usd = 0);
+  ELSE
+    UPDATE cities 
+    SET current_price_usd = CASE 
+      WHEN name = 'London' AND country = 'UK' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 700000.00
+      WHEN name = 'Paris' AND country = 'France' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 550000.00
+      WHEN name = 'Berlin' AND country = 'Germany' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 465000.00
+      WHEN name = 'Dubai' AND country = 'UAE' AND (current_price_usd IS NULL OR current_price_usd = 0) THEN 760000.00
+      ELSE current_price_usd
+    END,
+    last_updated = NOW()
+    WHERE ((name = 'London' AND country = 'UK')
+       OR (name = 'Paris' AND country = 'France')
+       OR (name = 'Berlin' AND country = 'Germany')
+       OR (name = 'Dubai' AND country = 'UAE'))
        AND (current_price_usd IS NULL OR current_price_usd = 0);
   END IF;
 END $$;

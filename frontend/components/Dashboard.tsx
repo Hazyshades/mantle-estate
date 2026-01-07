@@ -161,12 +161,10 @@ export default function Dashboard({ userId }: DashboardProps) {
         <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
           <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary/15 p-3 text-primary">
-                <Building2 className="h-7 w-7" />
-              </div>
+              <img src="/images/logos/main_page.png" alt="Logo" className="h-12 w-12 rounded-full" />
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground uppercase tracking-[0.12em]">Synthetic Real Estate</p>
-                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading Desk</h1>
+                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Trading Desk</h1>
               </div>
             </div>
             <div className="flex items-center gap-3">
