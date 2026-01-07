@@ -92,7 +92,7 @@ export default function TradeDialog({
   const amountNum = parseFloat(amount) || 0;
   const leverageNum = parseInt(leverage);
   const positionSize = (amountNum * leverageNum) / city.currentPriceUsd;
-  const fee = amountNum * leverageNum * 0.001;
+  const fee = amountNum * leverageNum * 0.0001;
   const totalCost = amountNum + fee;
 
   return (
@@ -143,7 +143,7 @@ export default function TradeDialog({
                 <span className="text-lg font-semibold">{convertFromSqft(positionSize).toFixed(2)} {getUnitLabelLower()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm leading-none font-medium text-muted-foreground">Trading fee (0.1%):</span>
+                <span className="text-sm leading-none font-medium text-muted-foreground">Trading fee (0.01%):</span>
                 <span className="text-lg font-semibold">${fee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2">

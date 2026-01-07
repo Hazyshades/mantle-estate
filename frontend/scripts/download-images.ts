@@ -1,3 +1,4 @@
+// @ts-nocheck
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,17 +10,17 @@ interface ImageUrl {
   city: string;
   type: 'card' | 'sights' | 'outdoors';
   url: string;
-  index?: number; // для массивов sights
+  index?: number; // for sights arrays
 }
 
 const imagesDir = path.join(__dirname, '../public/images');
 
-// Создаем папку если её нет
+// Create directory if it doesn't exist
 if (!fs.existsSync(imagesDir)) {
   fs.mkdirSync(imagesDir, { recursive: true });
 }
 
-// Все URL изображений
+// All image URLs
 const imageUrls: ImageUrl[] = [
   // Card images
   { city: 'new york', type: 'card', url: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D' },
@@ -85,7 +86,7 @@ const imageUrls: ImageUrl[] = [
 function getFileName(city: string, type: string, index?: number): string {
   const citySlug = city.replace(/\s+/g, '-');
   const indexSuffix = index !== undefined ? `-${index}` : '';
-  // Определяем расширение из URL или используем jpg по умолчанию
+  // Determine extension from URL or default to jpg
   const url = imageUrls.find(img => img.city === city && img.type === type && img.index === index)?.url || '';
   let ext = 'jpg';
   if (url.includes('.webp')) ext = 'webp';
@@ -96,7 +97,7 @@ function getFileName(city: string, type: string, index?: number): string {
 
 async function downloadImage(url: string, filePath: string): Promise<void> {
   try {
-    console.log(`Скачиваю: ${url}`);
+    console.log(`Downloading: ${url}`);
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -104,31 +105,31 @@ async function downloadImage(url: string, filePath: string): Promise<void> {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     fs.writeFileSync(filePath, buffer);
-    console.log(`✓ Сохранено: ${filePath}`);
+    console.log(`✓ Saved: ${filePath}`);
   } catch (error) {
-    console.error(`✗ Ошибка при скачивании ${url}:`, error);
+    console.error(`✗ Error downloading ${url}:`, error);
   }
 }
 
 async function main() {
-  console.log(`Скачиваю ${imageUrls.length} изображений в ${imagesDir}...\n`);
+  console.log(`Downloading ${imageUrls.length} images to ${imagesDir}...\n`);
   
   for (const img of imageUrls) {
     const fileName = getFileName(img.city, img.type, img.index);
     const filePath = path.join(imagesDir, fileName);
     
-    // Пропускаем если файл уже существует
+    // Skip if file already exists
     if (fs.existsSync(filePath)) {
-      console.log(`⊘ Пропущено (уже существует): ${fileName}`);
+      console.log(`⊘ Skipped (already exists): ${fileName}`);
       continue;
     }
     
     await downloadImage(img.url, filePath);
-    // Небольшая задержка между запросами
+    // Small delay between requests
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   
-  console.log('\n✓ Завершено!');
+  console.log('\n✓ Completed!');
 }
 
 main().catch(console.error);

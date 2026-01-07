@@ -89,7 +89,7 @@ async function importOtherPriceHistory() {
   console.log("Starting Other (Europe/Dubai) data import from CSV...");
 
   // Read CSV file
-  const csvPath = join(__dirname, "../db/csv_data/other.csv");
+  const csvPath = join(__dirname, "../db/csv_data/europe.csv");
   const csvContent = readFileSync(csvPath, "utf-8");
   const rows = parseCSV(csvContent);
 

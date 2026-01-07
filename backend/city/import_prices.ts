@@ -513,7 +513,7 @@ export const importOtherPriceHistory = api<void, ImportPricesResponse>(
       // Read other CSV file
       const csvPath = join(
         __dirname,
-        "../../../../db/csv_data/other.csv"
+        "../../../../db/csv_data/europe.csv"
       );
       const csvContent = readFileSync(csvPath, "utf-8");
       const rows = parseCSV(csvContent);
