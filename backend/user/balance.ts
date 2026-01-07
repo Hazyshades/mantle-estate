@@ -12,16 +12,24 @@ export const getBalance = api<void, BalanceResponse>(
     const auth = getAuthData()!;
     const userId = auth.userID;
 
-    let user = await db.queryRow<{ balance: number }>`
-      SELECT balance FROM users WHERE id = ${userId}
+    let user = await db.queryRow<{ balance: number; wallet_address: string | null }>`
+      SELECT balance, wallet_address FROM users WHERE id = ${userId}
     `;
 
     if (!user) {
+      // Create new user with wallet address if available
       await db.exec`
-        INSERT INTO users (id, email, balance)
-        VALUES (${userId}, ${auth.email}, 100.0)
+        INSERT INTO users (id, email, balance, wallet_address)
+        VALUES (${userId}, ${auth.email}, 100.0, ${auth.walletAddress})
       `;
-      user = { balance: 100.0 };
+      user = { balance: 100.0, wallet_address: auth.walletAddress };
+    } else if (auth.walletAddress && user.wallet_address !== auth.walletAddress) {
+      // Update wallet address if it has changed
+      await db.exec`
+        UPDATE users 
+        SET wallet_address = ${auth.walletAddress}
+        WHERE id = ${userId}
+      `;
     }
 
     return { balance: user.balance };

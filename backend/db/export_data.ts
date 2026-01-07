@@ -23,6 +23,7 @@ interface DatabaseExport {
     id: string;
     email: string | null;
     balance: number;
+    wallet_address: string | null;
   }>;
   positions: Array<{
     user_id: string;
@@ -97,8 +98,9 @@ export const exportData = api<void, DatabaseExport>(
       id: string;
       email: string | null;
       balance: number;
+      wallet_address: string | null;
     }>`
-      SELECT id, email, balance
+      SELECT id, email, balance, wallet_address
       FROM users
       ORDER BY id
     `;
@@ -223,6 +225,7 @@ export const exportData = api<void, DatabaseExport>(
         id: u.id,
         email: u.email,
         balance: u.balance,
+        wallet_address: u.wallet_address,
       })),
       positions: positionsWithMapping,
       transactions: transactionsWithMapping,

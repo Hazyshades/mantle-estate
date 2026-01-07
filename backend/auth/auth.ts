@@ -13,6 +13,7 @@ interface AuthParams {
 export interface AuthData {
   userID: string;
   email: string | null;
+  walletAddress: string | null;
 }
 
 export const auth = authHandler<AuthParams, AuthData>(async (data) => {
@@ -27,9 +28,16 @@ export const auth = authHandler<AuthParams, AuthData>(async (data) => {
     });
 
     const user = await clerkClient.users.getUser(verifiedToken.sub);
+    
+    // Get MetaMask wallet address from Web3 wallets
+    // Clerk stores Web3 wallets in user.web3Wallets array
+    // Each wallet has a web3Wallet property containing the address
+    const walletAddress = user.web3Wallets?.[0]?.web3Wallet ?? null;
+    
     return {
       userID: user.id,
       email: user.emailAddresses[0]?.emailAddress ?? null,
+      walletAddress: walletAddress,
     };
   } catch (err) {
     throw APIError.unauthenticated("invalid token", err as Error);
