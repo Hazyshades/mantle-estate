@@ -488,7 +488,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
               size="icon"
               onClick={() => setIsApacExpanded(!isApacExpanded)}
               className="h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-              aria-label={isApacExpanded ? "Скрыть раздел APAC" : "Показать раздел APAC"}
+              aria-label={isApacExpanded ? "Hide block APAC" : "Show block APAC"}
             >
               {isApacExpanded ? (
                 <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
@@ -525,7 +525,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
               size="icon"
               onClick={() => setIsUsaExpanded(!isUsaExpanded)}
               className="h-8 w-8 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-              aria-label={isUsaExpanded ? "Скрыть раздел USA" : "Показать раздел USA"}
+              aria-label={isUsaExpanded ? "Hide block USA" : "Show block USA"}
             >
               {isUsaExpanded ? (
                 <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" />
