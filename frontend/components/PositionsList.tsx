@@ -139,8 +139,8 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <p className="text-sm leading-none font-medium text-muted-foreground">Quantity</p>
-                <p className="text-lg font-semibold">{convertFromSqft(position.quantitySqm).toFixed(2)} {getUnitLabelLower()}</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Margin Used</p>
+                <p className="text-lg font-semibold">${position.marginRequired.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground">Entry Price</p>

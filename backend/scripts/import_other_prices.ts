@@ -250,3 +250,4 @@ importOtherPriceHistory()
     process.exit(1);
   });
 
+

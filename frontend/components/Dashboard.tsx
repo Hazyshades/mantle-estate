@@ -195,7 +195,7 @@ export default function Dashboard({ userId }: DashboardProps) {
         </header>
 
         <div className="container mx-auto px-4 py-8 space-y-8">
-        {balance < 1000 && (
+       {/* } {balance < 1000 && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Low Balance</AlertTitle>
@@ -203,7 +203,7 @@ export default function Dashboard({ userId }: DashboardProps) {
               Your balance is below $1,000. Consider adding funds to continue trading.
             </AlertDescription>
           </Alert>
-        )}
+        )} */} 
         <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white dark:from-slate-900 dark:via-primary/10 dark:to-slate-900 p-6 shadow-sm">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
           <div className="relative grid grid-cols-1 md:grid-cols-5 gap-6">
