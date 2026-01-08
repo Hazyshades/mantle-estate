@@ -124,15 +124,17 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 )}
               </div>
               <Button
-                variant="ghost"
-                size="sm"
+                variant="destructive"
+                size="default"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent click event bubbling
                   handleClose(position.id);
                 }}
                 disabled={closingPositionId === position.id}
+                className="font-semibold"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 mr-2" />
+                {closingPositionId === position.id ? "Closing..." : "Close Position"}
               </Button>
             </div>
           </CardHeader>

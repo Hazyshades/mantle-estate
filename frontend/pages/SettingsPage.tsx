@@ -4,17 +4,61 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ArrowLeft, Settings as SettingsIcon, User, Bell, Shield, Palette, Ruler } from "lucide-react";
+import { ArrowLeft, Settings as SettingsIcon, User, Bell, Shield, Palette, Ruler, Copy, Check } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useUser } from "@clerk/clerk-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useUnitPreference } from "@/lib/useUnitPreference";
+import { useBackend } from "@/lib/useBackend";
+import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
   const { user } = useUser();
   const { unitType, setUnitType } = useUnitPreference();
+  const backend = useBackend();
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isLoadingWallet, setIsLoadingWallet] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadWalletAddress = async () => {
+      try {
+        const response = await backend.user.getUserInfo();
+        setWalletAddress(response.walletAddress);
+      } catch (error) {
+        console.error("Error loading wallet address:", error);
+      } finally {
+        setIsLoadingWallet(false);
+      }
+    };
+
+    loadWalletAddress();
+  }, [backend]);
+
+  const handleCopyAddress = async () => {
+    if (!walletAddress) return;
+    
+    try {
+      await navigator.clipboard.writeText(walletAddress);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Wallet address copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+      toast({
+        variant: "destructive",
+        title: "Failed to copy",
+        description: "Please try again",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
@@ -68,6 +112,34 @@ export default function SettingsPage() {
                     <p className="text-sm text-muted-foreground">
                       {user?.emailAddresses[0]?.emailAddress || "No email"}
                     </p>
+                    {!isLoadingWallet && walletAddress && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <p className="text-sm text-muted-foreground font-mono">
+                          {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+                        </p>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyAddress();
+                          }}
+                          title="Copy full address"
+                        >
+                          {copied ? (
+                            <Check className="h-3 w-3 text-green-500" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                    {!isLoadingWallet && !walletAddress && (
+                      <p className="text-sm text-muted-foreground mt-1 italic">
+                        Wallet address not connected
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Separator />
@@ -166,14 +238,6 @@ export default function SettingsPage() {
                   </ToggleGroup>
                 </div>
                 <Separator />
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    This setting will be applied across the entire platform.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Stored in: <code className="px-1 py-0.5 rounded bg-muted text-xs">localStorage</code> (key: <code className="px-1 py-0.5 rounded bg-muted text-xs">unit_preference</code>)
-                  </p>
-                </div>
               </CardContent>
             </Card>
 
