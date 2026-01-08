@@ -154,6 +154,11 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 <p className="text-sm leading-none font-medium text-muted-foreground">Unrealized P&L</p>
                 <p className={`text-lg font-semibold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
                   {position.unrealizedPnl >= 0 ? "+" : ""}${position.unrealizedPnl.toFixed(2)}
+                  {position.marginRequired > 0 && (
+                    <span className="ml-1">
+                      ({position.unrealizedPnl >= 0 ? "+" : ""}{((position.unrealizedPnl / position.marginRequired) * 100).toFixed(2)}%)
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground ml-1">
                     (incl. ${position.estimatedClosingFee.toFixed(2)} fee)
                   </span>

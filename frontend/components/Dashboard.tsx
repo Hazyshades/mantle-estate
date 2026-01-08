@@ -208,8 +208,8 @@ export default function Dashboard({ userId }: DashboardProps) {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
           <div className="relative grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="col-span-1 md:col-span-2 space-y-2">
-              <p className="text-sm leading-none font-medium text-muted-foreground">Summary metrics</p>
-              <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Welcome back</h2>
+              <p className="text-sm leading-none font-medium text-muted-foreground">Portfolio</p>
+              <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Summary metrics</h2>
               <p className="leading-7 text-muted-foreground max-w-xl [&:not(:first-child)]:mt-6">
                 Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
