@@ -6,6 +6,7 @@ import { ThemeProvider } from "./components/ThemeProvider";
 import Dashboard from "./components/Dashboard";
 import CityDetailPage from "./pages/CityDetailPage";
 import SettingsPage from "./pages/SettingsPage";
+import MintDepositPage from "./pages/MintDepositPage";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
 
@@ -44,6 +45,7 @@ function AppInner() {
               <Route path="/positions" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
               <Route path="/history" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
               <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
+              <Route path="/mint-deposit" element={user ? <MintDepositPage /> : <Navigate to="/" />} />
               <Route path="/" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
             </Routes>
           </SignedIn>

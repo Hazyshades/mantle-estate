@@ -76,7 +76,7 @@ async function importPriceHistory() {
   console.log("Starting data import from CSV...");
 
   // Read CSV file (run from backend; if from .encore/build, need to go up)
-  const csvPath = join(__dirname, "../db/csv_data/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv");
+  const csvPath = join(__dirname, "../db/csv_data/zhvi_2025-11.30.csv");
   const csvContent = readFileSync(csvPath, "utf-8");
   const rows = parseCSV(csvContent);
 

@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",
-    "encore.dev": "^1.53.4"
+    "encore.dev": "^1.53.4",
+    "ethers": "^6"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

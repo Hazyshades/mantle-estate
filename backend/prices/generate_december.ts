@@ -5,8 +5,8 @@ import db from "../db";
  * Generates prices for all cities from January 1 to current date
  * based on the last price with fluctuations of ±0.3%
  */
-export const generateDecemberPrices = api<{ force?: boolean }, { success: boolean; message: string; citiesUpdated: number }>(
-  { expose: true, method: "POST", path: "/prices/generate-december" },
+export const generateLastMonth = api<{ force?: boolean }, { success: boolean; message: string; citiesUpdated: number }>(
+  { expose: true, method: "POST", path: "/prices/generated-last-month" },
   async (req: { force?: boolean } = {}): Promise<{ success: boolean; message: string; citiesUpdated: number }> => {
     const force = req?.force ?? false;
     console.log("Starting historical price generation...");
