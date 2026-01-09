@@ -15,10 +15,19 @@ UPDATE cities SET average_property_size_sqft = 1586 WHERE name = 'Philadelphia, 
 -- Set approximate values for international cities (based on typical apartment sizes)
 UPDATE cities SET average_property_size_sqft = 1060 WHERE name = 'London' AND country = 'UK';
 UPDATE cities SET average_property_size_sqft = 560 WHERE name = 'Paris' AND country = 'France';
-UPDATE cities SET average_property_size_sqft = 979 WHERE name = 'Tokyo' AND country = 'Japan';
-UPDATE cities SET average_property_size_sqft = 929 WHERE name = 'Singapore' AND country = 'Singapore';
 UPDATE cities SET average_property_size_sqft = 877 WHERE name = 'Berlin' AND country = 'Germany';
 UPDATE cities SET average_property_size_sqft = 1012 WHERE name = 'Dubai' AND country = 'UAE';
+
+
+-- APAC Set approximate values for APAC cities (based on typical apartment/house sizes in 2025)
+UPDATE cities SET average_property_size_sqft = 710 WHERE name = 'Tokyo' AND country = 'Japan';  -- ~66 m²
+UPDATE cities SET average_property_size_sqft = 926 WHERE name = 'Singapore' AND country = 'Singapore';  -- ~86 m²
+UPDATE cities SET average_property_size_sqft = 484 WHERE name = 'Hong Kong' AND country = 'Hong Kong';  -- ~45 m²
+UPDATE cities SET average_property_size_sqft = 969 WHERE name = 'Shanghai' AND country = 'China';  -- ~90 m²
+UPDATE cities SET average_property_size_sqft = 2605 WHERE name = 'Sydney' AND country = 'Australia';  -- ~242 m²
+UPDATE cities SET average_property_size_sqft = 915 WHERE name = 'Seoul' AND country = 'South Korea';  -- ~85 m²
+
+
 
 
 

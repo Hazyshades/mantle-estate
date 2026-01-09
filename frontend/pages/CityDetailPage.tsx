@@ -13,6 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
 import type { CityMetrics } from "~backend/city/get_metrics";
@@ -62,6 +63,7 @@ type TimeRange = "1d" | "1w" | "1m" | "all";
 export default function CityDetailPage() {
   const { cityCode } = useParams<{ cityCode: string }>();
   const navigate = useNavigate();
+  const { convertFromSqft, convertToSqft, getUnitLabel, getUnitLabelLower } = useUnitPreference();
   const [city, setCity] = useState<City | null>(null);
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [balance, setBalance] = useState<number>(0);
@@ -155,53 +157,33 @@ export default function CityDetailPage() {
 
   // Helper function to aggregate data by day
   const aggregateByDay = (data: PricePoint[]): PricePoint[] => {
-    const dailyData = new Map<string, {
-      prices: number[];
-      indexPrices: number[];
-      marketPrices: number[];
-      timestamps: Date[];
-      fundingRates: number[];
-    }>();
+    const dailyData = new Map<string, PricePoint[]>();
 
     data.forEach((point) => {
       const date = new Date(point.timestamp);
       const dayKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
       
       if (!dailyData.has(dayKey)) {
-        dailyData.set(dayKey, {
-          prices: [],
-          indexPrices: [],
-          marketPrices: [],
-          timestamps: [],
-          fundingRates: [],
-        });
+        dailyData.set(dayKey, []);
       }
       
-      const dayData = dailyData.get(dayKey)!;
-      dayData.prices.push(point.price);
-      dayData.indexPrices.push(point.indexPrice);
-      dayData.marketPrices.push(point.marketPrice);
-      dayData.timestamps.push(new Date(point.timestamp));
-      dayData.fundingRates.push(point.fundingRate);
+      dailyData.get(dayKey)!.push(point);
     });
 
     return Array.from(dailyData.entries())
-      .map(([dayKey, data]) => {
-        const avgPrice = data.prices.reduce((a, b) => a + b, 0) / data.prices.length;
-        const avgIndexPrice = data.indexPrices.reduce((a, b) => a + b, 0) / data.indexPrices.length;
-        const avgMarketPrice = data.marketPrices.reduce((a, b) => a + b, 0) / data.marketPrices.length;
-        const avgFundingRate = data.fundingRates.reduce((a, b) => a + b, 0) / data.fundingRates.length;
-        
-        const lastTimestamp = data.timestamps.reduce((latest, current) => 
-          current > latest ? current : latest
+      .map(([dayKey, points]) => {
+        const sortedPoints = points.sort((a, b) => 
+          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
         );
+        
+        const lastPoint = sortedPoints[sortedPoints.length - 1];
 
         return {
-          price: avgPrice,
-          indexPrice: avgIndexPrice,
-          marketPrice: avgMarketPrice,
-          fundingRate: avgFundingRate,
-          timestamp: lastTimestamp,
+          price: lastPoint.price,
+          indexPrice: lastPoint.indexPrice,
+          marketPrice: lastPoint.marketPrice,
+          fundingRate: lastPoint.fundingRate,
+          timestamp: lastPoint.timestamp,
         };
       })
       .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
@@ -569,10 +551,13 @@ export default function CityDetailPage() {
   const marketPrice = city?.marketPriceUsd || 0;
   const indexPrice = city?.indexPriceUsd || 0;
   
-  // Calculate price per sqft
+  // Calculate price per unit (sqft or sqm based on preference)
   const pricePerSqft = city?.averagePropertySizeSqft 
     ? indexPrice / city.averagePropertySizeSqft 
     : indexPrice; // Fallback to indexPrice if averagePropertySizeSqft is not available
+  const pricePerUnit = city?.averagePropertySizeSqft
+    ? indexPrice / convertFromSqft(city.averagePropertySizeSqft)
+    : indexPrice;
   
   // Use real metrics from API
   const volume24h = cityMetrics?.volume24h || 0;
@@ -614,7 +599,7 @@ export default function CityDetailPage() {
     setShowTradeConfirm(false);
 
     try {
-      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * pricePerSqft;
+      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * pricePerUnit;
       
       if (amountNum <= 0) {
         throw new Error("Amount must be positive");
@@ -631,9 +616,11 @@ export default function CityDetailPage() {
         leverage: 1,
       });
 
+      const quantityInUnit = convertFromSqft(response.quantitySqm);
+      const unitLabel = getUnitLabelLower();
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Sold"} ${response.quantitySqm.toFixed(2)} sqft at $${response.entryPrice.toFixed(2)}/sqft`,
+        description: `${tradeType === "long" ? "Bought" : "Sold"} ${quantityInUnit.toFixed(2)} ${unitLabel} at $${response.entryPrice.toFixed(2)}/${unitLabel}`,
       });
 
       loadBalance();
@@ -705,8 +692,11 @@ export default function CityDetailPage() {
 
   const amountNum = parseFloat(amount) || 0;
   const sizeNum = parseFloat(size) || 0;
-  const calculatedSize = amountNum > 0 ? amountNum / pricePerSqft : sizeNum;
-  const calculatedAmount = sizeNum > 0 ? sizeNum * pricePerSqft : amountNum;
+  // Convert size to sqft for calculations, then back to preferred unit for display
+  const sizeNumInSqft = sizeNum > 0 ? convertToSqft(sizeNum) : 0;
+  const calculatedSizeInSqft = amountNum > 0 ? amountNum / pricePerSqft : sizeNumInSqft;
+  const calculatedSize = convertFromSqft(calculatedSizeInSqft);
+  const calculatedAmount = sizeNum > 0 ? sizeNum * pricePerUnit : amountNum;
   
   // Calculate estimated fill price (using current index price with slippage)
   const slippage = 0.02; // 2% slippage
@@ -1062,14 +1052,16 @@ export default function CityDetailPage() {
                   type="number"
                   placeholder="0"
                   value={amount}
-                  onChange={(e) => {
-                    setAmount(e.target.value);
-                    if (e.target.value) {
-                      setSize((parseFloat(e.target.value) / pricePerSqft).toFixed(2));
-                    } else {
-                      setSize("");
-                    }
-                  }}
+                    onChange={(e) => {
+                      setAmount(e.target.value);
+                      if (e.target.value) {
+                        const sizeInSqft = parseFloat(e.target.value) / pricePerSqft;
+                        const sizeInUnit = convertFromSqft(sizeInSqft);
+                        setSize(sizeInUnit.toFixed(2));
+                      } else {
+                        setSize("");
+                      }
+                    }}
                   className={cn("mb-2", hasError && amount && !isValidAmount && "border-red-500 focus-visible:ring-red-500")}
                   {...(hasError && amount && !isValidAmount ? { "aria-invalid": true as const, "aria-describedby": "amount-error" } : {})}
                 />
@@ -1086,7 +1078,9 @@ export default function CityDetailPage() {
                     onValueChange={(values) => {
                       const val = values[0].toString();
                       setAmount(val);
-                      setSize((values[0] / pricePerSqft).toFixed(2));
+                      const sizeInSqft = values[0] / pricePerSqft;
+                      const sizeInUnit = convertFromSqft(sizeInSqft);
+                      setSize(sizeInUnit.toFixed(2));
                     }}
                     className="w-full"
                   />
@@ -1095,32 +1089,35 @@ export default function CityDetailPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-muted-foreground">Size (sqft)</label>
-                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} sqft</span>
+                  <label className="text-sm text-muted-foreground">Size ({getUnitLabelLower()})</label>
+                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} {getUnitLabelLower()}</span>
                 </div>
                 <Input
                   type="number"
                   placeholder="0"
                   value={size}
-                  onChange={(e) => {
-                    setSize(e.target.value);
-                    if (e.target.value) {
-                      setAmount((parseFloat(e.target.value) * pricePerSqft).toFixed(2));
-                    } else {
-                      setAmount("");
-                    }
-                  }}
+                    onChange={(e) => {
+                      setSize(e.target.value);
+                      if (e.target.value) {
+                        const sizeInUnit = parseFloat(e.target.value);
+                        const sizeInSqft = convertToSqft(sizeInUnit);
+                        setAmount((sizeInSqft * pricePerSqft).toFixed(2));
+                      } else {
+                        setAmount("");
+                      }
+                    }}
                   className="mb-2"
                 />
                 {balance > 0 && (
                   <Slider
                     value={[sizeNum]}
-                    max={balance / pricePerSqft}
+                    max={convertFromSqft(balance / pricePerSqft)}
                     step={0.1}
                     onValueChange={(values) => {
                       const val = values[0].toFixed(2);
                       setSize(val);
-                      setAmount((values[0] * pricePerSqft).toFixed(2));
+                      const sizeInSqft = convertToSqft(values[0]);
+                      setAmount((sizeInSqft * pricePerSqft).toFixed(2));
                     }}
                     className="w-full"
                   />
@@ -1137,8 +1134,8 @@ export default function CityDetailPage() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Est. Size</span>
-                  <span className="text-foreground font-semibold" aria-label={`Estimated size: ${calculatedSize.toFixed(2)} sqft`}>
-                    {calculatedSize.toFixed(2)} sqft
+                  <span className="text-foreground font-semibold" aria-label={`Estimated size: ${calculatedSize.toFixed(2)} ${getUnitLabelLower()}`}>
+                    {calculatedSize.toFixed(2)} {getUnitLabelLower()}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
@@ -1192,7 +1189,7 @@ export default function CityDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Size:</span>
-                <span className="text-sm font-semibold">{calculatedSize.toFixed(2)} sqft</span>
+                <span className="text-sm font-semibold">{calculatedSize.toFixed(2)} {getUnitLabelLower()}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Estimated Price:</span>

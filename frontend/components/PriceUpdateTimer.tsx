@@ -49,7 +49,7 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
 
   useEffect(() => {
     let nextUpdate: Date | null = null;
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
 
     // Fetch next update time from API
     const fetchNextUpdate = async () => {
@@ -121,7 +121,7 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
 
   if (variant === "compact") {
     return (
-      <div className={cn("flex items-center gap-2 text-sm text-slate-400", className)}>
+      <div className={cn("flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400", className)}>
         <Clock className="h-4 w-4" />
         <span>{displayText}</span>
       </div>
@@ -130,25 +130,26 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
 
   return (
     <div 
-      className={cn("flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 rounded-lg border", className)}
-      style={{
-        borderColor: "var(--card-foreground)",
-        borderImage: "none",
-        color: "rgba(229, 220, 220, 1)"
-      }}
+      className={cn(
+        "flex items-center justify-center gap-2 px-3 py-2 rounded-lg border",
+        "bg-slate-100 dark:bg-slate-800",
+        "border-slate-300 dark:border-slate-700",
+        "text-slate-900 dark:text-slate-100",
+        className
+      )}
     >
-      <Clock className="h-4 w-4 text-slate-400" />
+      <Clock className="h-4 w-4 text-slate-500 dark:text-slate-400" />
       <div className="flex flex-col">
-        <span className="text-xs text-slate-400">Next price update</span>
+        <span className="text-xs text-slate-600 dark:text-slate-400">Next price update</span>
         <span className={cn(
           "text-sm font-medium",
-          isUpdating ? "text-green-500" : "text-white"
+          isUpdating ? "text-green-600 dark:text-green-500" : "text-slate-900 dark:text-white"
         )}>
           {displayText}
         </span>
       </div>
       {nextUpdateTime && !isUpdating && (
-        <span className="text-xs text-slate-500 ml-auto">
+        <span className="text-xs text-slate-500 dark:text-slate-500 ml-auto">
           {nextUpdateTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "UTC" })} UTC
         </span>
       )}

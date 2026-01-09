@@ -26,6 +26,7 @@ export function Sidebar({ positionsCount = 0, onTabChange }: SidebarProps) {
       id: "markets",
       label: "Markets",
       icon: Building2,
+      imageSrc: "/images/logos/markets.png",
       path: "/",
       badge: null,
     },

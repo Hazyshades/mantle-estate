@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import backend from "~backend/client";
 import type { City } from "~backend/city/list";
 import type { PricePoint } from "~backend/city/price_history";
@@ -20,6 +21,7 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
   const [isTradeDialogOpen, setIsTradeDialogOpen] = useState(false);
   const [tradeType, setTradeType] = useState<"long" | "short">("long");
   const { toast } = useToast();
+  const { getUnitLabelLower } = useUnitPreference();
 
   useEffect(() => {
     loadPriceHistory();
@@ -64,7 +66,7 @@ export default function CityCard({ city, balance, onTradeComplete }: CityCardPro
         <CardContent className="space-y-4">
           <div>
             <p className="text-lg font-semibold">${city.currentPriceUsd.toFixed(2)}</p>
-            <p className="text-sm leading-none font-medium text-muted-foreground">per sqm</p>
+            <p className="text-sm leading-none font-medium text-muted-foreground">per {getUnitLabelLower()}</p>
           </div>
 
           {priceHistory.length > 0 && <PriceChartArea data={priceHistory} />}

@@ -236,6 +236,7 @@ export namespace trading {
  * Import the endpoint handlers to derive the types for the client.
  */
 import { getBalance as api_user_balance_getBalance } from "~backend/user/balance";
+import { getUserInfo as api_user_get_user_info_getUserInfo } from "~backend/user/get_user_info";
 
 export namespace user {
 
@@ -245,12 +246,19 @@ export namespace user {
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
             this.getBalance = this.getBalance.bind(this)
+            this.getUserInfo = this.getUserInfo.bind(this)
         }
 
         public async getBalance(): Promise<ResponseType<typeof api_user_balance_getBalance>> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/balance`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_balance_getBalance>
+        }
+
+        public async getUserInfo(): Promise<ResponseType<typeof api_user_get_user_info_getUserInfo>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/info`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_user_info_getUserInfo>
         }
     }
 }

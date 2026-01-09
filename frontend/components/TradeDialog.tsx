@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { City } from "~backend/city/list";
 
 interface TradeDialogProps {
@@ -37,6 +38,7 @@ export default function TradeDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const backend = useBackend();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +52,7 @@ export default function TradeDialog({
         throw new Error("Amount must be positive");
       }
 
-      const fee = amountNum * leverageNum * 0.001;
+      const fee = amountNum * leverageNum * 0.0001;
       const totalCost = amountNum + fee;
 
       if (totalCost > balance) {
@@ -64,9 +66,11 @@ export default function TradeDialog({
         leverage: leverageNum,
       });
 
+      const quantityInUnit = convertFromSqft(response.quantitySqm);
+      const unitLabel = getUnitLabelLower();
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Shorted"} ${response.quantitySqm.toFixed(2)} sqm at $${response.entryPrice.toFixed(2)}/sqm`,
+        description: `${tradeType === "long" ? "Bought" : "Shorted"} ${quantityInUnit.toFixed(2)} ${unitLabel} at $${response.entryPrice.toFixed(2)}/${unitLabel}`,
       });
 
       onTradeComplete();
@@ -88,7 +92,7 @@ export default function TradeDialog({
   const amountNum = parseFloat(amount) || 0;
   const leverageNum = parseInt(leverage);
   const positionSize = (amountNum * leverageNum) / city.currentPriceUsd;
-  const fee = amountNum * leverageNum * 0.001;
+  const fee = amountNum * leverageNum * 0.0001;
   const totalCost = amountNum + fee;
 
   return (
@@ -99,7 +103,7 @@ export default function TradeDialog({
             {tradeType === "long" ? "Buy Long" : "Sell Short"} - {city.name}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-xl">
-            Current price: ${city.currentPriceUsd.toFixed(2)} per sqm
+            Current price: ${city.currentPriceUsd.toFixed(2)} per {getUnitLabelLower()}
           </DialogDescription>
         </DialogHeader>
 
@@ -136,10 +140,10 @@ export default function TradeDialog({
             <div className="rounded-lg bg-muted p-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-sm leading-none font-medium text-muted-foreground">Position size:</span>
-                <span className="text-lg font-semibold">{positionSize.toFixed(2)} sqm</span>
+                <span className="text-lg font-semibold">{convertFromSqft(positionSize).toFixed(2)} {getUnitLabelLower()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm leading-none font-medium text-muted-foreground">Trading fee (0.1%):</span>
+                <span className="text-sm leading-none font-medium text-muted-foreground">Trading fee (0.01%):</span>
                 <span className="text-lg font-semibold">${fee.toFixed(2)}</span>
               </div>
               <div className="flex justify-between border-t border-border pt-2">

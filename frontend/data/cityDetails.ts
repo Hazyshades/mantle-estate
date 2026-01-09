@@ -110,6 +110,128 @@ export const cityDetailsData: Record<string, CityDetails> = {
     coordinates: { lat: 39.9526, lng: -75.1652 },
     description: "Philadelphia, colloquially referred to as Philly, is the most populous city in Pennsylvania and the sixth-most populous city in the United States.",
     trendSummary: "Competitive market drove 3-6% price increases, with low inventory and strong buyer interest."
+  },
+  // Europe
+  "London, UK": {
+    city: "London, UK",
+    population: 8982000,
+    elevation: "36 ft",
+    area: "607 mi²",
+    costOfLivingIndex: 161,
+    unemploymentRate: 5.0,
+    violentCrimesPer100k: 450,
+    coordinates: { lat: 51.5074, lng: -0.1278 },
+    description: "London is the capital and largest city of England and the United Kingdom. It is one of the world's major global cities, with strengths in the arts, commerce, education, entertainment, fashion, finance, healthcare, media, professional services, research and development, tourism, and transport.",
+    trendSummary: "Prices were mixed but overall flat to down slightly (0% to -2.4% y-o-y), with some boroughs rising modestly while inner areas declined amid affordability challenges and policy impacts."
+  },
+  "Paris, France": {
+    city: "Paris, France",
+    population: 2161000,
+    elevation: "115 ft",
+    area: "40.7 mi²",
+    costOfLivingIndex: 125,
+    unemploymentRate: 7.7,
+    violentCrimesPer100k: 450,
+    coordinates: { lat: 48.8566, lng: 2.3522 },
+    description: "Paris is the capital and most populous city of France. Known for its iconic landmarks such as the Eiffel Tower and Notre-Dame Cathedral, Paris is a major European city and a global center for art, fashion, gastronomy, and culture.",
+    trendSummary: "Prices stabilized with modest growth (+0.4% to +1.9% y-o-y nationally), showing early recovery in core areas but declines in some cities; luxury segment rebounded strongly."
+  },
+  "Berlin, Germany": {
+    city: "Berlin, Germany",
+    population: 3677000,
+    elevation: "112 ft",
+    area: "344.3 mi²",
+    costOfLivingIndex: 105,
+    unemploymentRate: 9.5,
+    violentCrimesPer100k: 550,
+    coordinates: { lat: 52.5200, lng: 13.4050 },
+    description: "Berlin is the capital and largest city of Germany. It is a major center for politics, culture, media, and science. Berlin's economy is based on high-tech firms and the service sector, encompassing a diverse range of creative industries, research facilities, media corporations, and convention venues.",
+    trendSummary: "Prices stabilized or rose modestly (+1-3% in major cities), with recovery in demand but segmented performance; new builds dipped slightly."
+  },
+  // APAC
+  "Tokyo, Japan": {
+    city: "Tokyo, Japan",
+    population: 13960000,
+    elevation: "131 ft",
+    area: "845.7 mi²",
+    costOfLivingIndex: 85,
+    unemploymentRate: 2.6,
+    violentCrimesPer100k: 35,
+    coordinates: { lat: 35.6762, lng: 139.6503 },
+    description: "Tokyo is the capital and largest city of Japan. It is one of the most populous metropolitan areas in the world and serves as Japan's economic, cultural, and political center. Tokyo is known for its modern architecture, shopping, pop culture, and dining.",
+    trendSummary: "Strong growth with prices up 5-12% y-o-y, driven by foreign investment, weak yen, and urban demand; existing condos surged significantly."
+  },
+  "Singapore, Singapore": {
+    city: "Singapore, Singapore",
+    population: 5454000,
+    elevation: "52 ft",
+    area: "277.6 mi²",
+    costOfLivingIndex: 127.5,
+    unemploymentRate: 2.0,
+    violentCrimesPer100k: 75,
+    coordinates: { lat: 1.3521, lng: 103.8198 },
+    description: "Singapore is a sovereign island city-state in maritime Southeast Asia. It is a global financial center and one of the world's most expensive cities. Singapore is known for its multiculturalism, clean environment, and strong economy.",
+    trendSummary: "Prices rose moderately (+3.4% to +5% y-o-y), led by landed properties; growth slowed from prior years amid cooling measures."
+  },
+  "Dubai, UAE": {
+    city: "Dubai, UAE",
+    population: 3408000,
+    elevation: "33 ft",
+    area: "1584.4 mi²",
+    costOfLivingIndex: 105,
+    unemploymentRate: 2.5,
+    violentCrimesPer100k: 150,
+    coordinates: { lat: 25.2048, lng: 55.2708 },
+    description: "Dubai is the most populous city in the United Arab Emirates and the capital of the Emirate of Dubai. It is a global city and business hub of the Middle East. Dubai is known for its luxury shopping, ultramodern architecture, and lively nightlife scene.",
+    trendSummary: "Robust growth (+10-20% y-o-y in sales prices), fueled by population inflows and luxury demand; villas outperformed."
+  },
+  "Hong Kong, Hong Kong": {
+    city: "Hong Kong, Hong Kong",
+    population: 7507000,
+    elevation: "1640 ft",
+    area: "426.3 mi²",
+    costOfLivingIndex: 130,
+    unemploymentRate: 3.85,
+    violentCrimesPer100k: 75,
+    coordinates: { lat: 22.3193, lng: 114.1694 },
+    description: "Hong Kong is a special administrative region of China. It is a global financial center and one of the world's most densely populated cities. Hong Kong is known for its deep natural harbor, skyline, and free-market economy.",
+    trendSummary: "Prices stabilized with slight gains (+1-2% y-o-y after prior declines), supported by rate cuts; market activity improved."
+  },
+  "Shanghai, China": {
+    city: "Shanghai, China",
+    population: 24870000,
+    elevation: "13 ft",
+    area: "2486.3 mi²",
+    costOfLivingIndex: 75,
+    unemploymentRate: 5.0,
+    violentCrimesPer100k: 75,
+    coordinates: { lat: 31.2304, lng: 121.4737 },
+    description: "Shanghai is one of the four direct-administered municipalities of China and the most populous city in the world. It is a global financial center and transport hub, with the world's busiest container port. Shanghai is known for its modern skyline, historical landmarks, and vibrant culture.",
+    trendSummary: "Mixed: overall declines moderated, but luxury/core areas up strongly (some +30%); suburban prices down amid national slowdown."
+  },
+  "Sydney, Australia": {
+    city: "Sydney, Australia",
+    population: 5312000,
+    elevation: "148 ft",
+    area: "4776.2 mi²",
+    costOfLivingIndex: 125,
+    unemploymentRate: 4.3,
+    violentCrimesPer100k: 450,
+    coordinates: { lat: -33.8688, lng: 151.2093 },
+    description: "Sydney is the capital city of the state of New South Wales and the most populous city in Australia. It is known for its harbor front Sydney Opera House, the iconic Sydney Harbour Bridge, and beautiful beaches. Sydney is Australia's economic and cultural center.",
+    trendSummary: "Solid growth (+4-8.6% nationally, Sydney ~+5-6%), reaching record highs; driven by supply shortages and demand."
+  },
+  "Seoul, South Korea": {
+    city: "Seoul, South Korea",
+    population: 9720000,
+    elevation: "126 ft",
+    area: "233.7 mi²",
+    costOfLivingIndex: 95,
+    unemploymentRate: 2.7,
+    violentCrimesPer100k: 75,
+    coordinates: { lat: 37.5665, lng: 126.9780 },
+    description: "Seoul is the capital and largest metropolis of South Korea. It is a major global city with a population exceeding 9.7 million people. Seoul is the center of politics, economy, culture, and transportation in South Korea, known for its rapid modernization and traditional heritage.",
+    trendSummary: "Sharp rise (+8.71% y-o-y in apartments), fastest in 19 years despite measures; concentrated in prime areas."
   }
 };
 
@@ -155,7 +277,7 @@ export function getCityMapUrl(cityName: string, coordinates?: { lat: number; lng
   return `https://staticmap.openstreetmap.de/staticmap.php?center=${centerLat},${centerLng}&zoom=${zoom}&size=800x400&markers=${coords.lat},${coords.lng},red`;
 }
 
-// Alternative: Get iframe URL for interactive map showing USA with city marker
+// Alternative: Get iframe URL for interactive map focused on the city
 export function getCityMapIframeUrl(cityName: string, coordinates?: { lat: number; lng: number }): string {
   const cityDetails = getCityDetails(cityName);
   const coords = coordinates || cityDetails?.coordinates;
@@ -164,12 +286,19 @@ export function getCityMapIframeUrl(cityName: string, coordinates?: { lat: numbe
     return "";
   }
   
-  // Use OpenStreetMap with embed showing USA overview
-  // Calculate bounding box to show entire USA
-  // USA approximate bounds: west: -125, east: -66, north: 50, south: 24
-  const bbox = "-125,24,-66,50"; // west, south, east, north
+  // Calculate bounding box around the city (approximately 5 degrees in each direction)
+  // This ensures the city is centered and visible with some context
+  const latOffset = 5; // degrees
+  const lngOffset = 5; // degrees
   
-  // Use OpenStreetMap embed with marker
+  const west = coords.lng - lngOffset;
+  const south = coords.lat - latOffset;
+  const east = coords.lng + lngOffset;
+  const north = coords.lat + latOffset;
+  
+  const bbox = `${west},${south},${east},${north}`; // west, south, east, north
+  
+  // Use OpenStreetMap embed with marker centered on the city
   return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${coords.lat},${coords.lng}`;
 }
 

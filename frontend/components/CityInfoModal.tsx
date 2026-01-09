@@ -61,14 +61,16 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
   };
 
   const getUnemploymentColor = (rate: number): "green" | "yellow" | "red" => {
-    if (rate < 4.6) return "green";
-    if (rate > 5.0) return "red";
+    // Global benchmarks: ~5-7% average, low <5%, high >7%
+    if (rate < 5.0) return "green";
+    if (rate > 7.0) return "red";
     return "yellow";
   };
 
   const getCrimeColor = (crimes: number): "green" | "yellow" | "red" => {
-    if (crimes < 380) return "green";
-    if (crimes > 500) return "red";
+    // Global benchmarks: ~300-500 average, low <300, high >600
+    if (crimes < 300) return "green";
+    if (crimes > 600) return "red";
     return "yellow";
   };
 
@@ -76,11 +78,11 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
   const getColorClass = (color: "green" | "yellow" | "red"): string => {
     switch (color) {
       case "green":
-        return "text-green-400";
+        return "text-green-600 dark:text-green-400";
       case "yellow":
-        return "text-yellow-400";
+        return "text-yellow-600 dark:text-yellow-400";
       case "red":
-        return "text-red-400";
+        return "text-red-600 dark:text-red-400";
     }
   };
 
@@ -99,12 +101,12 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 text-white border-slate-700">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-4">
           {/* Header with title and location */}
           <div className="space-y-1">
             <DialogTitle className="text-3xl font-bold">{city.name.split(",")[0]}</DialogTitle>
-            <DialogDescription className="text-blue-400 text-base">
+            <DialogDescription className="text-blue-600 dark:text-blue-400 text-base">
               {getLocationText()}
             </DialogDescription>
           </div>
@@ -117,8 +119,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-2 mb-1 cursor-help">
-                      <DollarSign className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs text-slate-400 uppercase">COL Index</span>
+                      <DollarSign className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400 uppercase">COL Index</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -135,8 +137,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-2 mb-1 cursor-help">
-                      <TrendingDown className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs text-slate-400 uppercase">Unemployment</span>
+                      <TrendingDown className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400 uppercase">Unemployment</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -153,8 +155,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-2 mb-1 cursor-help">
-                      <ShieldAlert className="h-4 w-4 text-slate-400" />
-                      <span className="text-xs text-slate-400 uppercase">Crime Rate</span>
+                      <ShieldAlert className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                      <span className="text-xs text-slate-600 dark:text-slate-400 uppercase">Crime Rate</span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -194,8 +196,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                   </div>
                 )}
                 {imageErrors.sights && (
-                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-800 flex items-center justify-center">
-                    <span className="text-slate-400 text-sm">Sights image failed to load</span>
+                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                    <span className="text-slate-600 dark:text-slate-400 text-sm">Sights image failed to load</span>
                   </div>
                 )}
                 
@@ -219,8 +221,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
                   </div>
                 )}
                 {imageErrors.outdoors && (
-                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-800 flex items-center justify-center">
-                    <span className="text-slate-400 text-sm">Outdoors image failed to load</span>
+                  <div className="relative rounded-lg overflow-hidden h-48 bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                    <span className="text-slate-600 dark:text-slate-400 text-sm">Outdoors image failed to load</span>
                   </div>
                 )}
               </div>
@@ -253,7 +255,7 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
 
           {/* Map */}
           {mapIframeUrl && (
-            <div className="w-full h-64 rounded-lg overflow-hidden bg-slate-800 border border-slate-700">
+            <div className="w-full h-64 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
               <iframe
                 src={mapIframeUrl}
                 className="w-full h-full border-0"
@@ -268,7 +270,7 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
           {cityDetails && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">About</h3>
-              <p className="text-sm leading-relaxed text-slate-300">
+              <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                 {cityDetails.description}
               </p>
             </div>
@@ -278,8 +280,8 @@ export default function CityInfoModal({ isOpen, onClose, city }: CityInfoModalPr
           {cityDetails && (
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">Housing Market Trend (Last Year)</h3>
-              <div className="bg-slate-800 rounded-lg p-4">
-                <p className="text-sm leading-relaxed text-slate-300">
+              <div className="bg-slate-100 dark:bg-slate-800 rounded-lg p-4">
+                <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                   {cityDetails.trendSummary}
                 </p>
               </div>

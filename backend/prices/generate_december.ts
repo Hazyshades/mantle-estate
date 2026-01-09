@@ -2,14 +2,14 @@ import { api } from "encore.dev/api";
 import db from "../db";
 
 /**
- * Generates prices for all cities from December 1 to December 17, 2025
- * based on the last price (November 30) with fluctuations of ±0.1-0.3%
+ * Generates prices for all cities from January 1 to current date
+ * based on the last price with fluctuations of ±0.3%
  */
 export const generateDecemberPrices = api<{ force?: boolean }, { success: boolean; message: string; citiesUpdated: number }>(
   { expose: true, method: "POST", path: "/prices/generate-december" },
   async (req: { force?: boolean } = {}): Promise<{ success: boolean; message: string; citiesUpdated: number }> => {
     const force = req?.force ?? false;
-    console.log("Starting December price generation...");
+    console.log("Starting historical price generation...");
 
     // Get all cities
     const cities = await db.queryAll<{
@@ -36,7 +36,7 @@ export const generateDecemberPrices = api<{ force?: boolean }, { success: boolea
 
     // For each city
     for (const city of cities) {
-      // Find the last record (November 30)
+      // Find the last record
       const lastPriceRecord = await db.queryRow<{
         price_usd: number;
         market_price_usd: number | null;
@@ -65,9 +65,11 @@ export const generateDecemberPrices = api<{ force?: boolean }, { success: boolea
       console.log(`  Base price (Index): $${basePrice.toFixed(2)}`);
       console.log(`  Base price (Market): $${baseMarketPrice.toFixed(2)}`);
 
-      // Generate data from December 1 to December 17, 2025
-      const startDate = new Date("2025-12-01");
-      const endDate = new Date("2025-12-17");
+      // Generate data from January 1 to current date
+      const currentYear = new Date().getFullYear();
+      const startDate = new Date(`${currentYear}-01-01`);
+      const endDate = new Date();
+      endDate.setHours(0, 0, 0, 0); // Set to start of current day
       let currentPrice = basePrice;
       let currentMarketPrice = baseMarketPrice;
       let insertedCount = 0;
@@ -169,4 +171,10 @@ export const generateDecemberPrices = api<{ force?: boolean }, { success: boolea
     };
   }
 );
+
+
+
+
+
+
 

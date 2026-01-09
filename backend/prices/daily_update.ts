@@ -19,9 +19,9 @@ export const dailyPriceUpdateEndpoint = api(
 
     let updatedCount = 0;
     for (const city of cities) {
-      // Generate random percentage change between -1% and +1.5%
+      // Generate random percentage change between -1% and +1%
       const minChange = -0.01; // -1%
-      const maxChange = 0.015; // +1.5%
+      const maxChange = 0.01; // +1.5%
       const randomChange = Math.random() * (maxChange - minChange) + minChange;
       
       // Calculate new Market Price
@@ -98,4 +98,9 @@ const dailyPriceUpdate = new CronJob("daily-price-update", {
   schedule: "0 */6 * * *", // Every 6 hours at the start of the hour
   endpoint: dailyPriceUpdateEndpoint,
 });
+
+
+
+
+
 

@@ -9,7 +9,7 @@
       "version": "1.0.0",
       "dependencies": {
         "@clerk/backend": "^1.27.0",
-        "encore.dev": "^1.53.0",
+        "encore.dev": "^1.53.4",
       },
       "devDependencies": {
         "typescript": "^5.8.3",
@@ -474,7 +474,7 @@
 
     "electron-to-chromium": ["electron-to-chromium@1.5.267", "", {}, "sha512-0Drusm6MVRXSOJpGbaSVgcQsuB4hEkMpHXaVstcPmhu5LIedxs1xNK/nIxmQIU/RPC0+1/o0AVZfBTkTNJOdUw=="],
 
-    "encore.dev": ["encore.dev@1.53.0", "", {}, "sha512-qdpp+mOzslJfuitkDPiaElnffqki5H8qJ/+vDrPSGYeJi2ISQEgFWjuiROtjjEexkRXuIJlAxQrcwgKGhm0h7g=="],
+    "encore.dev": ["encore.dev@1.53.4", "", {}, "sha512-WTU/9Jo7d+wks5cwg2ajm2YBJcI6Peuf3R6kvz/9rK+ZUEi/MhQvZewWfXs8JD5qmJk0458RXv4dLEORQppJQQ=="],
 
     "enhanced-resolve": ["enhanced-resolve@5.18.4", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.2.0" } }, "sha512-LgQMM4WXU3QI+SYgEc2liRgznaD5ojbmY3sb8LxyguVkIg5FxdpTkvk72te2R38/TGKxH634oLxXRGY6d7AP+Q=="],
 
@@ -741,6 +741,8 @@
     "@tailwindcss/oxide-wasm32-wasi/@tybys/wasm-util": ["@tybys/wasm-util@0.10.1", "", { "dependencies": { "tslib": "^2.4.0" }, "bundled": true }, "sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg=="],
 
     "@tailwindcss/oxide-wasm32-wasi/tslib": ["tslib@2.8.1", "", { "bundled": true }, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "frontend/encore.dev": ["encore.dev@1.53.0", "", {}, "sha512-qdpp+mOzslJfuitkDPiaElnffqki5H8qJ/+vDrPSGYeJi2ISQEgFWjuiROtjjEexkRXuIJlAxQrcwgKGhm0h7g=="],
 
     "prop-types/react-is": ["react-is@16.13.1", "", {}, "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ=="],
 
