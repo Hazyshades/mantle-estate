@@ -30,6 +30,7 @@ export default function Dashboard({ userId }: DashboardProps) {
   const [positions, setPositions] = useState<Position[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const location = useLocation();
   const { toast } = useToast();
   const { signOut } = useClerk();
@@ -93,8 +94,11 @@ export default function Dashboard({ userId }: DashboardProps) {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-        <Sidebar />
-        <div className="ml-0 lg:ml-64 transition-all duration-300">
+        <Sidebar 
+          collapsed={sidebarCollapsed}
+          onCollapsedChange={setSidebarCollapsed}
+        />
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-0 lg:ml-16' : 'ml-0 lg:ml-64'}`}>
           <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
             <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
               <div className="flex items-center gap-3">
@@ -155,9 +159,14 @@ export default function Dashboard({ userId }: DashboardProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100">
-      <Sidebar positionsCount={positions.length} onTabChange={setActiveTab} />
+      <Sidebar 
+        positionsCount={positions.length} 
+        onTabChange={setActiveTab}
+        collapsed={sidebarCollapsed}
+        onCollapsedChange={setSidebarCollapsed}
+      />
       
-      <div className="ml-0 lg:ml-64 transition-all duration-300">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-0 lg:ml-16' : 'ml-0 lg:ml-64'}`}>
         <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
           <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
             <div className="flex items-center gap-3">
