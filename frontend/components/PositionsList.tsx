@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Empty } from "@/components/ui/empty";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useUnitPreference } from "@/lib/useUnitPreference";
 import type { Position } from "~backend/trading/get_positions";
 import type { City } from "~backend/city/list";
 import { TrendingDown, TrendingUp, X, Wallet } from "lucide-react";
@@ -21,6 +22,7 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
   const { toast } = useToast();
   const backend = useBackend();
   const navigate = useNavigate();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
 
   // Function to generate cityCode from city name and country (uses state code if available)
   const getCityCode = (cityName: string, country: string): string => {
@@ -122,23 +124,25 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 )}
               </div>
               <Button
-                variant="ghost"
-                size="sm"
+                variant="destructive"
+                size="default"
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent click event bubbling
                   handleClose(position.id);
                 }}
                 disabled={closingPositionId === position.id}
+                className="font-semibold"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 mr-2" />
+                {closingPositionId === position.id ? "Closing..." : "Close Position"}
               </Button>
             </div>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <p className="text-sm leading-none font-medium text-muted-foreground">Quantity</p>
-                <p className="text-lg font-semibold">{position.quantitySqm.toFixed(2)} sqm</p>
+                <p className="text-sm leading-none font-medium text-muted-foreground">Margin Used</p>
+                <p className="text-lg font-semibold">${position.marginRequired.toFixed(2)}</p>
               </div>
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground">Entry Price</p>
@@ -152,6 +156,14 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
                 <p className="text-sm leading-none font-medium text-muted-foreground">Unrealized P&L</p>
                 <p className={`text-lg font-semibold ${position.unrealizedPnl >= 0 ? "text-green-500" : "text-red-500"}`}>
                   {position.unrealizedPnl >= 0 ? "+" : ""}${position.unrealizedPnl.toFixed(2)}
+                  {position.marginRequired > 0 && (
+                    <span className="ml-1">
+                      ({position.unrealizedPnl >= 0 ? "+" : ""}{((position.unrealizedPnl / position.marginRequired) * 100).toFixed(2)}%)
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground ml-1">
+                    (incl. ${position.estimatedClosingFee.toFixed(2)} fee)
+                  </span>
                 </p>
               </div>
             </div>

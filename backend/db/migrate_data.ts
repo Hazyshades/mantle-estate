@@ -23,6 +23,7 @@ interface MigrateDataRequest {
     id: string;
     email?: string | null;
     balance: number;
+    wallet_address?: string | null;
   }>;
   positions?: Array<{
     user_id: string;
@@ -148,10 +149,10 @@ export const migrateData = api<MigrateDataRequest, MigrateDataResponse>(
     if (req.users && req.users.length > 0) {
       for (const user of req.users) {
         await db.exec`
-          INSERT INTO users (id, email, balance, created_at)
-          VALUES (${user.id}, ${user.email ?? null}, ${user.balance}, NOW())
+          INSERT INTO users (id, email, balance, wallet_address, created_at)
+          VALUES (${user.id}, ${user.email ?? null}, ${user.balance}, ${user.wallet_address ?? null}, NOW())
           ON CONFLICT (id) DO UPDATE
-          SET balance = ${user.balance}, email = ${user.email ?? null}
+          SET balance = ${user.balance}, email = ${user.email ?? null}, wallet_address = ${user.wallet_address ?? null}
         `;
         usersImported++;
       }

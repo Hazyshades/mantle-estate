@@ -31,6 +31,7 @@ interface DatabaseExport {
     id: string;
     email: string | null;
     balance: number;
+    wallet_address: string | null;
   }>;
   positions: Array<{
     user_id: string;
@@ -103,8 +104,9 @@ async function exportDatabase(): Promise<DatabaseExport> {
     id: string;
     email: string | null;
     balance: number;
+    wallet_address: string | null;
   }>`
-    SELECT id, email, balance
+    SELECT id, email, balance, wallet_address
     FROM users
     ORDER BY id
   `;

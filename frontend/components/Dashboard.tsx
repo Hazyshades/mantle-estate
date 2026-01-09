@@ -161,12 +161,10 @@ export default function Dashboard({ userId }: DashboardProps) {
         <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
           <div className="container mx-auto px-4 py-5 flex flex-wrap items-center gap-4 justify-between">
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-primary/15 p-3 text-primary">
-                <Building2 className="h-7 w-7" />
-              </div>
+              <img src="/images/logos/main_page.png" alt="Logo" className="h-12 w-12 rounded-full" />
               <div>
                 <p className="text-sm leading-none font-medium text-muted-foreground uppercase tracking-[0.12em]">Synthetic Real Estate</p>
-                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Real Estate Trading Desk</h1>
+                <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight text-balance">Trading Desk</h1>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -197,7 +195,7 @@ export default function Dashboard({ userId }: DashboardProps) {
         </header>
 
         <div className="container mx-auto px-4 py-8 space-y-8">
-        {balance < 1000 && (
+       {/* } {balance < 1000 && (
           <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>Low Balance</AlertTitle>
@@ -205,13 +203,13 @@ export default function Dashboard({ userId }: DashboardProps) {
               Your balance is below $1,000. Consider adding funds to continue trading.
             </AlertDescription>
           </Alert>
-        )}
+        )} */} 
         <div className="relative overflow-hidden rounded-3xl border bg-gradient-to-r from-white via-primary/5 to-white dark:from-slate-900 dark:via-primary/10 dark:to-slate-900 p-6 shadow-sm">
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_20%_20%,hsl(var(--primary))/0.4,transparent_35%),radial-gradient(circle_at_80%_0%,hsl(var(--primary))/0.3,transparent_30%)]" />
           <div className="relative grid grid-cols-1 md:grid-cols-5 gap-6">
             <div className="col-span-1 md:col-span-2 space-y-2">
-              <p className="text-sm leading-none font-medium text-muted-foreground">Summary metrics</p>
-              <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Welcome back</h2>
+              <p className="text-sm leading-none font-medium text-muted-foreground">Portfolio</p>
+              <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Summary metrics</h2>
               <p className="leading-7 text-muted-foreground max-w-xl [&:not(:first-child)]:mt-6">
                 Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
