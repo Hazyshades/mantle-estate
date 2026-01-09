@@ -14,12 +14,24 @@ import {
 interface SidebarProps {
   positionsCount?: number;
   onTabChange?: (tab: "markets" | "positions" | "history") => void;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function Sidebar({ positionsCount = 0, onTabChange }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedProp, onCollapsedChange }: SidebarProps) {
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Use controlled state if provided, otherwise use internal state
+  const collapsed = collapsedProp !== undefined ? collapsedProp : internalCollapsed;
+  const setCollapsed = (value: boolean) => {
+    if (onCollapsedChange) {
+      onCollapsedChange(value);
+    } else {
+      setInternalCollapsed(value);
+    }
+  };
 
   const menuItems = [
     {

@@ -14,7 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Search, Filter, List, Settings, X, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Filter, List, Settings, X, ChevronDown, ChevronUp, Grid3x3 } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
 import { useUnitPreference } from "@/lib/useUnitPreference";
@@ -46,6 +46,124 @@ interface MarketRowProps {
   city: City;
   balance: number;
   onTradeComplete: () => void;
+}
+
+function MarketCardCompact({ city, balance, onTradeComplete }: MarketRowProps) {
+  const navigate = useNavigate();
+  const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
+
+  useEffect(() => {
+    const loadPriceHistory = async () => {
+      try {
+        const response = await backend.city.getPriceHistory({ cityId: city.id, years: 25 });
+        setPriceHistory(response.prices);
+      } catch (error) {
+        console.error("Error loading price history:", error);
+      }
+    };
+    loadPriceHistory();
+  }, [city.id]);
+
+  // Calculate 24h price change
+  const priceChange24h = useMemo(() => {
+    if (priceHistory.length < 2) return 0;
+    
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    
+    let price24hAgo: number | null = null;
+    let closestTimeDiff = Infinity;
+    
+    for (const point of priceHistory) {
+      const pointTime = new Date(point.timestamp);
+      const timeDiff = Math.abs(pointTime.getTime() - twentyFourHoursAgo.getTime());
+      
+      if (timeDiff < closestTimeDiff) {
+        closestTimeDiff = timeDiff;
+        price24hAgo = point.indexPrice;
+      }
+    }
+    
+    if (price24hAgo !== null && closestTimeDiff < 2 * 60 * 60 * 1000) {
+      return ((city.indexPriceUsd - price24hAgo) / price24hAgo) * 100;
+    }
+    
+    return 0;
+  }, [priceHistory, city.indexPriceUsd]);
+
+  const changeColor = priceChange24h >= 0 ? "text-green-500" : "text-red-500";
+  const cityDisplayName = city.name.includes(",") ? city.name : `${city.name}, ${city.country}`;
+
+  const getCityCode = () => {
+    const parts = city.name.split(",");
+    if (parts.length > 1) {
+      const state = parts[1].trim();
+      const cityName = parts[0].trim();
+      const stateCode = state.length === 2 ? state.toUpperCase() : state.substring(0, 3).toUpperCase();
+      const cityCode = cityName.substring(0, 3).toUpperCase();
+      return `${stateCode}-${cityCode}`;
+    }
+    const countryCode = city.country.substring(0, 2).toUpperCase();
+    const cityName = city.name.split(",")[0].trim();
+    const cityCode = cityName.substring(0, 3).toUpperCase();
+    return `${countryCode}-${cityCode}`;
+  };
+
+  const handleClick = () => {
+    const cityCode = getCityCode();
+    navigate(`/home-value-index/${cityCode}`);
+  };
+
+  return (
+    <Card 
+      className="flex items-center gap-4 p-3 hover:shadow-lg transition-all duration-300 cursor-pointer bg-white dark:bg-card border border-slate-200/80 dark:border-slate-700/50 shadow-sm w-[480px] flex-shrink-0 group"
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open market details for ${cityDisplayName}`}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+    >
+      {/* City Info */}
+      <div className="flex-1 min-w-0">
+        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 truncate group-hover:text-primary transition-colors">
+          {cityDisplayName}
+        </h3>
+        <div className="flex items-center gap-3 mt-2 flex-wrap">
+          <div className="flex-shrink-0">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Price</p>
+            <p className="text-base font-semibold text-slate-900 dark:text-slate-100">${city.indexPriceUsd.toFixed(2)}</p>
+          </div>
+          <div className="flex-shrink-0">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">24h</p>
+            <p className={`text-sm font-semibold ${changeColor}`}>
+              {priceChange24h >= 0 ? "+" : ""}{priceChange24h.toFixed(2)}%
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Market</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">${city.marketPriceUsd.toFixed(2)}</p>
+          </div>
+          <div className="flex-shrink-0">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">FPU</p>
+            <p 
+              className={city.indexPriceUsd > city.marketPriceUsd ? "text-sm font-semibold text-green-600 dark:text-green-400" : "text-sm font-semibold text-red-600 dark:text-red-400"}
+            >
+              {((city.indexPriceUsd - city.marketPriceUsd) / city.marketPriceUsd * 100).toFixed(2)}%
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Funding</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{(city.fundingRate * 100).toFixed(4)}%</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
 }
 
 function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
@@ -289,6 +407,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
   const [isApacExpanded, setIsApacExpanded] = useState(true);
   const [isUsaExpanded, setIsUsaExpanded] = useState(true);
   const [isEuropeExpanded, setIsEuropeExpanded] = useState(true);
+  const [viewMode, setViewMode] = useState<"grid" | "compact">("grid");
 
   // Filter cities by search and price range
   const baseFilteredCities = useMemo(() => {
@@ -432,11 +551,17 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
         {/* View Toggle Icons */}
         <div className="flex items-center gap-2">
           <Button
-            variant="ghost"
+            variant={viewMode === "compact" ? "default" : "ghost"}
             size="icon"
             className="h-9 w-9 rounded-lg hover:bg-slate-100"
+            onClick={() => setViewMode(viewMode === "grid" ? "compact" : "grid")}
+            aria-label={viewMode === "grid" ? "Switch to compact list view" : "Switch to grid view"}
           >
-            <List className="h-5 w-5 text-slate-600" />
+            {viewMode === "grid" ? (
+              <List className="h-5 w-5 text-slate-600" />
+            ) : (
+              <Grid3x3 className="h-5 w-5 text-slate-600" />
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -470,16 +595,31 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
             </Button>
           </div>
           {isApacExpanded && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of APAC real estate markets">
-              {apacCities.map((city) => (
-                <MarketCard
-                  key={city.id}
-                  city={city}
-                  balance={balance}
-                  onTradeComplete={onTradeComplete}
-                />
-              ))}
-            </div>
+            viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of APAC real estate markets">
+                {apacCities.map((city) => (
+                  <MarketCard
+                    key={city.id}
+                    city={city}
+                    balance={balance}
+                    onTradeComplete={onTradeComplete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of APAC real estate markets">
+                <div className="flex gap-4 min-w-max px-1">
+                  {apacCities.map((city) => (
+                    <MarketCardCompact
+                      key={city.id}
+                      city={city}
+                      balance={balance}
+                      onTradeComplete={onTradeComplete}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
           )}
         </div>
       )}
@@ -506,16 +646,31 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
             </Button>
           </div>
           {isEuropeExpanded && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of Europe real estate markets">
-              {europeCities.map((city) => (
-                <MarketCard
-                  key={city.id}
-                  city={city}
-                  balance={balance}
-                  onTradeComplete={onTradeComplete}
-                />
-              ))}
-            </div>
+            viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of Europe real estate markets">
+                {europeCities.map((city) => (
+                  <MarketCard
+                    key={city.id}
+                    city={city}
+                    balance={balance}
+                    onTradeComplete={onTradeComplete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of Europe real estate markets">
+                <div className="flex gap-4 min-w-max px-1">
+                  {europeCities.map((city) => (
+                    <MarketCardCompact
+                      key={city.id}
+                      city={city}
+                      balance={balance}
+                      onTradeComplete={onTradeComplete}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
           )}
         </div>
       )}
@@ -542,16 +697,31 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
             </Button>
           </div>
           {isUsaExpanded && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of USA real estate markets">
-              {usaCities.map((city) => (
-                <MarketCard
-                  key={city.id}
-                  city={city}
-                  balance={balance}
-                  onTradeComplete={onTradeComplete}
-                />
-              ))}
-            </div>
+            viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" role="list" aria-label="List of USA real estate markets">
+                {usaCities.map((city) => (
+                  <MarketCard
+                    key={city.id}
+                    city={city}
+                    balance={balance}
+                    onTradeComplete={onTradeComplete}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of USA real estate markets">
+                <div className="flex gap-4 min-w-max px-1">
+                  {usaCities.map((city) => (
+                    <MarketCardCompact
+                      key={city.id}
+                      city={city}
+                      balance={balance}
+                      onTradeComplete={onTradeComplete}
+                    />
+                  ))}
+                </div>
+              </div>
+            )
           )}
         </div>
       )}
