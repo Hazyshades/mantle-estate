@@ -3,16 +3,19 @@ import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import db from "../db";
-import { calculateIndexPrice, getMarketMetrics } from "../prices/calculations";
 
 // Get __dirname for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-interface ImportMarketPricesResponse {
+interface ImportPricesResponse {
   success: boolean;
   message: string;
-  citiesUpdated: number;
+  imported: {
+    city: string;
+    records: number;
+    lastPrice: number;
+  }[];
 }
 
 function parseCSV(content: string): Array<Record<string, string>> {
@@ -26,6 +29,8 @@ function parseCSV(content: string): Array<Record<string, string>> {
 
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i];
+    if (!line.trim()) continue;
+    
     // Simple CSV parsing with quote handling
     const values: string[] = [];
     let current = "";
@@ -44,11 +49,11 @@ function parseCSV(content: string): Array<Record<string, string>> {
     }
     values.push(current.trim()); // Last value
 
-    if (values.length < headers.length) continue;
+    if (values.length < 5) continue; // At least RegionID, SizeRank, RegionName, RegionType, StateName
 
     const row: Record<string, string> = {};
     for (let j = 0; j < headers.length && j < values.length; j++) {
-      row[headers[j]] = values[j];
+      row[headers[j]] = values[j]?.replace(/^"|"$/g, "") || "";
     }
 
     rows.push(row);
@@ -57,126 +62,170 @@ function parseCSV(content: string): Array<Record<string, string>> {
   return rows;
 }
 
-/**
- * Import Market Price from Zillow CSV file
- * Updates market_price_usd for all cities from CSV data
- */
-export const importMarketPrices = api<void, ImportMarketPricesResponse>(
-  { expose: true, method: "POST", path: "/cities/import-market-prices" },
+function parseDate(dateStr: string): Date | null {
+  // Format: "2000-01-31"
+  const parts = dateStr.split("-");
+  if (parts.length !== 3) return null;
+  const year = parseInt(parts[0]);
+  const month = parseInt(parts[1]) - 1; // JavaScript months start at 0
+  const day = parseInt(parts[2]);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+  return new Date(year, month, day);
+}
+
+// Import USA price history from zhvi_2025-11.30.csv file
+export const importUSAPriceHistory = api<void, ImportPricesResponse>(
+  { expose: true, method: "POST", path: "/cities/import-usa-price-history" },
   async () => {
     try {
-      // read CSV file
+      // Read USA CSV file
       const csvPath = join(
         __dirname,
-        "../../../../db/csv_data/Metro_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv"
+        "../../../../db/csv_data/zhvi_2025-11.30.csv"
       );
       const csvContent = readFileSync(csvPath, "utf-8");
       const rows = parseCSV(csvContent);
-      
+
+      // Mapping from CSV RegionName to database city name and country
+      const cityMapping: { [key: string]: { name: string; country: string } } = {
+        "New York, NY": { name: "New York, NY", country: "USA" },
+        "Los Angeles, CA": { name: "Los Angeles, CA", country: "USA" },
+        "Chicago, IL": { name: "Chicago, IL", country: "USA" },
+        "Dallas, TX": { name: "Dallas, TX", country: "USA" },
+        "Houston, TX": { name: "Houston, TX", country: "USA" },
+        "Washington, DC": { name: "Washington, DC", country: "USA" },
+        "Philadelphia, PA": { name: "Philadelphia, PA", country: "USA" },
+        "Miami, FL": { name: "Miami, FL", country: "USA" },
+      };
+
       // Get all cities from DB
-      const dbCities = await db.queryAll<{ id: number; name: string }>`
-        SELECT id, name FROM cities
+      const cities = await db.queryAll<{ id: number; name: string; country: string }>`
+        SELECT id, name, country FROM cities
       `;
-      
-      // Create mapping: name from CSV -> name in DB
-      // Use exact match of name or create mapping for known cities
-      const cityMapping: Record<string, string> = {};
-      
-      // Fill mapping based on existing cities
-      for (const dbCity of dbCities) {
-        // Try to find match in CSV
-        for (const csvRow of rows) {
-          const regionName = csvRow["RegionName"]?.replace(/^"|"$/g, "") || "";
-          // If name matches or contains city name from DB
-          if (regionName === dbCity.name || regionName.includes(dbCity.name.split(",")[0])) {
-            cityMapping[regionName] = dbCity.name;
-            break;
+
+      const imported: { city: string; records: number; lastPrice: number }[] = [];
+
+      for (const csvRow of rows) {
+        const regionName = csvRow["RegionName"]?.replace(/^"|"$/g, "").trim() || "";
+        if (!regionName) continue;
+
+        const mapping = cityMapping[regionName];
+        if (!mapping) {
+          continue;
+        }
+
+        // Find city in DB
+        let city = cities.find(
+          (c) => c.name === mapping.name && c.country === mapping.country
+        );
+
+        // If city doesn't exist, create it
+        if (!city) {
+          // Get last price from CSV
+          const dateColumns = Object.keys(csvRow)
+            .filter((key) => /^\d{4}-\d{2}-\d{2}$/.test(key))
+            .sort();
+          
+          let lastPrice: number | null = null;
+          for (let i = dateColumns.length - 1; i >= 0; i--) {
+            const priceStr = csvRow[dateColumns[i]];
+            if (priceStr && priceStr.trim() !== "") {
+              const price = parseFloat(priceStr);
+              if (!isNaN(price) && price > 0) {
+                lastPrice = price;
+                break;
+              }
+            }
+          }
+
+          if (!lastPrice) {
+            continue;
+          }
+
+          // Create new city
+          const result = await db.queryRow<{ id: number }>`
+            INSERT INTO cities (name, country, current_price_usd, index_price_usd, market_price_usd, funding_rate)
+            VALUES (${mapping.name}, ${mapping.country}, ${lastPrice}, ${lastPrice}, ${lastPrice}, 0.0)
+            RETURNING id
+          `;
+          
+          if (result) {
+            city = { id: result.id, name: mapping.name, country: mapping.country };
+            cities.push(city);
+          } else {
+            continue;
           }
         }
-      }
-      
-      let citiesUpdated = 0;
-      
-      // Process each CSV row
-      for (const csvRow of rows) {
-        const regionName = csvRow["RegionName"]?.replace(/^"|"$/g, "") || "";
-        const dbCityName = cityMapping[regionName] || regionName;
-        
-        // Find city in DB
-        const city = dbCities.find((c) => c.name === dbCityName);
-        
-        if (!city) continue;
-        
-        // Find latest available price in CSV (rightmost column with data)
+
+        // Delete old price history for this city
+        await db.exec`
+          DELETE FROM price_history WHERE city_id = ${city.id}
+        `;
+
+        // Get all dates from CSV
         const dateColumns = Object.keys(csvRow)
           .filter((key) => /^\d{4}-\d{2}-\d{2}$/.test(key))
-          .sort()
-          .reverse(); // From newest to oldest
-        
-        let latestPrice: number | null = null;
-        let latestDate: string | null = null;
-        
+          .sort();
+
+        // Import data
+        let importedCount = 0;
+        let lastPrice: number | null = null;
+
         for (const dateStr of dateColumns) {
           const priceStr = csvRow[dateStr];
           if (!priceStr || priceStr.trim() === "") continue;
-          
+
           const price = parseFloat(priceStr);
           if (isNaN(price) || price <= 0) continue;
-          
-          latestPrice = price;
-          latestDate = dateStr;
-          break; // Take first found price (the newest)
+
+          const date = parseDate(dateStr);
+          if (!date) continue;
+
+          try {
+            await db.exec`
+              INSERT INTO price_history (city_id, price_usd, timestamp)
+              VALUES (${city.id}, ${price}, ${date})
+              ON CONFLICT DO NOTHING
+            `;
+            importedCount++;
+            lastPrice = price;
+          } catch (error) {
+            // Ignore duplicate errors
+            if (!String(error).includes("duplicate") && !String(error).includes("unique")) {
+              console.error(`Error importing data for ${dateStr}:`, error);
+            }
+          }
         }
-        
-        if (!latestPrice || !latestDate) continue;
-        
-        // Update Market Price in DB
-        await db.exec`
-          UPDATE cities
-          SET market_price_usd = ${latestPrice},
-              last_updated = NOW()
-          WHERE id = ${city.id}
-        `;
-        
-        // Get market metrics and recalculate Index Price
-        const metrics = await getMarketMetrics(city.id, db);
-        const currentMarketPrice = latestPrice;
-        const newIndexPrice = calculateIndexPrice(currentMarketPrice, metrics);
-        
-        // Update Index Price
-        await db.exec`
-          UPDATE cities
-          SET index_price_usd = ${newIndexPrice}
-          WHERE id = ${city.id}
-        `;
-        
-        // Save to history
-        const currentFundingRate = await db.queryRow<{ funding_rate: number }>`
-          SELECT funding_rate FROM cities WHERE id = ${city.id}
-        `;
-        
-        await db.exec`
-          INSERT INTO market_price_history (
-            city_id, market_price_usd, index_price_usd, funding_rate
-          ) VALUES (
-            ${city.id}, ${currentMarketPrice}, ${newIndexPrice},
-            ${currentFundingRate?.funding_rate || 0}
-          )
-        `;
-        
-        citiesUpdated++;
+
+        // Update current price, index_price, and market_price in cities table
+        if (lastPrice !== null) {
+          await db.exec`
+            UPDATE cities
+            SET current_price_usd = ${lastPrice},
+                index_price_usd = ${lastPrice},
+                market_price_usd = ${lastPrice},
+                last_updated = NOW()
+            WHERE id = ${city.id}
+          `;
+        }
+
+        imported.push({
+          city: `${mapping.name}, ${mapping.country}`,
+          records: importedCount,
+          lastPrice: lastPrice!,
+        });
       }
-      
+
       return {
         success: true,
-        message: `Updated ${citiesUpdated} cities with Market Price from CSV`,
-        citiesUpdated,
+        message: `Imported USA data for ${imported.length} cities`,
+        imported,
       };
     } catch (error) {
       return {
         success: false,
-        message: `Import error: ${error instanceof Error ? error.message : String(error)}`,
-        citiesUpdated: 0,
+        message: `USA import error: ${error instanceof Error ? error.message : String(error)}`,
+        imported: [],
       };
     }
   }
