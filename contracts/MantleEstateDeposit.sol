@@ -122,8 +122,13 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
         if (bytes(userId).length == 0) revert InvalidUserId();
         if (bytes(walletToUserId[msg.sender]).length != 0) revert WalletAlreadyLinked();
 
-        // Create message hash
-        bytes32 messageHash = keccak256(
+        // Create message exactly as frontend will sign it
+        // Frontend uses signMessage() which:
+        // 1. Converts string to UTF-8 bytes
+        // 2. Creates: "\x19Ethereum Signed Message:\n" + len(message_bytes) + message_bytes
+        // 3. Hashes with keccak256 and signs
+        // Note: signMessage does NOT pre-hash the message - it hashes the prefix + message together
+        string memory message = string(
             abi.encodePacked(
                 "Mantle Estate: Link wallet\nUserID: ",
                 userId,
@@ -136,8 +141,11 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
         bytes32 signatureHash = keccak256(signature);
         if (usedSignatures[signatureHash]) revert SignatureAlreadyUsed();
 
-        // Verify signature
-        bytes32 ethSignedMessageHash = messageHash.toEthSignedMessageHash();
+        // Verify signature using standard Ethereum signed message format
+        // signMessage() in ethers.js does: keccak256("\x19Ethereum Signed Message:\n" + len(message_bytes) + message_bytes)
+        bytes memory messageBytes = bytes(message);
+        bytes memory prefix = abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(messageBytes.length));
+        bytes32 ethSignedMessageHash = keccak256(abi.encodePacked(prefix, messageBytes));
         address signer = ethSignedMessageHash.recover(signature);
 
         if (signer != msg.sender) revert InvalidSignature();

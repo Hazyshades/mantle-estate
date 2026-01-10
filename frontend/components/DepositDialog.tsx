@@ -23,7 +23,7 @@ interface DepositDialogProps {
 }
 
 // Contract addresses (from Deployed.md)
-const DEPOSIT_CONTRACT_ADDRESS = "0x31201F0A8E8Af4f43f417740badBBdbd33d29284";
+const DEPOSIT_CONTRACT_ADDRESS = "0x3Dc8D566FE818bD66CA1A09cF636ff426C6fCe3b";
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 const MIN_DEPOSIT = 10; // USDC
 const MAX_DEPOSIT = 1_000_000; // USDC
@@ -252,7 +252,7 @@ export default function DepositDialog({
       const amountInSmallestUnits = BigInt(Math.floor(amountNum * 1_000_000));
 
       // Approve USDC spending first
-      const USDC_ADDRESS = "0xE3854F6BF768Ba9d094E6654dC99CcB8142159a4";
+      const USDC_ADDRESS = "0x8136564cfec628dc62c963bad34ccc58d792aae3";
       const USDC_ABI = [
         "function approve(address spender, uint256 amount) external returns (bool)",
         "function allowance(address owner, address spender) external view returns (uint256)",

@@ -20,9 +20,9 @@ export const getBalance = api<void, BalanceResponse>(
       // Create new user with wallet address if available
       await db.exec`
         INSERT INTO users (id, email, balance, wallet_address)
-        VALUES (${userId}, ${auth.email}, 100.0, ${auth.walletAddress})
+        VALUES (${userId}, ${auth.email}, 0.0, ${auth.walletAddress})
       `;
-      user = { balance: 100.0, wallet_address: auth.walletAddress };
+      user = { balance: 0.0, wallet_address: auth.walletAddress };
     } else if (auth.walletAddress && user.wallet_address !== auth.walletAddress) {
       // Update wallet address if it has changed
       await db.exec`

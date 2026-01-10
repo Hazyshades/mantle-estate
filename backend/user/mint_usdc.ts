@@ -4,7 +4,7 @@ import db from "../db";
 import { ethers } from "ethers";
 import { secret } from "encore.dev/config";
 
-const TEST_USDC_ADDRESS = "0xE3854F6BF768Ba9d094E6654dC99CcB8142159a4"; // TestUSDC token address
+const TEST_USDC_ADDRESS = "0x8136564cfec628dc62c963bad34ccc58d792aae3"; // TestUSDC token address
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 const DAILY_MINT_LIMIT = 10_000 * 1_000_000; // 10,000 USDC in smallest units (6 decimals)
 
@@ -160,6 +160,8 @@ export const mintUSDC = api<MintUSDCRequest, MintUSDCResponse>(
 
     try {
       // Record mint in database with transaction hash
+      // Note: Minting tUSDC on blockchain does NOT update user balance in users table
+      // Balance is only updated when user deposits tokens via deposit() function
       await db.exec`
         INSERT INTO mint_history (wallet_address, amount, tx_hash)
         VALUES (${req.walletAddress.toLowerCase()}, ${amountInSmallestUnits}, ${req.txHash})

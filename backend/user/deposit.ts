@@ -25,7 +25,7 @@ interface DepositResponse {
 }
 
 // Contract addresses (from Deployed.md)
-const DEPOSIT_CONTRACT_ADDRESS = "0x31201F0A8E8Af4f43f417740badBBdbd33d29284";
+const DEPOSIT_CONTRACT_ADDRESS = "0x3Dc8D566FE818bD66CA1A09cF636ff426C6fCe3b";
 const CHAIN_ID = 5003; // Mantle Sepolia Testnet
 
 // Deposit event signature (first 4 bytes of keccak256 hash)

@@ -410,6 +410,10 @@ import {
     mintUSDC as api_user_mint_usdc_mintUSDC
 } from "~backend/user/mint_usdc";
 import { processDeposit as api_user_process_deposit_processDeposit } from "~backend/user/process_deposit";
+import {
+    sendInitialMNT as api_user_send_initial_mnt_sendInitialMNT,
+    sendInitialMNTBatch as api_user_send_initial_mnt_sendInitialMNTBatch
+} from "~backend/user/send_initial_mnt";
 
 export namespace user {
 
@@ -423,6 +427,8 @@ export namespace user {
             this.getUserInfo = this.getUserInfo.bind(this)
             this.mintUSDC = this.mintUSDC.bind(this)
             this.processDeposit = this.processDeposit.bind(this)
+            this.sendInitialMNT = this.sendInitialMNT.bind(this)
+            this.sendInitialMNTBatch = this.sendInitialMNTBatch.bind(this)
         }
 
         public async getBalance(): Promise<ResponseType<typeof api_user_balance_getBalance>> {
@@ -466,6 +472,26 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/process-deposit`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_process_deposit_processDeposit>
+        }
+
+        /**
+         * Send initial MNT to a user's wallet (owner only)
+         * This allows sending MNT without the user needing gas
+         */
+        public async sendInitialMNT(params: RequestType<typeof api_user_send_initial_mnt_sendInitialMNT>): Promise<ResponseType<typeof api_user_send_initial_mnt_sendInitialMNT>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/send-initial-mnt`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_send_initial_mnt_sendInitialMNT>
+        }
+
+        /**
+         * Send initial MNT to multiple users at once (owner only)
+         * More efficient for bulk operations
+         */
+        public async sendInitialMNTBatch(params: RequestType<typeof api_user_send_initial_mnt_sendInitialMNTBatch>): Promise<ResponseType<typeof api_user_send_initial_mnt_sendInitialMNTBatch>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/send-initial-mnt-batch`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_send_initial_mnt_sendInitialMNTBatch>
         }
     }
 }
