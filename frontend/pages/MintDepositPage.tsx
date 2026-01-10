@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useWallet } from "../lib/useWallet";
 import { useUser } from "@clerk/clerk-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -16,7 +17,7 @@ import { Separator } from "@/components/ui/separator";
 
 // Contract addresses (from Deployed.md)
 const TEST_USDC_ADDRESS = "0x8136564cfec628dc62c963bad34ccc58d792aae3"; // TestUSDC token address
-const DEPOSIT_CONTRACT_ADDRESS = "0x3Dc8D566FE818bD66CA1A09cF636ff426C6fCe3b";
+const DEPOSIT_CONTRACT_ADDRESS = "0x54fDDAbe007fa60cA84d1DeA27E6400c99E290ca";
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 const MINT_AMOUNT = 10_000; // USDC
 const MIN_DEPOSIT = 10; // USDC
@@ -48,9 +49,8 @@ const TEST_USDC_MINT_ABI = [
 ];
 
 export default function MintDepositPage() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { walletAddress, isConnecting, connectWallet, checkMetaMask } = useWallet();
   const [depositAmount, setDepositAmount] = useState<string>("");
-  const [isConnecting, setIsConnecting] = useState(false);
   const [isClaimingMNT, setIsClaimingMNT] = useState(false);
   const [isMinting, setIsMinting] = useState(false);
   const [isDepositing, setIsDepositing] = useState(false);
@@ -78,75 +78,6 @@ export default function MintDepositPage() {
     }
   }, [walletAddress]);
 
-  const checkMetaMask = () => {
-    if (typeof (window as any).ethereum === "undefined") {
-      throw new Error("MetaMask is not installed. Please install the MetaMask extension.");
-    }
-    return (window as any).ethereum;
-  };
-
-  const connectWallet = async () => {
-    try {
-      setIsConnecting(true);
-      const ethereum = checkMetaMask();
-      const provider = new ethers.BrowserProvider(ethereum);
-
-      const accounts = await provider.send("eth_requestAccounts", []);
-      if (accounts.length === 0) {
-        throw new Error("Please connect your wallet in MetaMask");
-      }
-
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-
-      // Check network
-      const network = await provider.getNetwork();
-      if (Number(network.chainId) !== MANTLE_SEPOLIA_CHAIN_ID) {
-        try {
-          await ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: `0x${MANTLE_SEPOLIA_CHAIN_ID.toString(16)}` }],
-          });
-        } catch (switchError: any) {
-          if (switchError.code === 4902) {
-            await ethereum.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: `0x${MANTLE_SEPOLIA_CHAIN_ID.toString(16)}`,
-                  chainName: "Mantle Sepolia Testnet",
-                  nativeCurrency: {
-                    name: "MNT",
-                    symbol: "MNT",
-                    decimals: 18,
-                  },
-                  rpcUrls: ["https://rpc.sepolia.mantle.xyz"],
-                  blockExplorerUrls: ["https://sepolia.mantlescan.xyz"],
-                },
-              ],
-            });
-          } else {
-            throw switchError;
-          }
-        }
-      }
-
-      setWalletAddress(address);
-      toast({
-        title: "Wallet Connected",
-        description: `Connected wallet ${address.slice(0, 6)}...${address.slice(-4)}`,
-      });
-    } catch (error: any) {
-      console.error("Error connecting wallet:", error);
-      toast({
-        variant: "destructive",
-        title: "Connection Error",
-        description: error.message || "Failed to connect wallet",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
 
   const loadMintLimit = async () => {
     if (!walletAddress) return;
@@ -690,7 +621,7 @@ export default function MintDepositPage() {
                   <Wallet className="h-5 w-5" />
                   Wallet Connection
                 </CardTitle>
-                <CardDescription>Connect your MetaMask wallet for operations</CardDescription>
+                <CardDescription>Connect your Web3 wallet</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {!walletAddress ? (
@@ -795,9 +726,6 @@ export default function MintDepositPage() {
                     <Coins className="h-5 w-5" />
                     Step 1: Mint MNT & USDC
                   </CardTitle>
-                  <CardDescription>
-                    First claim MNT for gas, then mint test USDC tokens
-                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* MNT Claim Section */}
@@ -1051,8 +979,8 @@ export default function MintDepositPage() {
                 <ol className="list-decimal list-inside space-y-2">
                   <li>Connect your MetaMask wallet</li>
                   <li>Make sure you're on Mantle Sepolia Testnet (Chain ID: {MANTLE_SEPOLIA_CHAIN_ID})</li>
-                  <li>Link your wallet to your account (if not already linked)</li>
                   <li>Claim initial MNT tokens for gas fees (one-time per address, no gas required!)</li>
+                  <li>Link your wallet to your account (if not already linked)</li>
                   <li>Mint {MINT_AMOUNT.toLocaleString()} tUSDC tokens</li>
                   <li>Deposit to the platform</li>
                   <li>Start trading!</li>

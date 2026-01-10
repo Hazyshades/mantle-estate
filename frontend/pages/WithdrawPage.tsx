@@ -8,13 +8,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/components/ui/use-toast";
 import { useBackend } from "../lib/useBackend";
+import { useWallet } from "../lib/useWallet";
 import { useUser } from "@clerk/clerk-react";
 import { Sidebar } from "@/components/Sidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Loader2, ArrowDown, AlertCircle, CheckCircle2, ArrowLeft, Wallet, TrendingUp, TrendingDown } from "lucide-react";
 
 // Contract addresses (from Deployed.md)
-const DEPOSIT_CONTRACT_ADDRESS = "0x3Dc8D566FE818bD66CA1A09cF636ff426C6fCe3b";
+const DEPOSIT_CONTRACT_ADDRESS = "0x54fDDAbe007fa60cA84d1DeA27E6400c99E290ca";
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 const MIN_WITHDRAW = 10; // USDC
 
@@ -27,12 +28,16 @@ const DEPOSIT_CONTRACT_ABI = [
   "function minDepositAmount() external view returns (uint256)",
   "function getContractBalance() external view returns (uint256)",
   "event Withdraw(uint256 indexed withdrawId, address indexed wallet, bytes32 indexed userIdHash, string userId, uint256 amount, bytes32 txHash, uint256 blockNumber, uint256 timestamp, uint256 nonce)",
+  // Custom errors
+  "error InsufficientBalance()",
+  "error InvalidWithdrawAmount()",
+  "error WalletNotLinked()",
+  "error TransactionAlreadyProcessed()",
 ];
 
 export default function WithdrawPage() {
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const { walletAddress, isConnecting, connectWallet, checkMetaMask } = useWallet();
   const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-  const [isConnecting, setIsConnecting] = useState(false);
   const [isWithdrawing, setIsWithdrawing] = useState(false);
   const [isWalletLinked, setIsWalletLinked] = useState<boolean | null>(null);
   const [platformBalance, setPlatformBalance] = useState<number | null>(null);
@@ -62,75 +67,6 @@ export default function WithdrawPage() {
     }
   }, [walletAddress]);
 
-  const checkMetaMask = () => {
-    if (typeof (window as any).ethereum === "undefined") {
-      throw new Error("MetaMask is not installed. Please install the MetaMask extension.");
-    }
-    return (window as any).ethereum;
-  };
-
-  const connectWallet = async () => {
-    try {
-      setIsConnecting(true);
-      const ethereum = checkMetaMask();
-      const provider = new ethers.BrowserProvider(ethereum);
-
-      const accounts = await provider.send("eth_requestAccounts", []);
-      if (accounts.length === 0) {
-        throw new Error("Please connect your wallet in MetaMask");
-      }
-
-      const signer = await provider.getSigner();
-      const address = await signer.getAddress();
-
-      // Check network
-      const network = await provider.getNetwork();
-      if (Number(network.chainId) !== MANTLE_SEPOLIA_CHAIN_ID) {
-        try {
-          await ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [{ chainId: `0x${MANTLE_SEPOLIA_CHAIN_ID.toString(16)}` }],
-          });
-        } catch (switchError: any) {
-          if (switchError.code === 4902) {
-            await ethereum.request({
-              method: "wallet_addEthereumChain",
-              params: [
-                {
-                  chainId: `0x${MANTLE_SEPOLIA_CHAIN_ID.toString(16)}`,
-                  chainName: "Mantle Sepolia Testnet",
-                  nativeCurrency: {
-                    name: "MNT",
-                    symbol: "MNT",
-                    decimals: 18,
-                  },
-                  rpcUrls: ["https://rpc.sepolia.mantle.xyz"],
-                  blockExplorerUrls: ["https://sepolia.mantlescan.xyz"],
-                },
-              ],
-            });
-          } else {
-            throw switchError;
-          }
-        }
-      }
-
-      setWalletAddress(address);
-      toast({
-        title: "Wallet Connected",
-        description: `Connected wallet ${address.slice(0, 6)}...${address.slice(-4)}`,
-      });
-    } catch (error: any) {
-      console.error("Error connecting wallet:", error);
-      toast({
-        variant: "destructive",
-        title: "Connection Error",
-        description: error.message || "Failed to connect wallet",
-      });
-    } finally {
-      setIsConnecting(false);
-    }
-  };
 
   const loadBalance = async () => {
     try {
@@ -333,6 +269,9 @@ export default function WithdrawPage() {
       return;
     }
 
+    // Create contract interface for error decoding (available in catch block)
+    const contractInterface = new ethers.Interface(DEPOSIT_CONTRACT_ABI);
+
     try {
       setIsWithdrawing(true);
 
@@ -342,13 +281,27 @@ export default function WithdrawPage() {
 
       // Convert amount to USDC (6 decimals)
       const amountInSmallestUnits = BigInt(Math.floor(amountNum * 1_000_000));
-
+      
       // Call withdraw function
       const contract = new ethers.Contract(
         DEPOSIT_CONTRACT_ADDRESS,
         DEPOSIT_CONTRACT_ABI,
         signer
       );
+
+      // Check contract balance before attempting withdrawal
+      const contractBalance = await contract.getContractBalance();
+      const contractBalanceFormatted = parseFloat(ethers.formatUnits(contractBalance, 6));
+      
+      if (amountNum > contractBalanceFormatted) {
+        toast({
+          variant: "destructive",
+          title: "Insufficient Contract Balance",
+          description: `Contract has only ${contractBalanceFormatted.toFixed(2)} USDC available, but you're trying to withdraw ${amountNum.toFixed(2)} USDC. Please contact support.`,
+        });
+        setIsWithdrawing(false);
+        return;
+      }
 
       toast({
         title: "Sending Transaction",
@@ -406,10 +359,59 @@ export default function WithdrawPage() {
       setWithdrawAmount("");
     } catch (error: any) {
       console.error("Error processing withdrawal:", error);
-      const errorMessage =
-        error.reason ||
-        error.message ||
-        "Error processing withdrawal. Please try again.";
+      
+      // Decode custom error if present
+      let errorMessage = "Error processing withdrawal. Please try again.";
+      
+      if (error.data) {
+        try {
+          // Try to decode the error
+          const errorData = error.data;
+          
+          // Check for known error selectors
+          if (typeof errorData === "string") {
+            if (errorData.startsWith("0xf4d678b8")) {
+              errorMessage = "Contract has insufficient USDC balance. Please contact support or try again later.";
+            } else if (errorData.startsWith("0xdb73cdf0")) {
+              errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} USDC.`;
+            } else if (errorData.startsWith("0xc5ff3d33")) {
+              errorMessage = "Wallet is not linked to your account. Please link your wallet first.";
+            } else if (errorData.startsWith("0xeb4156ad")) {
+              errorMessage = "This transaction has already been processed.";
+            }
+          }
+          
+          // Try to parse using contract interface
+          if (error.data) {
+            try {
+              const decoded = contractInterface.parseError(error.data);
+              if (decoded) {
+                if (decoded.name === "InsufficientBalance") {
+                  errorMessage = "Contract has insufficient USDC balance. Please contact support or try again later.";
+                } else if (decoded.name === "InvalidWithdrawAmount") {
+                  errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} USDC.`;
+                } else if (decoded.name === "WalletNotLinked") {
+                  errorMessage = "Wallet is not linked to your account. Please link your wallet first.";
+                } else if (decoded.name === "TransactionAlreadyProcessed") {
+                  errorMessage = "This transaction has already been processed.";
+                }
+              }
+            } catch (parseError) {
+              // If parsing fails, use fallback error message
+            }
+          }
+        } catch (decodeError) {
+          // Fallback to generic error message
+        }
+      }
+      
+      // Fallback to error.reason or error.message if we couldn't decode
+      if (error.reason && errorMessage === "Error processing withdrawal. Please try again.") {
+        errorMessage = error.reason;
+      } else if (error.message && errorMessage === "Error processing withdrawal. Please try again.") {
+        errorMessage = error.message;
+      }
+      
       toast({
         variant: "destructive",
         title: "Withdrawal Error",
@@ -646,4 +648,5 @@ export default function WithdrawPage() {
     </div>
   );
 }
+
 

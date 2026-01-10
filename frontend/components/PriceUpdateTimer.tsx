@@ -49,7 +49,7 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
 
   useEffect(() => {
     let nextUpdate: Date | null = null;
-    let interval: number | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
 
     // Fetch next update time from API
     const fetchNextUpdate = async () => {
@@ -122,8 +122,16 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
   if (variant === "compact") {
     return (
       <div className={cn("flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400", className)}>
-        <Clock className="h-4 w-4" />
-        <span>{displayText}</span>
+        <Clock className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+        <div className="flex flex-col">
+          <span className="text-xs text-slate-600 dark:text-slate-400">Next price update</span>
+          <span className={cn(
+            "text-sm font-medium",
+            isUpdating ? "text-green-600 dark:text-green-500" : "text-slate-900 dark:text-white"
+          )}>
+            {displayText}
+          </span>
+        </div>
       </div>
     );
   }

@@ -2,6 +2,43 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import { ethers } from "ethers";
 import { secret } from "encore.dev/config";
+import { readFileSync, existsSync } from "fs";
+import { join } from "path";
+import { cwd } from "process";
+
+// Load .env file for local development
+// Try root .env first, then backend/.env
+function loadEnvFile() {
+  const envPaths = [
+    join(cwd(), ".env"),
+    join(cwd(), "backend", ".env"),
+  ];
+  
+  for (const envPath of envPaths) {
+    if (existsSync(envPath)) {
+      const envContent = readFileSync(envPath, "utf-8");
+      const lines = envContent.split("\n");
+      
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const [key, ...valueParts] = trimmed.split("=");
+          if (key && valueParts.length > 0) {
+            const value = valueParts.join("=").trim();
+            // Remove quotes if present
+            const cleanValue = value.replace(/^["']|["']$/g, "");
+            if (!process.env[key]) {
+              process.env[key] = cleanValue;
+            }
+          }
+        }
+      }
+      break;
+    }
+  }
+}
+
+loadEnvFile();
 
 // TestUSDC contract address - update this with your deployed contract address
 const TEST_USDC_ADDRESS = "0x8136564cfec628dc62c963bad34ccc58d792aae3";
