@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Coins,
+  ArrowDown,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -65,6 +66,13 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
       badge: null,
     },
     {
+      id: "withdraw",
+      label: "Withdraw",
+      icon: ArrowDown,
+      path: "/withdraw",
+      badge: null,
+    },
+    {
       id: "settings",
       label: "Settings",
       icon: Settings,
@@ -88,6 +96,9 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
     }
     if (id === "mint-deposit") {
       return location.pathname === "/mint-deposit";
+    }
+    if (id === "withdraw") {
+      return location.pathname === "/withdraw";
     }
     return location.pathname.startsWith(path);
   };
@@ -142,6 +153,9 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
                   } else if (item.id === "mint-deposit") {
                     // Mint & Deposit has its own page
                     navigate("/mint-deposit");
+                  } else if (item.id === "withdraw") {
+                    // Withdraw has its own page
+                    navigate("/withdraw");
                   } else if (item.id === "markets") {
                     // Navigate to markets (or home)
                     navigate("/markets");

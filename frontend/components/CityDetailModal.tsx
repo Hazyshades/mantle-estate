@@ -303,11 +303,10 @@ export default function CityDetailModal({
         leverage: 1,
       });
 
-      const quantityInUnit = convertFromSqft(response.quantitySqm);
-      const unitLabel = getUnitLabelLower();
+      const totalAmount = amountNum + response.fee;
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Sold"} ${quantityInUnit.toFixed(2)} ${unitLabel} at $${response.entryPrice.toFixed(2)}/${unitLabel}`,
+        description: `${tradeType === "long" ? "Bought" : "Sold"} for $${totalAmount.toFixed(2)}`,
       });
 
       onTradeComplete();

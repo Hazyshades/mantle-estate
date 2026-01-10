@@ -23,7 +23,7 @@ interface DepositDialogProps {
 }
 
 // Contract addresses (from Deployed.md)
-const DEPOSIT_CONTRACT_ADDRESS = "0x3Dc8D566FE818bD66CA1A09cF636ff426C6fCe3b";
+const DEPOSIT_CONTRACT_ADDRESS = "0x54fDDAbe007fa60cA84d1DeA27E6400c99E290ca";
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
 const MIN_DEPOSIT = 10; // USDC
 const MAX_DEPOSIT = 1_000_000; // USDC

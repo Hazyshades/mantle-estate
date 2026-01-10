@@ -66,11 +66,10 @@ export default function TradeDialog({
         leverage: leverageNum,
       });
 
-      const quantityInUnit = convertFromSqft(response.quantitySqm);
-      const unitLabel = getUnitLabelLower();
+      const totalAmount = amountNum + response.fee;
       toast({
         title: "Position opened!",
-        description: `${tradeType === "long" ? "Bought" : "Shorted"} ${quantityInUnit.toFixed(2)} ${unitLabel} at $${response.entryPrice.toFixed(2)}/${unitLabel}`,
+        description: `${tradeType === "long" ? "Bought" : "Shorted"} for $${totalAmount.toFixed(2)}`,
       });
 
       onTradeComplete();
