@@ -47,8 +47,14 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
     /// @notice Total deposits per user
     mapping(string => uint256) public totalDeposits;
 
+    /// @notice Total withdrawals per user
+    mapping(string => uint256) public totalWithdrawals;
+
     /// @notice Deposit counter for generating unique IDs
     uint256 public depositCounter;
+
+    /// @notice Withdraw counter for generating unique IDs
+    uint256 public withdrawCounter;
 
     /// @notice Per-user nonce for unique transaction hash generation
     /// @dev Prevents txHash collisions even with same amount/block
@@ -82,6 +88,18 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
         uint256 nonce
     );
 
+    event Withdraw(
+        uint256 indexed withdrawId,
+        address indexed wallet,
+        bytes32 indexed userIdHash,
+        string userId,
+        uint256 amount,
+        bytes32 txHash,
+        uint256 blockNumber,
+        uint256 timestamp,
+        uint256 nonce
+    );
+
     event MinDepositAmountUpdated(uint256 oldAmount, uint256 newAmount);
     event MaxDepositAmountUpdated(uint256 oldAmount, uint256 newAmount);
 
@@ -92,6 +110,8 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
     error InvalidSignature();
     error SignatureAlreadyUsed();
     error InvalidDepositAmount();
+    error InvalidWithdrawAmount();
+    error InsufficientBalance();
     error TransactionAlreadyProcessed();
     error InvalidUserId();
     error TransferFailed();
@@ -184,6 +204,79 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
 
         bytes32 userIdHash = keccak256(bytes(userId));
         emit WalletUnlinked(msg.sender, userIdHash, userId, block.timestamp);
+    }
+
+    /**
+     * @notice Withdraw USDC tokens from the platform
+     * @param amount Amount of USDC to withdraw (with 6 decimals)
+     * @dev Wallet must be linked before withdrawing
+     * @dev Uses per-user nonce to prevent txHash collisions
+     * @dev Note: User must have sufficient balance in platform to withdraw
+     */
+    function withdraw(uint256 amount) external nonReentrant whenNotPaused {
+        // Check if wallet is linked
+        string memory userId = walletToUserId[msg.sender];
+        if (bytes(userId).length == 0) revert WalletNotLinked();
+
+        // Validate withdraw amount
+        if (amount < minDepositAmount) {
+            revert InvalidWithdrawAmount();
+        }
+
+        // Store withdrawId BEFORE incrementing
+        uint256 currentWithdrawId = withdrawCounter;
+
+        // Get and increment user nonce for unique txHash
+        uint256 currentNonce = userNonces[msg.sender];
+        userNonces[msg.sender] = currentNonce + 1;
+
+        // Generate unique transaction hash with nonce
+        bytes32 txHash = keccak256(
+            abi.encodePacked(
+                msg.sender,
+                amount,
+                block.number,
+                block.timestamp,
+                currentWithdrawId,
+                currentNonce
+            )
+        );
+
+        // Check if transaction was already processed
+        if (processedTransactions[txHash]) revert TransactionAlreadyProcessed();
+
+        // Mark transaction as processed
+        processedTransactions[txHash] = true;
+
+        // Increment withdraw counter AFTER storing current value
+        withdrawCounter = currentWithdrawId + 1;
+
+        // Check contract balance (user must have funds in platform)
+        uint256 contractBalance = usdcToken.balanceOf(address(this));
+        if (amount > contractBalance) {
+            revert InsufficientBalance();
+        }
+
+        // Update total withdrawals
+        totalWithdrawals[userId] += amount;
+
+        // Transfer USDC from contract to user
+        usdcToken.safeTransfer(msg.sender, amount);
+
+        // Emit event with indexed userIdHash
+        bytes32 userIdHash = keccak256(bytes(userId));
+
+        emit Withdraw(
+            currentWithdrawId,
+            msg.sender,
+            userIdHash,
+            userId,
+            amount,
+            txHash,
+            block.number,
+            block.timestamp,
+            currentNonce
+        );
     }
 
     /**
@@ -289,6 +382,23 @@ contract MantleEstateDeposit is Ownable, Pausable, ReentrancyGuard {
      */
     function getTotalDeposits(string calldata userId) external view returns (uint256) {
         return totalDeposits[userId];
+    }
+
+    /**
+     * @notice Get total withdrawals for a user
+     * @param userId Clerk user ID
+     * @return Total withdrawal amount
+     */
+    function getTotalWithdrawals(string calldata userId) external view returns (uint256) {
+        return totalWithdrawals[userId];
+    }
+
+    /**
+     * @notice Get contract USDC balance
+     * @return Contract balance in USDC (6 decimals)
+     */
+    function getContractBalance() external view returns (uint256) {
+        return usdcToken.balanceOf(address(this));
     }
 
     /**
