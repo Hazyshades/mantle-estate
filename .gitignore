@@ -6,3 +6,15 @@ node_modules
 /encore.gen
 
 /docs
+
+
+/.cursor/
+.cursorignore
+.cursor/
+.cursorignore  
+
+*.md
+
+/cursor
+\.cursor\
+contract\
