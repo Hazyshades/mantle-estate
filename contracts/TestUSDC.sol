@@ -105,9 +105,124 @@ contract TestUSDC is ERC20, Ownable {
     }
 
     /**
+     * @notice Owner can send initial MNT to any address (no gas required from recipient)
+     * @param recipient Address to send initial MNT to
+     * @dev Only owner can call this function
+     * @dev This solves the "chicken and egg" problem - owner sends MNT without user needing gas
+     * @dev Can be called multiple times for same address if needed
+     */
+    function sendInitialMNT(address recipient) external onlyOwner {
+        require(recipient != address(0), "TestUSDC: invalid recipient address");
+        require(initialMNTAmount > 0, "TestUSDC: initial MNT amount is disabled");
+        
+        // Check if we have enough MNT in contract
+        uint256 availableBalance;
+        if (useNativeMNT) {
+            availableBalance = address(this).balance;
+        } else {
+            // Use low-level call to safely check balance
+            (bool success, bytes memory data) = address(MNT_TOKEN).staticcall(
+                abi.encodeWithSelector(IERC20.balanceOf.selector, address(this))
+            );
+            if (success && data.length >= 32) {
+                availableBalance = abi.decode(data, (uint256));
+            } else {
+                revert("TestUSDC: cannot check MNT balance");
+            }
+        }
+        
+        require(availableBalance >= initialMNTAmount, "TestUSDC: insufficient MNT in contract");
+        
+        // Mark as claimed (to prevent duplicate claims via claimInitialMNT)
+        if (!hasClaimedInitialMNT[recipient]) {
+            hasClaimedInitialMNT[recipient] = true;
+        }
+        
+        // Send MNT
+        bool transferSuccess = false;
+        if (useNativeMNT) {
+            (transferSuccess, ) = payable(recipient).call{value: initialMNTAmount}("");
+            require(transferSuccess, "TestUSDC: native MNT transfer failed");
+        } else {
+            (transferSuccess, ) = address(MNT_TOKEN).call(
+                abi.encodeWithSelector(IERC20.transfer.selector, recipient, initialMNTAmount)
+            );
+            require(transferSuccess, "TestUSDC: MNT token transfer failed");
+        }
+        
+        // Update internal balance tracking
+        if (totalMNTBalance >= initialMNTAmount) {
+            totalMNTBalance -= initialMNTAmount;
+        }
+        
+        emit InitialMNTSent(msg.sender, recipient, initialMNTAmount);
+    }
+
+    /**
+     * @notice Owner can send initial MNT to multiple addresses at once
+     * @param recipients Array of addresses to send initial MNT to
+     * @dev Only owner can call this function
+     * @dev Efficient way to send MNT to multiple users
+     */
+    function sendInitialMNTBatch(address[] calldata recipients) external onlyOwner {
+        require(recipients.length > 0, "TestUSDC: recipients array is empty");
+        require(initialMNTAmount > 0, "TestUSDC: initial MNT amount is disabled");
+        
+        uint256 totalNeeded = initialMNTAmount * recipients.length;
+        
+        // Check if we have enough MNT in contract
+        uint256 availableBalance;
+        if (useNativeMNT) {
+            availableBalance = address(this).balance;
+        } else {
+            (bool success, bytes memory data) = address(MNT_TOKEN).staticcall(
+                abi.encodeWithSelector(IERC20.balanceOf.selector, address(this))
+            );
+            if (success && data.length >= 32) {
+                availableBalance = abi.decode(data, (uint256));
+            } else {
+                revert("TestUSDC: cannot check MNT balance");
+            }
+        }
+        
+        require(availableBalance >= totalNeeded, "TestUSDC: insufficient MNT in contract");
+        
+        // Send MNT to all recipients
+        for (uint256 i = 0; i < recipients.length; i++) {
+            address recipient = recipients[i];
+            require(recipient != address(0), "TestUSDC: invalid recipient address");
+            
+            // Mark as claimed
+            if (!hasClaimedInitialMNT[recipient]) {
+                hasClaimedInitialMNT[recipient] = true;
+            }
+            
+            // Send MNT
+            bool transferSuccess = false;
+            if (useNativeMNT) {
+                (transferSuccess, ) = payable(recipient).call{value: initialMNTAmount}("");
+                require(transferSuccess, "TestUSDC: native MNT transfer failed");
+            } else {
+                (transferSuccess, ) = address(MNT_TOKEN).call(
+                    abi.encodeWithSelector(IERC20.transfer.selector, recipient, initialMNTAmount)
+                );
+                require(transferSuccess, "TestUSDC: MNT token transfer failed");
+            }
+            
+            emit InitialMNTSent(msg.sender, recipient, initialMNTAmount);
+        }
+        
+        // Update internal balance tracking
+        if (totalMNTBalance >= totalNeeded) {
+            totalMNTBalance -= totalNeeded;
+        }
+    }
+
+    /**
      * @notice Claim initial MNT tokens for gas (one-time claim per address)
      * @dev Users can claim initial MNT once to cover gas fees for minting tUSDC
      * @dev This solves the "chicken and egg" problem - users need MNT to mint, but get MNT from minting
+     * @dev NOTE: This requires gas! Use sendInitialMNT() from owner instead for gasless claims
      */
     function claimInitialMNT() external {
         require(!hasClaimedInitialMNT[msg.sender], "TestUSDC: already claimed initial MNT");
@@ -384,9 +499,14 @@ contract TestUSDC is ERC20, Ownable {
     event MNTWithdrawn(address indexed to, uint256 amount);
 
     /**
-     * @notice Emitted when a user claims initial MNT
+     * @notice Emitted when a user claims initial MNT (requires gas)
      */
     event InitialMNTClaimed(address indexed user, uint256 amount);
+
+    /**
+     * @notice Emitted when owner sends initial MNT to an address (gasless for recipient)
+     */
+    event InitialMNTSent(address indexed sender, address indexed recipient, uint256 amount);
 
     /**
      * @notice Emitted when initial MNT amount is updated

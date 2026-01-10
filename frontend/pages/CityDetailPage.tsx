@@ -63,7 +63,7 @@ type TimeRange = "1d" | "1w" | "1m" | "all";
 export default function CityDetailPage() {
   const { cityCode } = useParams<{ cityCode: string }>();
   const navigate = useNavigate();
-  const { convertFromSqft, convertToSqft, getUnitLabel, getUnitLabelLower } = useUnitPreference();
+  const { convertFromSqft, getUnitLabelLower } = useUnitPreference();
   const [city, setCity] = useState<City | null>(null);
   const [priceHistory, setPriceHistory] = useState<PricePoint[]>([]);
   const [balance, setBalance] = useState<number>(0);
@@ -75,7 +75,6 @@ export default function CityDetailPage() {
   const [showVolume, setShowVolume] = useState(false);
   const [tradeType, setTradeType] = useState<"long" | "short">("long");
   const [amount, setAmount] = useState("");
-  const [size, setSize] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isChartFullscreen, setIsChartFullscreen] = useState(false);
@@ -599,9 +598,9 @@ export default function CityDetailPage() {
     setShowTradeConfirm(false);
 
     try {
-      const amountNum = amount ? parseFloat(amount) : parseFloat(size) * pricePerUnit;
+      const amountNum = parseFloat(amount);
       
-      if (amountNum <= 0) {
+      if (!amountNum || amountNum <= 0) {
         throw new Error("Amount must be positive");
       }
 
@@ -625,7 +624,6 @@ export default function CityDetailPage() {
 
       loadBalance();
       setAmount("");
-      setSize("");
     } catch (error) {
       console.error("Trade error:", error);
       toast({
@@ -691,23 +689,38 @@ export default function CityDetailPage() {
   }
 
   const amountNum = parseFloat(amount) || 0;
-  const sizeNum = parseFloat(size) || 0;
-  // Convert size to sqft for calculations, then back to preferred unit for display
-  const sizeNumInSqft = sizeNum > 0 ? convertToSqft(sizeNum) : 0;
-  const calculatedSizeInSqft = amountNum > 0 ? amountNum / pricePerSqft : sizeNumInSqft;
+  // Calculate size only for display purposes (read-only)
+  const calculatedSizeInSqft = amountNum > 0 ? amountNum / pricePerSqft : 0;
   const calculatedSize = convertFromSqft(calculatedSizeInSqft);
-  const calculatedAmount = sizeNum > 0 ? sizeNum * pricePerUnit : amountNum;
   
   // Calculate estimated fill price (using current index price with slippage)
   const slippage = 0.02; // 2% slippage
   const estFillPrice = indexPrice * (1 + (tradeType === "long" ? slippage : -slippage));
   const estFillPriceFormatted = estFillPrice.toFixed(2);
   
-  // Validation
-  const isValidAmount = amountNum > 0 && amountNum <= balance;
-  const isValidSize = sizeNum > 0 && calculatedAmount <= balance;
-  const hasError = (amount && !isValidAmount) || (size && !isValidSize);
-  const canTrade = (amountNum > 0 || sizeNum > 0) && isValidAmount && isValidSize;
+  // Fee calculation constants (same as backend)
+  const leverage = 1; // Default leverage
+  const FEE_RATE = 0.0001; // 0.01% fee rate
+  
+  // Calculate maximum amount that can be used, accounting for fees
+  // totalCost = amountUsd + (amountUsd * leverage * FEE_RATE)
+  // balance >= totalCost => amountUsd <= balance / (1 + leverage * FEE_RATE)
+  // Subtract small buffer (0.01) for rounding errors
+  const getMaxAmountWithFee = (balance: number): number => {
+    const maxAmount = balance / (1 + leverage * FEE_RATE);
+    return Math.max(0, maxAmount - 0.01); // Small buffer for safety
+  };
+  
+  const maxAmountWithFee = getMaxAmountWithFee(balance);
+  
+  // Validation - check if total cost (amount + fee) doesn't exceed balance
+  const positionValue = amountNum * leverage;
+  const openingFee = positionValue * FEE_RATE;
+  const totalCost = amountNum + openingFee;
+  const hasAmountError = amount && amountNum > 0 && totalCost > balance;
+  const hasError = hasAmountError;
+  // Check if the amount is valid (total cost must be <= balance)
+  const canTrade = amountNum > 0 && totalCost <= balance;
   
   // GEt icon cities
   const cityIcon = getCityIcon(city.name);
@@ -1045,82 +1058,79 @@ export default function CityDetailPage() {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-sm leading-none font-medium text-muted-foreground" htmlFor="amount-input">Amount (USD)</label>
-                  <span className="text-sm leading-none font-medium text-muted-foreground" aria-label={`Maximum balance: $${balance.toFixed(2)}`}>Max: ${balance.toFixed(2)}</span>
+                  <span className="text-sm leading-none font-medium text-muted-foreground" aria-label={`Maximum amount with fees: $${maxAmountWithFee.toFixed(2)}`}>Max: ${maxAmountWithFee.toFixed(2)}</span>
                 </div>
                 <Input
                   id="amount-input"
                   type="number"
                   placeholder="0"
                   value={amount}
-                    onChange={(e) => {
-                      setAmount(e.target.value);
-                      if (e.target.value) {
-                        const sizeInSqft = parseFloat(e.target.value) / pricePerSqft;
-                        const sizeInUnit = convertFromSqft(sizeInSqft);
-                        setSize(sizeInUnit.toFixed(2));
-                      } else {
-                        setSize("");
-                      }
-                    }}
-                  className={cn("mb-2", hasError && amount && !isValidAmount && "border-red-500 focus-visible:ring-red-500")}
-                  {...(hasError && amount && !isValidAmount ? { "aria-invalid": true as const, "aria-describedby": "amount-error" } : {})}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className={cn("mb-2", hasAmountError && "border-red-500 focus-visible:ring-red-500")}
+                  {...(hasAmountError ? { "aria-invalid": true as const, "aria-describedby": "amount-error" } : {})}
                 />
-                {hasError && amount && !isValidAmount && (
+                {hasAmountError && (
                   <p id="amount-error" className="text-xs text-red-600 dark:text-red-400 mt-1" role="alert">
-                    {amountNum > balance ? "Balance exceeded" : "Enter a valid amount"}
+                    Insufficient balance (including fees)
                   </p>
                 )}
                 {balance > 0 && (
-                  <Slider
-                    value={[amountNum]}
-                    max={balance}
-                    step={100}
-                    onValueChange={(values) => {
-                      const val = values[0].toString();
-                      setAmount(val);
-                      const sizeInSqft = values[0] / pricePerSqft;
-                      const sizeInUnit = convertFromSqft(sizeInSqft);
-                      setSize(sizeInUnit.toFixed(2));
-                    }}
-                    className="w-full"
-                  />
-                )}
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm text-muted-foreground">Size ({getUnitLabelLower()})</label>
-                  <span className="text-xs text-muted-foreground">{calculatedSize.toFixed(2)} {getUnitLabelLower()}</span>
-                </div>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={size}
-                    onChange={(e) => {
-                      setSize(e.target.value);
-                      if (e.target.value) {
-                        const sizeInUnit = parseFloat(e.target.value);
-                        const sizeInSqft = convertToSqft(sizeInUnit);
-                        setAmount((sizeInSqft * pricePerSqft).toFixed(2));
-                      } else {
-                        setAmount("");
-                      }
-                    }}
-                  className="mb-2"
-                />
-                {balance > 0 && (
-                  <Slider
-                    value={[sizeNum]}
-                    max={convertFromSqft(balance / pricePerSqft)}
-                    step={0.1}
-                    onValueChange={(values) => {
-                      const val = values[0].toFixed(2);
-                      setSize(val);
-                      const sizeInSqft = convertToSqft(values[0]);
-                      setAmount((sizeInSqft * pricePerSqft).toFixed(2));
-                    }}
-                    className="w-full"
-                  />
+                  <>
+                    <div className="flex gap-2 mb-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const percentAmount = maxAmountWithFee * 0.25;
+                          setAmount(Math.max(0, percentAmount).toFixed(2));
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        25%
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const percentAmount = maxAmountWithFee * 0.5;
+                          setAmount(Math.max(0, percentAmount).toFixed(2));
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        50%
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const percentAmount = maxAmountWithFee * 0.75;
+                          setAmount(Math.max(0, percentAmount).toFixed(2));
+                        }}
+                        className="flex-1 text-xs"
+                      >
+                        75%
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setAmount(maxAmountWithFee.toFixed(2))}
+                        className="flex-1 text-xs font-semibold"
+                      >
+                        Max
+                      </Button>
+                    </div>
+                    <Slider
+                      value={[amountNum]}
+                      max={maxAmountWithFee}
+                      step={100}
+                      onValueChange={(values) => setAmount(values[0].toString())}
+                      className="w-full"
+                    />
+                  </>
                 )}
               </div>
 
@@ -1185,7 +1195,7 @@ export default function CityDetailPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Amount:</span>
-                <span className="text-sm font-semibold">${calculatedAmount.toFixed(2)}</span>
+                <span className="text-sm font-semibold">${amountNum.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Size:</span>

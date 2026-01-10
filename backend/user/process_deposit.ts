@@ -62,12 +62,35 @@ export const processDeposit = api<ProcessDepositRequest, ProcessDepositResponse>
       );
     }
 
+    // Convert amount from smallest units (6 decimals) to USDC
+    const amountInUSDC = req.amount / 1_000_000;
+
     // Start transaction
-    await db.exec`BEGIN`;
+    const tx = await db.begin();
 
     try {
+      // Check if user exists
+      const user = await tx.queryRow<{ id: string; balance: number }>`
+        SELECT id, balance FROM users WHERE id = ${req.userId} FOR UPDATE
+      `;
+
+      if (!user) {
+        // Create user if doesn't exist
+        await tx.exec`
+          INSERT INTO users (id, email, balance, wallet_address)
+          VALUES (${req.userId}, ${auth.email}, ${amountInUSDC}, ${req.walletAddress.toLowerCase()})
+        `;
+      } else {
+        // Update user balance
+        await tx.exec`
+          UPDATE users
+          SET balance = balance + ${amountInUSDC}
+          WHERE id = ${req.userId}
+        `;
+      }
+
       // Insert deposit record
-      await db.exec`
+      await tx.exec`
         INSERT INTO deposits (
           user_id,
           deposit_id,
@@ -90,34 +113,26 @@ export const processDeposit = api<ProcessDepositRequest, ProcessDepositResponse>
         )
       `;
 
-      // Update user balance
-      // Convert amount from smallest units (6 decimals) to USDC
-      const amountInUSDC = req.amount / 1_000_000;
-
-      await db.exec`
-        UPDATE users
-        SET balance = balance + ${amountInUSDC}
-        WHERE id = ${req.userId}
-      `;
-
-      // Get updated balance
-      const user = await db.queryRow<{ balance: number }>`
+      // Get updated balance before commit
+      const updatedUser = await tx.queryRow<{ balance: number }>`
         SELECT balance FROM users WHERE id = ${req.userId}
       `;
 
-      if (!user) {
-        throw new APIError("not_found", "User not found");
+      if (!updatedUser) {
+        throw new APIError("not_found", "User not found after update");
       }
 
-      await db.exec`COMMIT`;
+      const finalBalance = updatedUser.balance;
+
+      await tx.commit();
 
       return {
         success: true,
         message: `Deposit of ${amountInUSDC.toFixed(2)} USDC processed successfully`,
-        newBalance: user.balance,
+        newBalance: finalBalance,
       };
     } catch (error: any) {
-      await db.exec`ROLLBACK`;
+      await tx.rollback();
       console.error("Error processing deposit:", error);
       throw new APIError(
         "internal",
@@ -126,4 +141,5 @@ export const processDeposit = api<ProcessDepositRequest, ProcessDepositResponse>
     }
   }
 );
+
 
