@@ -8,6 +8,8 @@ import CityDetailPage from "./pages/CityDetailPage";
 import SettingsPage from "./pages/SettingsPage";
 import MintDepositPage from "./pages/MintDepositPage";
 import WithdrawPage from "./pages/WithdrawPage";
+import BlogPage from "./pages/BlogPage";
+import BlogPostPage from "./pages/BlogPostPage";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
 
@@ -48,6 +50,8 @@ function AppInner() {
               <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
               <Route path="/mint-deposit" element={user ? <MintDepositPage /> : <Navigate to="/" />} />
               <Route path="/withdraw" element={user ? <WithdrawPage /> : <Navigate to="/" />} />
+              <Route path="/blog" element={user ? <BlogPage /> : <Navigate to="/" />} />
+              <Route path="/blog/:slug" element={user ? <BlogPostPage /> : <Navigate to="/" />} />
               <Route path="/" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
             </Routes>
           </SignedIn>
