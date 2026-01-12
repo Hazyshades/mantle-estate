@@ -10,6 +10,7 @@ import MintDepositPage from "./pages/MintDepositPage";
 import WithdrawPage from "./pages/WithdrawPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
+import LandingPage from "./pages/LandingPage";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
 
@@ -21,25 +22,12 @@ function AppInner() {
       <BrowserRouter>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 text-foreground">
           <SignedOut>
-            <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-white via-slate-50 to-slate-100">
-              <div className="w-full max-w-md space-y-6 flex flex-col items-center">
-                <div className="text-center space-y-3 w-full">
-                  <div className="flex justify-center">
-                    <img 
-                      src="/images/logos/main-logo.png" 
-                      alt="Index Estate Logo" 
-                      className="h-26 w-auto"
-                    />
-                  </div>
-                  <p className="text-muted-foreground text-xl">
-                    Trade synthetic real estate assets from cities worldwide
-                  </p>
-                </div>
-                <div className="w-full flex justify-center">
-                  <SignIn routing="hash" signUpUrl="#/sign-up" />
-                </div>
-              </div>
-            </div>
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes>
           </SignedOut>
           <SignedIn>
             <Routes>
