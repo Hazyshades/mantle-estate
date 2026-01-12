@@ -93,7 +93,7 @@ export const dailyPriceUpdateEndpoint = api(
   }
 );
 
-const dailyPriceUpdate = new CronJob("daily-price-update", {
+const dailyPriceUpdate = new CronJob("update-market", {
   title: "Market Price Update (Every 6 hours)",
   schedule: "0 */6 * * *", // Every 6 hours at the start of the hour
   endpoint: dailyPriceUpdateEndpoint,

@@ -70,7 +70,7 @@ export const updatePricesEndpoint = api(
   }
 );
 
-const updatePrices = new CronJob("update-prices", {
+const updatePrices = new CronJob("update-index-funding", {
   title: "Update Index Prices and Funding Rates",
   every: "6h", // Update every 6 hours
   endpoint: updatePricesEndpoint,
