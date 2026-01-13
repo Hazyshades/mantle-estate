@@ -118,30 +118,72 @@ export const migrateData = api<MigrateDataRequest, MigrateDataResponse>(
       }
     }
 
-    // Import price history
+    // Import price history (optimized for batch insert)
     if (req.priceHistory && req.priceHistory.length > 0) {
-      for (const history of req.priceHistory) {
-        // Find city by name and country
-        const city = await db.queryRow<{ id: number }>`
-          SELECT id FROM cities WHERE name = ${history.city_name} AND country = ${history.city_country}
-        `;
+      // Get all cities once
+      const allCities = await db.queryAll<{ id: number; name: string; country: string }>`
+        SELECT id, name, country FROM cities
+      `;
+      const cityMap = new Map<string, number>();
+      allCities.forEach(city => {
+        cityMap.set(`${city.name}|${city.country}`, city.id);
+      });
 
-        if (city) {
-          await db.exec`
-            INSERT INTO price_history (
-              city_id, price_usd, market_price_usd, index_price_usd, timestamp
-            )
-            VALUES (
-              ${city.id}, 
-              ${history.price_usd},
-              ${history.market_price_usd ?? null},
-              ${history.index_price_usd ?? null},
-              ${new Date(history.timestamp)}
-            )
-            ON CONFLICT DO NOTHING
-          `;
-          priceHistoryImported++;
+      // Group by city_id for batch insert
+      const priceHistoryByCity = new Map<number, Array<{
+        price_usd: number;
+        market_price_usd: number | null;
+        index_price_usd: number | null;
+        timestamp: Date;
+      }>>();
+
+      for (const history of req.priceHistory) {
+        const cityKey = `${history.city_name}|${history.city_country}`;
+        const cityId = cityMap.get(cityKey);
+        if (cityId) {
+          if (!priceHistoryByCity.has(cityId)) {
+            priceHistoryByCity.set(cityId, []);
+          }
+          priceHistoryByCity.get(cityId)!.push({
+            price_usd: history.price_usd,
+            market_price_usd: history.market_price_usd ?? null,
+            index_price_usd: history.index_price_usd ?? null,
+            timestamp: new Date(history.timestamp),
+          });
         }
+      }
+
+      // Batch insert using transaction
+      await using tx = await db.begin();
+      try {
+        for (const [cityId, records] of priceHistoryByCity) {
+          // Insert 500 records at a time for performance
+          const batchSize = 500;
+          for (let i = 0; i < records.length; i += batchSize) {
+            const batch = records.slice(i, i + batchSize);
+            // Use loop for safe insertion
+            for (const record of batch) {
+              await db.exec`
+                INSERT INTO price_history (
+                  city_id, price_usd, market_price_usd, index_price_usd, timestamp
+                )
+                VALUES (
+                  ${cityId}, 
+                  ${record.price_usd},
+                  ${record.market_price_usd ?? null},
+                  ${record.index_price_usd ?? null},
+                  ${record.timestamp}
+                )
+                ON CONFLICT DO NOTHING
+              `;
+              priceHistoryImported++;
+            }
+          }
+        }
+        await tx.commit();
+      } catch (error) {
+        await tx.rollback();
+        throw error;
       }
     }
 

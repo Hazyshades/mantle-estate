@@ -23,10 +23,10 @@ export default function LandingPage() {
   const { openSignIn } = useClerk();
 
   const stats = [
-    { label: "Cities", value: "18", icon: Globe },
-    { label: "Open Interest", value: "$200M+", icon: BarChart3 },
-    { label: "Active Traders", value: "10K+", icon: Users },
-    { label: "Trading Volume", value: "$1.5T+", icon: DollarSign },
+    { label: "Global Markets", value: "18", icon: Globe },
+    { label: "Trading Fee", value: "0.01%", icon: DollarSign },
+    { label: "Blockchain", value: "Mantle", icon: Shield },
+    { label: "Price Data", value: "Real", icon: BarChart3 },
   ];
 
   const features = [
@@ -102,7 +102,7 @@ export default function LandingPage() {
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
               <Zap className="h-4 w-4" />
-              Trade synthetic real estate perpetual futures with zero fees
+              Trade Real Estate without the hassle or complications
             </div>
             <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight">
               Invest in the Global

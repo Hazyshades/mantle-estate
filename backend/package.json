@@ -6,7 +6,9 @@
   "scripts": {
     "build": "cd ../frontend && bun install && npx vite build --outDir=../backend/frontend/dist",
     "import-apac": "bun run scripts/import_apac_prices.ts",
-    "generate-prices": "bun run scripts/generate_prices.ts"
+    "generate-prices": "bun run scripts/generate_prices.ts",
+    "migrate-to-prod": "bun run scripts/migrate_to_prod.ts",
+    "export-db": "bun run scripts/export_database.ts"
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",
