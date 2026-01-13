@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useBackend } from "@/lib/useBackend";
 
 interface PriceUpdateTimerProps {
   className?: string;
@@ -10,6 +11,62 @@ interface PriceUpdateTimerProps {
 interface NextUpdateResponse {
   nextUpdateTime: string; // ISO timestamp
   timeUntilUpdate: number; // milliseconds until next update
+}
+
+// Price update schedule: updates occur at 0:00, 6:00, 12:00, 18:00 UTC
+const PRICE_UPDATE_HOURS = [0, 6, 12, 18];
+
+/**
+ * Calculate next update time client-side (fallback when API is unavailable)
+ * Matches the cron schedule: every 6 hours at 0:00, 6:00, 12:00, 18:00 UTC
+ */
+function getNextUpdateTimeFallback(): Date {
+  const now = new Date();
+  const currentHour = now.getUTCHours();
+  const currentMinute = now.getUTCMinutes();
+  const currentSecond = now.getUTCSeconds();
+  const currentMs = now.getUTCMilliseconds();
+  
+  // Check if we're exactly at an update time (within 1 second tolerance)
+  // If so, we want the NEXT update, not the current one
+  const isAtUpdateTime = PRICE_UPDATE_HOURS.includes(currentHour) && 
+                         currentMinute === 0 && 
+                         currentSecond === 0 && 
+                         currentMs < 1000;
+  
+  // Find the next update hour from the schedule [0, 6, 12, 18]
+  let nextUpdateHour: number | null = null;
+  
+  // Find the first hour in the schedule that is strictly after the current hour
+  for (const hour of PRICE_UPDATE_HOURS) {
+    if (hour > currentHour) {
+      nextUpdateHour = hour;
+      break;
+    }
+  }
+  
+  // If no hour found in today, use the first hour of the next day
+  // This happens when currentHour >= 18 (or we're at an update time and need the next day's first update)
+  if (nextUpdateHour === null || (isAtUpdateTime && nextUpdateHour === currentHour)) {
+    nextUpdateHour = PRICE_UPDATE_HOURS[0];
+  }
+  
+  const nextUpdate = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    nextUpdateHour,
+    0, // Minutes
+    0, // Seconds
+    0  // Milliseconds
+  ));
+  
+  // If we've wrapped around to the next day
+  if (nextUpdateHour <= currentHour || (isAtUpdateTime && nextUpdateHour === currentHour)) {
+    nextUpdate.setUTCDate(nextUpdate.getUTCDate() + 1);
+  }
+  
+  return nextUpdate;
 }
 
 /**
@@ -42,6 +99,7 @@ function formatTimeRemaining(ms: number): string {
 }
 
 export default function PriceUpdateTimer({ className, variant = "default" }: PriceUpdateTimerProps) {
+  const backend = useBackend();
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [nextUpdateTime, setNextUpdateTime] = useState<Date | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -54,31 +112,19 @@ export default function PriceUpdateTimer({ className, variant = "default" }: Pri
     // Fetch next update time from API
     const fetchNextUpdate = async () => {
       try {
-        // Use the base URL from the backend client
-        const baseURL = import.meta.env.VITE_CLIENT_TARGET || "http://localhost:4000";
-        const response = await fetch(`${baseURL}/prices/next-update`);
-        if (response.ok) {
-          const data: NextUpdateResponse = await response.json();
-          nextUpdate = new Date(data.nextUpdateTime);
-          setNextUpdateTime(nextUpdate);
-          setTimeRemaining(data.timeUntilUpdate);
-          setError(null);
-        } else {
-          throw new Error("Failed to fetch next update time");
-        }
+        const data = await backend.prices.nextUpdate();
+        nextUpdate = new Date(data.nextUpdateTime);
+        setNextUpdateTime(nextUpdate);
+        setTimeRemaining(data.timeUntilUpdate);
+        setError(null);
       } catch (err) {
         // Fallback to client-side calculation if API is not available
         console.warn("Failed to fetch next update time from API, using client-side calculation:", err);
-        const now = new Date();
-        nextUpdate = new Date(Date.UTC(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate() + 1,
-          0, 0, 0, 0
-        ));
+        nextUpdate = getNextUpdateTimeFallback();
         setNextUpdateTime(nextUpdate);
+        const now = new Date();
         const remaining = nextUpdate.getTime() - now.getTime();
-        setTimeRemaining(remaining);
+        setTimeRemaining(Math.max(0, remaining));
         setError(null);
       }
     };

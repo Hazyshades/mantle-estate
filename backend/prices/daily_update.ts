@@ -1,7 +1,7 @@
 import { api } from "encore.dev/api";
 import { CronJob } from "encore.dev/cron";
 import db from "../db";
-import { calculateIndexPrice, calculateFundingRate, getMarketMetrics } from "./calculations";
+import { calculateIndexPrice, calculateFundingRate, getMarketMetrics, PRICE_UPDATE_CRON_SCHEDULE } from "./calculations";
 
 export const dailyPriceUpdateEndpoint = api(
   { expose: true, method: "POST", path: "/prices/daily-update" },
@@ -95,7 +95,7 @@ export const dailyPriceUpdateEndpoint = api(
 
 const dailyPriceUpdate = new CronJob("update-market", {
   title: "Market Price Update (Every 6 hours)",
-  schedule: "0 */6 * * *", // Every 6 hours at the start of the hour
+  schedule: PRICE_UPDATE_CRON_SCHEDULE, // Every 6 hours at the start of the hour (0:00, 6:00, 12:00, 18:00 UTC)
   endpoint: dailyPriceUpdateEndpoint,
 });
 

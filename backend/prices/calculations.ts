@@ -9,6 +9,11 @@ const LIQUIDITY_THRESHOLD = 1000000; // Liquidity threshold in USD
 const SKEW_SCALE = 10000000; // 10M USD - ensures very smooth Index Price change
 const MAX_FUNDING_VELOCITY = 0.01; // Maximum funding rate change velocity (1% per day)
 
+// Price update schedule: every 6 hours at the start of the hour (0:00, 6:00, 12:00, 18:00 UTC)
+export const PRICE_UPDATE_CRON_SCHEDULE = "0 */6 * * *";
+export const PRICE_UPDATE_INTERVAL_HOURS = 6;
+export const PRICE_UPDATE_HOURS = [0, 6, 12, 18]; // UTC hours when updates occur
+
 export interface MarketMetrics {
   totalLongValue: number;
   totalShortValue: number;
