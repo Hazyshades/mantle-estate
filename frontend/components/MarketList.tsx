@@ -76,15 +76,22 @@ function MarketCardCompact({ city, balance, onTradeComplete }: MarketRowProps) {
     
     for (const point of priceHistory) {
       const pointTime = new Date(point.timestamp);
+      // Use indexPrice if available, otherwise fallback to price (for APAC/Europe compatibility)
+      const pointPrice = point.indexPrice || point.price;
+      
+      // Skip if no price data
+      if (!pointPrice) continue;
+      
       const timeDiff = Math.abs(pointTime.getTime() - twentyFourHoursAgo.getTime());
       
       if (timeDiff < closestTimeDiff) {
         closestTimeDiff = timeDiff;
-        price24hAgo = point.indexPrice;
+        price24hAgo = pointPrice;
       }
     }
     
-    if (price24hAgo !== null && closestTimeDiff < 2 * 60 * 60 * 1000) {
+    // Use more lenient time window (12 hours) to account for 6-hour update schedule
+    if (price24hAgo !== null && price24hAgo > 0 && closestTimeDiff < 12 * 60 * 60 * 1000) {
       return ((city.indexPriceUsd - price24hAgo) / price24hAgo) * 100;
     }
     
@@ -218,17 +225,23 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
     
     for (const point of priceHistory) {
       const pointTime = new Date(point.timestamp);
+      // Use indexPrice if available, otherwise fallback to price (for APAC/Europe compatibility)
+      const pointPrice = point.indexPrice || point.price;
+      
+      // Skip if no price data
+      if (!pointPrice) continue;
+      
       const timeDiff = Math.abs(pointTime.getTime() - twentyFourHoursAgo.getTime());
       
       if (timeDiff < closestTimeDiff) {
         closestTimeDiff = timeDiff;
-        price24hAgo = point.indexPrice;
+        price24hAgo = pointPrice;
       }
     }
     
-    // If we found a price within 2 hours of 24h ago, use it
-    // Otherwise, use the oldest price in history as fallback
-    if (price24hAgo !== null && closestTimeDiff < 2 * 60 * 60 * 1000) {
+    // Use more lenient time window (12 hours) to account for 6-hour update schedule
+    // This works for all regions: USA, APAC, and Europe
+    if (price24hAgo !== null && price24hAgo > 0 && closestTimeDiff < 12 * 60 * 60 * 1000) {
       return ((city.indexPriceUsd - price24hAgo) / price24hAgo) * 100;
     }
     
@@ -252,8 +265,8 @@ function MarketCard({ city, balance, onTradeComplete }: MarketRowProps) {
 
   // Determine market type based on price change
   const getMarketType = () => {
-    if (priceChange24h > 2) return { type: "Seller's Market", color: "bg-red-500", fill: 60 };
-    if (priceChange24h < -2) return { type: "Buyer's Market", color: "bg-green-500", fill: 85 };
+    if (priceChange24h > 1) return { type: "Seller's Market", color: "bg-red-500", fill: 60 };
+    if (priceChange24h < -1) return { type: "Buyer's Market", color: "bg-green-500", fill: 85 };
     return { type: "Balanced Market", color: "bg-gray-400", fill: 50 };
   };
 
