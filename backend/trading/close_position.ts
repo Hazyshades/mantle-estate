@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { getMarketMetrics, calculateIndexPrice, calculateFundingRate } from "../prices/calculations";
+import { getOrCreatePool } from "../liquidity_pools/utils";
 
 interface ClosePositionRequest {
   positionId: number;
@@ -122,6 +123,44 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
       const netPnl = grossPnl - position.opening_fee - closingFee;
       const returnAmount = position.margin_required + netPnl;
 
+      // Split fees: 80% to LP, 20% to protocol
+      const LP_FEE_SHARE = 0.8;
+      const PROTOCOL_FEE_SHARE = 0.2;
+      const lpFee = closingFee * LP_FEE_SHARE;
+      const protocolFee = closingFee * PROTOCOL_FEE_SHARE;
+
+      // Get pool
+      const pool = await getOrCreatePool(position.city_id, tx);
+
+      // Update pool: add LP fee and account for PnL
+      // If trader made profit (netPnl > 0), pool loses liquidity
+      // If trader made loss (netPnl < 0), pool gains liquidity
+      // IMPORTANT: pnlImpact = -netPnl means:
+      // - If trader lost -940 USDC, pool gains +940 USDC
+      // - If trader gained +940 USDC, pool loses -940 USDC
+      // This is correct: pool is the counterparty to traders
+      const pnlImpact = -netPnl; // Invert, as trader PnL = inverse pool PnL
+
+      // Update pool: fee and PnL affect total_liquidity
+      // This automatically changes share price
+      // When pool gains liquidity (from trader losses), share price increases
+      // LP providers see profit proportional to their share ownership
+      await tx.exec`
+        UPDATE liquidity_pools
+        SET total_liquidity = total_liquidity + ${lpFee} + ${pnlImpact},
+            total_fees_collected = total_fees_collected + ${lpFee},
+            cumulative_pnl = cumulative_pnl + ${pnlImpact},
+            updated_at = NOW()
+        WHERE id = ${pool.id}
+      `;
+
+      // Update protocol fees
+      await tx.exec`
+        UPDATE protocol_fees
+        SET total_collected = total_collected + ${protocolFee},
+            last_updated = NOW()
+      `;
+
       // Update user balance
       const user = await tx.queryRow<{ balance: number }>`
         SELECT balance FROM users WHERE id = ${userId} FOR UPDATE
@@ -150,10 +189,10 @@ export const closePosition = api<ClosePositionRequest, ClosePositionResponse>(
       await tx.exec`
         INSERT INTO transactions (
           user_id, transaction_type, city_id, quantity,
-          price, fee, pnl
+          price, fee, pnl, lp_fee, protocol_fee
         ) VALUES (
           ${userId}, ${transactionType}, ${position.city_id}, ${position.quantity_sqm},
-          ${exitPrice}, ${closingFee}, ${netPnl}
+          ${exitPrice}, ${closingFee}, ${netPnl}, ${lpFee}, ${protocolFee}
         )
       `;
 

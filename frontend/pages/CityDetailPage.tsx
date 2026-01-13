@@ -860,14 +860,14 @@ export default function CityDetailPage() {
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Available liquidity for opening long positions</p>
+                        <p>Total open interest in long positions</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold text-foreground">{formatVolume(longOIAvailable)}</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(longOI)}</p>
                   <p className="text-sm leading-none font-medium text-muted-foreground">
-                    {longOIAvailable > 0 
-                      ? formatVolume(longOIAvailable * 0.1)
+                    {longOI > 0 
+                      ? `${((longOI / openInterest) * 100).toFixed(1)}%`
                       : "N/A"}
                   </p>
                 </div>
@@ -879,14 +879,14 @@ export default function CityDetailPage() {
                         <Info className="h-3 w-3 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Available liquidity for opening short positions</p>
+                        <p>Total open interest in short positions</p>
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <p className="text-lg font-semibold text-foreground">{formatVolume(shortOIAvailable)}</p>
+                  <p className="text-lg font-semibold text-foreground">{formatVolume(shortOI)}</p>
                   <p className="text-sm leading-none font-medium text-muted-foreground">
-                    {shortOIAvailable > 0 
-                      ? formatVolume(shortOIAvailable * 1.3)
+                    {shortOI > 0 
+                      ? `${((shortOI / openInterest) * 100).toFixed(1)}%`
                       : "N/A"}
                   </p>
                 </div>

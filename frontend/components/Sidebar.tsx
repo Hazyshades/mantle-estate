@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Coins,
   ArrowDown,
+  Droplets,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -59,6 +60,13 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
       badge: null,
     },
     {
+      id: "liquidity",
+      label: "Liquidity",
+      icon: Droplets,
+      path: "/liquidity",
+      badge: null,
+    },
+    {
       id: "mint-deposit",
       label: "Mint & Deposit",
       icon: Coins,
@@ -90,6 +98,9 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
     }
     if (id === "history") {
       return location.pathname === "/history";
+    }
+    if (id === "liquidity") {
+      return location.pathname === "/liquidity";
     }
     if (id === "settings") {
       return location.pathname === "/settings";
@@ -156,6 +167,9 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
                   } else if (item.id === "withdraw") {
                     // Withdraw has its own page
                     navigate("/withdraw");
+                  } else if (item.id === "liquidity") {
+                    // Liquidity has its own page
+                    navigate("/liquidity");
                   } else if (item.id === "markets") {
                     // Navigate to markets (or home)
                     navigate("/markets");

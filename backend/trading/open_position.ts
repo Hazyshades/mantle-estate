@@ -2,6 +2,7 @@ import { api, APIError } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
 import { calculateFillPrice, getMarketMetrics, calculateIndexPrice, calculateFundingRate } from "../prices/calculations";
+import { getOrCreatePool } from "../liquidity_pools/utils";
 
 interface OpenPositionRequest {
   cityId: number;
@@ -88,6 +89,12 @@ export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(
       const openingFee = positionValue * FEE_RATE;
       const totalCost = amountUsd + openingFee;
 
+      // Split fees: 80% to LP, 20% to protocol
+      const LP_FEE_SHARE = 0.8;
+      const PROTOCOL_FEE_SHARE = 0.2;
+      const lpFee = openingFee * LP_FEE_SHARE;
+      const protocolFee = openingFee * PROTOCOL_FEE_SHARE;
+
       // Check if user has sufficient balance
       if (user.balance < totalCost) {
         throw APIError.failedPrecondition("Insufficient balance");
@@ -111,15 +118,35 @@ export const openPosition = api<OpenPositionRequest, OpenPositionResponse>(
         RETURNING id
       `;
 
+      // Get pool for city
+      const pool = await getOrCreatePool(cityId, tx);
+
+      // Update pool: add LP fee
+      // Fee increases total_liquidity, which automatically increases share price
+      await tx.exec`
+        UPDATE liquidity_pools
+        SET total_liquidity = total_liquidity + ${lpFee},
+            total_fees_collected = total_fees_collected + ${lpFee},
+            updated_at = NOW()
+        WHERE id = ${pool.id}
+      `;
+
+      // Update protocol fees
+      await tx.exec`
+        UPDATE protocol_fees
+        SET total_collected = total_collected + ${protocolFee},
+            last_updated = NOW()
+      `;
+
       // Record transaction
       const transactionType = positionType === "long" ? "buy" : "short_open";
       await tx.exec`
         INSERT INTO transactions (
           user_id, transaction_type, city_id, quantity,
-          price, fee, pnl
+          price, fee, pnl, lp_fee, protocol_fee
         ) VALUES (
           ${userId}, ${transactionType}, ${cityId}, ${quantitySqm},
-          ${currentPrice}, ${openingFee}, NULL
+          ${currentPrice}, ${openingFee}, NULL, ${lpFee}, ${protocolFee}
         )
       `;
 

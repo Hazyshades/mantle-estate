@@ -11,6 +11,7 @@ import WithdrawPage from "./pages/WithdrawPage";
 import BlogPage from "./pages/BlogPage";
 import BlogPostPage from "./pages/BlogPostPage";
 import LandingPage from "./pages/LandingPage";
+import LiquidityPoolsPage from "./pages/LiquidityPoolsPage";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
 
@@ -35,6 +36,7 @@ function AppInner() {
               <Route path="/markets" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
               <Route path="/positions" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
               <Route path="/history" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
+              <Route path="/liquidity" element={user ? <LiquidityPoolsPage /> : <Navigate to="/" />} />
               <Route path="/settings" element={user ? <SettingsPage /> : <Navigate to="/" />} />
               <Route path="/mint-deposit" element={user ? <MintDepositPage /> : <Navigate to="/" />} />
               <Route path="/withdraw" element={user ? <WithdrawPage /> : <Navigate to="/" />} />

@@ -35,6 +35,7 @@ const BROWSER = typeof globalThis === "object" && ("window" in globalThis);
 export class Client {
     public readonly city: city.ServiceClient
     public readonly db: db.ServiceClient
+    public readonly liquidityPools: liquidity_pools.ServiceClient
     public readonly prices: prices.ServiceClient
     public readonly trading: trading.ServiceClient
     public readonly user: user.ServiceClient
@@ -54,6 +55,7 @@ export class Client {
         const base = new BaseClient(this.target, this.options)
         this.city = new city.ServiceClient(base)
         this.db = new db.ServiceClient(base)
+        this.liquidityPools = new liquidity_pools.ServiceClient(base)
         this.prices = new prices.ServiceClient(base)
         this.trading = new trading.ServiceClient(base)
         this.user = new user.ServiceClient(base)
@@ -127,8 +129,8 @@ export namespace city {
             this.getCityMetrics = this.getCityMetrics.bind(this)
             this.getPriceHistory = this.getPriceHistory.bind(this)
             this.importAPACPriceHistory = this.importAPACPriceHistory.bind(this)
-            this.importUSAPriceHistory = this.importUSAPriceHistory.bind(this)
             this.importOtherPriceHistory = this.importOtherPriceHistory.bind(this)
+            this.importUSAPriceHistory = this.importUSAPriceHistory.bind(this)
             this.list = this.list.bind(this)
         }
 
@@ -177,6 +179,15 @@ export namespace city {
         }
 
         /**
+         * Import Europe and Other cities price history from other.csv file
+         */
+        public async importOtherPriceHistory(): Promise<ResponseType<typeof api_city_import_prices_importOtherPriceHistory>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/cities/import-other-prices`, {method: "POST", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_import_prices_importOtherPriceHistory>
+        }
+
+        /**
          * Import USA price history from zhvi_2025-11.30.csv file
          */
         public async importUSAPriceHistory(): Promise<ResponseType<typeof api_city_import_market_prices_importUSAPriceHistory>> {
@@ -186,16 +197,6 @@ export namespace city {
         }
 
         /**
-         * Import Europe and Other cities price history from other.csv file
-         */
-        public async importOtherPriceHistory(): Promise<ResponseType<typeof api_city_import_prices_importOtherPriceHistory>> {
-            // Now make the actual call to the API
-            const resp = await this.baseClient.callTypedAPI(`/cities/import-other-prices`, {method: "POST", body: undefined})
-            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_import_prices_importOtherPriceHistory>
-        }
-
-
-        /**
          * List all cities with current prices
          */
         public async list(): Promise<ResponseType<typeof api_city_list_list>> {
@@ -203,7 +204,6 @@ export namespace city {
             const resp = await this.baseClient.callTypedAPI(`/cities`, {method: "GET", body: undefined})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_city_list_list>
         }
-
     }
 }
 
@@ -242,6 +242,53 @@ export namespace db {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/db/migrate-data`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_db_migrate_data_migrateData>
+        }
+    }
+}
+
+/**
+ * Import the endpoint handlers to derive the types for the client.
+ */
+import { deposit as api_liquidity_pools_deposit_deposit } from "~backend/liquidity_pools/deposit";
+import { getPoolInfo as api_liquidity_pools_get_pool_info_getPoolInfo } from "~backend/liquidity_pools/get_pool_info";
+import { getUserLp as api_liquidity_pools_get_user_lp_getUserLp } from "~backend/liquidity_pools/get_user_lp";
+import { withdraw as api_liquidity_pools_withdraw_withdraw } from "~backend/liquidity_pools/withdraw";
+
+export namespace liquidity_pools {
+
+    export class ServiceClient {
+        private baseClient: BaseClient
+
+        constructor(baseClient: BaseClient) {
+            this.baseClient = baseClient
+            this.deposit = this.deposit.bind(this)
+            this.getPoolInfo = this.getPoolInfo.bind(this)
+            this.getUserLp = this.getUserLp.bind(this)
+            this.withdraw = this.withdraw.bind(this)
+        }
+
+        public async deposit(params: RequestType<typeof api_liquidity_pools_deposit_deposit>): Promise<ResponseType<typeof api_liquidity_pools_deposit_deposit>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/liquidity-pools/deposit`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_liquidity_pools_deposit_deposit>
+        }
+
+        public async getPoolInfo(params: { cityId: number }): Promise<ResponseType<typeof api_liquidity_pools_get_pool_info_getPoolInfo>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/liquidity-pools/info/${encodeURIComponent(params.cityId)}`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_liquidity_pools_get_pool_info_getPoolInfo>
+        }
+
+        public async getUserLp(): Promise<ResponseType<typeof api_liquidity_pools_get_user_lp_getUserLp>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/liquidity-pools/user`, {method: "GET", body: undefined})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_liquidity_pools_get_user_lp_getUserLp>
+        }
+
+        public async withdraw(params: RequestType<typeof api_liquidity_pools_withdraw_withdraw>): Promise<ResponseType<typeof api_liquidity_pools_withdraw_withdraw>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/liquidity-pools/withdraw`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_liquidity_pools_withdraw_withdraw>
         }
     }
 }
@@ -404,12 +451,14 @@ export namespace trading {
  * Import the endpoint handlers to derive the types for the client.
  */
 import { getBalance as api_user_balance_getBalance } from "~backend/user/balance";
+import { deposit as api_user_deposit_deposit } from "~backend/user/deposit";
 import { getUserInfo as api_user_get_user_info_getUserInfo } from "~backend/user/get_user_info";
 import {
     getMintLimit as api_user_mint_usdc_getMintLimit,
     mintUSDC as api_user_mint_usdc_mintUSDC
 } from "~backend/user/mint_usdc";
 import { processDeposit as api_user_process_deposit_processDeposit } from "~backend/user/process_deposit";
+import { processWithdraw as api_user_process_withdraw_processWithdraw } from "~backend/user/process_withdraw";
 import {
     sendInitialMNT as api_user_send_initial_mnt_sendInitialMNT,
     sendInitialMNTBatch as api_user_send_initial_mnt_sendInitialMNTBatch
@@ -422,13 +471,21 @@ export namespace user {
 
         constructor(baseClient: BaseClient) {
             this.baseClient = baseClient
+            this.deposit = this.deposit.bind(this)
             this.getBalance = this.getBalance.bind(this)
             this.getMintLimit = this.getMintLimit.bind(this)
             this.getUserInfo = this.getUserInfo.bind(this)
             this.mintUSDC = this.mintUSDC.bind(this)
             this.processDeposit = this.processDeposit.bind(this)
+            this.processWithdraw = this.processWithdraw.bind(this)
             this.sendInitialMNT = this.sendInitialMNT.bind(this)
             this.sendInitialMNTBatch = this.sendInitialMNTBatch.bind(this)
+        }
+
+        public async deposit(params: RequestType<typeof api_user_deposit_deposit>): Promise<ResponseType<typeof api_user_deposit_deposit>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/deposit`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_deposit_deposit>
         }
 
         public async getBalance(): Promise<ResponseType<typeof api_user_balance_getBalance>> {
@@ -454,10 +511,6 @@ export namespace user {
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_get_user_info_getUserInfo>
         }
 
-        /**
-         * Mint test USDC tokens to user's wallet
-         * Daily limit: 10,000 USDC per wallet
-         */
         public async mintUSDC(params: RequestType<typeof api_user_mint_usdc_mintUSDC>): Promise<ResponseType<typeof api_user_mint_usdc_mintUSDC>> {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/mint-usdc`, {method: "POST", body: JSON.stringify(params)})
@@ -472,6 +525,16 @@ export namespace user {
             // Now make the actual call to the API
             const resp = await this.baseClient.callTypedAPI(`/user/process-deposit`, {method: "POST", body: JSON.stringify(params)})
             return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_process_deposit_processDeposit>
+        }
+
+        /**
+         * Process a withdrawal from blockchain event
+         * This endpoint is called after a successful withdrawal transaction on the blockchain
+         */
+        public async processWithdraw(params: RequestType<typeof api_user_process_withdraw_processWithdraw>): Promise<ResponseType<typeof api_user_process_withdraw_processWithdraw>> {
+            // Now make the actual call to the API
+            const resp = await this.baseClient.callTypedAPI(`/user/process-withdraw`, {method: "POST", body: JSON.stringify(params)})
+            return JSON.parse(await resp.text(), dateReviver) as ResponseType<typeof api_user_process_withdraw_processWithdraw>
         }
 
         /**
