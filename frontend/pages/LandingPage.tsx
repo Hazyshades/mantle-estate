@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
@@ -21,6 +22,41 @@ import { useClerk } from "@clerk/clerk-react";
 
 export default function LandingPage() {
   const { openSignIn } = useClerk();
+
+  // Force light theme on landing page
+  useEffect(() => {
+    const root = document.documentElement;
+    // Save current theme state
+    const hadDarkClass = root.classList.contains("dark");
+    
+    // Remove dark class for light theme
+    root.classList.remove("dark");
+    
+    // Monitor changes and remove dark class if it appears
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
+          if (root.classList.contains("dark")) {
+            root.classList.remove("dark");
+          }
+        }
+      });
+    });
+    
+    // Observe class changes on root element
+    observer.observe(root, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    
+    // Restore original theme and stop observing on unmount
+    return () => {
+      observer.disconnect();
+      if (hadDarkClass) {
+        root.classList.add("dark");
+      }
+    };
+  }, []);
 
   const stats = [
     { label: "Global Markets", value: "18", icon: Globe },
