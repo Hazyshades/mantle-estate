@@ -1,8 +1,8 @@
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sidebar } from "@/components/Sidebar";
 import { getBlogPostBySlug } from "@/data/blogPosts";
+import { getBlogContent } from "@/data/blogContent";
 
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -11,27 +11,21 @@ export default function BlogPostPage() {
   if (!post) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-        <Sidebar />
-        <div className="lg:ml-64 transition-all duration-300">
-          <main className="container mx-auto px-4 py-12 max-w-4xl">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold mb-4">Post not found</h1>
-              <Link to="/blog">
-                <Button variant="outline">Back to Blog</Button>
-              </Link>
-            </div>
-          </main>
-        </div>
+        <main className="container mx-auto px-4 py-12 max-w-4xl">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">Post not found</h1>
+            <Link to="/blog">
+              <Button variant="outline">Back to Blog</Button>
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <Sidebar />
-
-      <div className="lg:ml-64 transition-all duration-300">
-        <main className="container mx-auto px-4 py-12 max-w-4xl">
+      <main className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Back button */}
           <Link to="/blog">
             <Button
@@ -65,12 +59,12 @@ export default function BlogPostPage() {
 
             {/* Content */}
             <div className="prose prose-slate dark:prose-invert max-w-none">
-              {/* Empty content - user will fill this */}
+              {getBlogContent(post.slug) || (
+                <p className="text-muted-foreground">Content coming soon.</p>
+              )}
             </div>
           </article>
         </main>
-      </div>
     </div>
   );
 }
-

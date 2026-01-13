@@ -18,14 +18,15 @@ const formatDate = (date: Date): string => {
 
 export const blogPosts: BlogPost[] = [
   {
-    slug: "testnet",
-    title: "Testnet",
+    slug: "mantle-estate-v2",
+    title: "Mantle Estate v0.1: A New Era of Synthetic Real Estate Trading",
     category: "announcement",
     date: formatDate(new Date()),
-    readingTime: "5 min",
+    readingTime: "12 min",
     author: "Mantle Estate Team",
+    excerpt: "Introducing the updated platform for trading synthetic real estate indices with expanded capabilities, improved UX, and new features for traders.",
     featured: true,
-  },
+  }
 ];
 
 export function getBlogPostBySlug(slug: string): BlogPost | undefined {
@@ -36,4 +37,3 @@ export function getAllBlogPosts(): BlogPost[] {
   // Return posts in the order they are defined (newest first)
   return [...blogPosts];
 }
-
