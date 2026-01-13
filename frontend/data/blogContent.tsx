@@ -1,7 +1,9 @@
 import React from "react";
+import { BlockMath, InlineMath } from "react-katex";
+import "katex/dist/katex.min.css";
 
 export const blogContent: Record<string, React.ReactElement> = {
-  "mantle-estate-v2": (
+  "mantle-estate-v0.1": (
     <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       {/* Abstract */}
       <section>
@@ -118,11 +120,11 @@ export const blogContent: Record<string, React.ReactElement> = {
             <p className="text-muted-foreground mb-4">
               Index Price is the trading price that adjusts based on position imbalances. It is calculated as:
             </p>
-            <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-              <div className="mb-2">Index Price = Market Price × (1 + adjustment)</div>
-              <div className="mb-2">where:</div>
-              <div className="ml-4 mb-2">adjustment = clamp(skew / SKEW_SCALE, -MAX_PREMIUM, MAX_PREMIUM)</div>
-              <div className="ml-4">skew = Long OI - Short OI</div>
+            <div className="p-2 mb-4">
+              <BlockMath math="\text{Index Price} = \text{Market Price} \times (1 + \text{adjustment})" />
+              <div className="mt-4 mb-2">where:</div>
+              <BlockMath math="\text{adjustment} = \text{clamp}\left(\frac{\text{skew}}{\text{SKEW\_SCALE}}, -\text{MAX\_PREMIUM}, \text{MAX\_PREMIUM}\right)" />
+              <BlockMath math="\text{skew} = \text{Long OI} - \text{Short OI}" />
             </div>
             <p className="text-muted-foreground mb-2">
               <strong>Parameters:</strong>
@@ -142,16 +144,18 @@ export const blogContent: Record<string, React.ReactElement> = {
             <p className="text-muted-foreground mb-4">
               When opening a position, traders execute at Fill Price, which accounts for the price impact of their trade:
             </p>
-            <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-              <div className="mb-2">fillPrice = indexPrice × (1 + (skew + signedTradeSize/2) / SKEW_SCALE)</div>
-              <div className="mb-2">where:</div>
-              <div className="ml-4">signedTradeSize = tradeSize (if long) or -tradeSize (if short)</div>
+            <div className="p-2 mb-4">
+              <BlockMath math="\text{fillPrice} = \text{indexPrice} \times \left(1 + \frac{\text{skew} + \text{signedTradeSize}/2}{\text{SKEW\_SCALE}}\right)" />
+              <div className="mt-4 mb-2">where:</div>
+              <div className="text-muted-foreground mb-2">
+                <InlineMath math="\text{signedTradeSize} = \text{tradeSize}" /> (if long) or <InlineMath math="-\text{tradeSize}" /> (if short)
+              </div>
             </div>
             <p className="text-muted-foreground mb-4">
               Price Impact measures how much the execution price differs from Index Price:
             </p>
-            <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-              priceImpact = (fillPrice - indexPrice) / indexPrice
+            <div className="p-2 mb-4">
+              <BlockMath math="\text{priceImpact} = \frac{\text{fillPrice} - \text{indexPrice}}{\text{indexPrice}}" />
             </div>
             <p className="text-muted-foreground">
               This mechanism ensures that large trades that worsen imbalance pay a higher price, while trades that improve balance 
@@ -180,12 +184,12 @@ export const blogContent: Record<string, React.ReactElement> = {
         <p className="text-muted-foreground mb-4">
           The funding rate change is calculated based on normalized skew:
         </p>
-        <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-          <div className="mb-2">new_funding_rate = current_funding_rate + delta_rate</div>
-          <div className="mb-2">where:</div>
-          <div className="ml-4 mb-2">delta_rate = normalized_skew × MAX_FUNDING_VELOCITY × days_elapsed</div>
-          <div className="ml-4 mb-2">normalized_skew = clamp(skew / SKEW_SCALE, -1, 1)</div>
-          <div className="ml-4">skew = Long OI - Short OI</div>
+        <div className="p-2 mb-4">
+          <BlockMath math="\text{new\_funding\_rate} = \text{current\_funding\_rate} + \Delta_{\text{rate}}" />
+          <div className="mt-4 mb-2">where:</div>
+          <BlockMath math="\Delta_{\text{rate}} = \text{normalized\_skew} \times \text{MAX\_FUNDING\_VELOCITY} \times \text{days\_elapsed}" />
+          <BlockMath math="\text{normalized\_skew} = \text{clamp}\left(\frac{\text{skew}}{\text{SKEW\_SCALE}}, -1, 1\right)" />
+          <BlockMath math="\text{skew} = \text{Long OI} - \text{Short OI}" />
         </div>
         <p className="text-muted-foreground mb-2">
           <strong>Parameters:</strong>
@@ -202,10 +206,10 @@ export const blogContent: Record<string, React.ReactElement> = {
         <p className="text-muted-foreground mb-4">
           Funding fees accumulate over the lifetime of a position and are applied when the position is closed:
         </p>
-        <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-          <div className="mb-2">Funding Fee = Position Size × Funding Rate × Days Held</div>
-          <div className="mb-2">where:</div>
-          <div className="ml-4">Position Size = quantity_sqm × entry_price</div>
+        <div className="p-2 mb-4">
+          <BlockMath math="\text{Funding Fee} = \text{Position Size} \times \text{Funding Rate} \times \text{Days Held}" />
+          <div className="mt-4 mb-2">where:</div>
+          <BlockMath math="\text{Position Size} = \text{quantity\_sqm} \times \text{entry\_price}" />
         </div>
         <p className="text-muted-foreground mb-4">
           <strong>Direction:</strong>
@@ -243,15 +247,28 @@ export const blogContent: Record<string, React.ReactElement> = {
         <p className="text-muted-foreground mb-4">
           P&L is calculated when closing a position:
         </p>
-        <div className="bg-muted/50 rounded-lg p-6 mb-4 font-mono text-sm">
-          <div className="mb-2">For Long positions:</div>
-          <div className="ml-4 mb-2">grossPnl = (exitPrice - entryPrice) × quantity</div>
-          <div className="mb-2">For Short positions:</div>
-          <div className="ml-4 mb-2">grossPnl = (entryPrice - exitPrice) × quantity</div>
-          <div className="mb-2">netPnl = grossPnl - openingFee - closingFee - fundingFee</div>
+        <div className="space-y-4 mb-4">
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-2">For Long positions:</div>
+            <div className="p-2">
+              <BlockMath math="\text{grossPnl} = (\text{exitPrice} - \text{entryPrice}) \times \text{quantity}" />
+            </div>
+          </div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-2">For Short positions:</div>
+            <div className="p-2">
+              <BlockMath math="\text{grossPnl} = (\text{entryPrice} - \text{exitPrice}) \times \text{quantity}" />
+            </div>
+          </div>
+          <div>
+            <div className="text-sm font-medium text-muted-foreground mb-2">Net P&L:</div>
+            <div className="p-2">
+              <BlockMath math="\text{netPnl} = \text{grossPnl} - \text{openingFee} - \text{closingFee} - \text{fundingFee}" />
+            </div>
+          </div>
         </div>
         <p className="text-muted-foreground">
-          The return amount is calculated as: <code>returnAmount = marginRequired + netPnl</code>
+          The return amount is calculated as: <InlineMath math="\text{returnAmount} = \text{marginRequired} + \text{netPnl}" />
         </p>
 
         <h3 className="text-2xl font-semibold mb-4">Fees</h3>
@@ -259,8 +276,8 @@ export const blogContent: Record<string, React.ReactElement> = {
           The protocol charges trading fees:
         </p>
         <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-4">
-          <li><strong>Opening fee:</strong> 0.1% (0.001) of position value</li>
-          <li><strong>Closing fee:</strong> 0.1% (0.001) of current position value</li>
+          <li><strong>Opening fee:</strong> 0.01% of position value</li>
+          <li><strong>Closing fee:</strong> 0.01% of current position value</li>
           <li><strong>Funding fee:</strong> Applied based on funding rate and time held</li>
         </ul>
         <p className="text-muted-foreground">
@@ -320,46 +337,15 @@ export const blogContent: Record<string, React.ReactElement> = {
           The protocol uses USDC as collateral, ensuring stability and compatibility with the broader DeFi ecosystem on Mantle.
         </p>
       </section>
-
-      {/* Future Development */}
+    </div>
+  ),
+  "roadmap": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       <section>
-        <h2 className="text-3xl font-bold mb-4">Future Development</h2>
-        <p className="text-muted-foreground mb-4">
-          The protocol continues to evolve with planned improvements:
+        <h2 className="text-3xl font-bold mb-4">Roadmap</h2>
+        <p className="text-muted-foreground">
+          Content coming soon...
         </p>
-        <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-4">
-          <li>Expansion to additional real estate markets globally</li>
-          <li>Enhanced analytics and charting tools</li>
-          <li>Mobile application for iOS and Android</li>
-          <li>API access for developers and third-party integrations</li>
-          <li>Advanced order types (limit orders, stop-loss)</li>
-          <li>Social trading features and copy trading</li>
-        </ul>
-      </section>
-
-      {/* Call to Action */}
-      <section className="border-t pt-8">
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-8 text-center">
-          <h2 className="text-2xl font-semibold mb-4">Ready to Start Trading?</h2>
-          <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-            Join Mantle Estate and gain exposure to real estate markets around the world. Trade with leverage, 
-            earn from funding rates, and diversify your portfolio with synthetic real estate.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <a 
-              href="/markets" 
-              className="inline-flex items-center justify-center rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              Start Trading
-            </a>
-            <a 
-              href="/liquidity" 
-              className="inline-flex items-center justify-center rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-            >
-              Provide Liquidity
-            </a>
-          </div>
-        </div>
       </section>
     </div>
   ),

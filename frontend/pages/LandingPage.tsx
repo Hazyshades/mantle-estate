@@ -258,7 +258,7 @@ export default function LandingPage() {
                   <div className="space-y-4">
                     <div>
                       <div className="text-sm font-medium text-muted-foreground mb-2">Fees</div>
-                      <div className="text-lg font-semibold text-primary">0.1-0.3%</div>
+                      <div className="text-lg font-semibold text-primary">0.01-0.03%</div>
                     </div>
                     <div>
                       <div className="text-sm font-medium text-muted-foreground mb-2">Liquidity</div>

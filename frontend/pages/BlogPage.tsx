@@ -6,7 +6,7 @@ import { getAllBlogPosts } from "@/data/blogPosts";
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const posts = getAllBlogPosts();
-  const featuredPost = posts.find((post) => post.featured);
+  const featuredPosts = posts.filter((post) => post.featured);
 
   const filteredPosts = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -45,33 +45,36 @@ export default function BlogPage() {
             />
           </div>
 
-          {/* Featured Article */}
-          {featuredPost && (
-            <div className="mb-12">
-              <Link
-                to={`/blog/${featuredPost.slug}`}
-                className="block group"
-              >
-                <div className="border rounded-lg p-6 hover:bg-accent/50 transition-colors">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex-1">
-                      <span className="inline-block text-xs font-medium text-muted-foreground uppercase mb-2">
-                        {featuredPost.category}
-                      </span>
-                      <h2 className="text-2xl font-semibold mb-2 group-hover:text-primary transition-colors">
-                        {featuredPost.title}
-                      </h2>
-                      {featuredPost.excerpt && (
-                        <p className="text-muted-foreground mb-3">{featuredPost.excerpt}</p>
-                      )}
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{featuredPost.date}</span>
-                        <span>{featuredPost.readingTime}</span>
+          {/* Featured Articles */}
+          {featuredPosts.length > 0 && (
+            <div className="mb-12 space-y-6">
+              {featuredPosts.map((featuredPost) => (
+                <Link
+                  key={featuredPost.slug}
+                  to={`/blog/${featuredPost.slug}`}
+                  className="block group"
+                >
+                  <div className="border rounded-lg p-6 hover:bg-accent/50 transition-colors">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1">
+                        <span className="inline-block text-xs font-medium text-muted-foreground uppercase mb-2">
+                          {featuredPost.category}
+                        </span>
+                        <h2 className="text-2xl font-semibold mb-2 group-hover:text-primary transition-colors">
+                          {featuredPost.title}
+                        </h2>
+                        {featuredPost.excerpt && (
+                          <p className="text-muted-foreground mb-3">{featuredPost.excerpt}</p>
+                        )}
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                          <span>{featuredPost.date}</span>
+                          <span>{featuredPost.readingTime}</span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              ))}
             </div>
           )}
 
