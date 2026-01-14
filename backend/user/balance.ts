@@ -1,6 +1,7 @@
-import { api, APIError } from "encore.dev/api";
+import { api } from "encore.dev/api";
 import { getAuthData } from "~encore/auth";
 import db from "../db";
+import { getBalanceInternal } from "./balance_internal";
 
 interface BalanceResponse {
   balance: number;
@@ -35,3 +36,6 @@ export const getBalance = api<void, BalanceResponse>(
     return { balance: user.balance };
   }
 );
+
+// Re-export internal function for use by other services
+export { getBalanceInternal };
