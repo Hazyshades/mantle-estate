@@ -37,6 +37,14 @@
     "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.1.11"
   },
+  "scripts": {
+    "dev": "concurrently \"vite\" \"bun run dev:docs\"",
+    "dev:frontend": "vite",
+    "dev:docs": "bun run build:docs:once && bun run watch:docs",
+    "build:docs": "cd docusaurus-docs && bun run build",
+    "build:docs:once": "cd docusaurus-docs && bun run build",
+    "watch:docs": "bun x chokidar-cli \"docusaurus-docs/docs/**/*\" \"docusaurus-docs/src/**/*\" \"docusaurus-docs/docusaurus.config.ts\" \"docusaurus-docs/sidebars.ts\" -c \"cd docusaurus-docs && bun run build\" --initial"
+  },
   "devDependencies": {
     "@tailwindcss/oxide": "^4.1.11",
     "@tailwindcss/vite": "^4.1.11",
@@ -45,6 +53,8 @@
     "@types/react-katex": "^3.0.4",
     "@vitejs/plugin-react": "^4.6.0",
     "@vitejs/plugin-react-swc": "^3.7.1",
+    "chokidar-cli": "^3.0.0",
+    "concurrently": "^9.1.0",
     "lightningcss": "^1.29.2",
     "tw-animate-css": "^1.3.4",
     "typescript": "^5.8.3",

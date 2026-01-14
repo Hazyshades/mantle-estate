@@ -15,6 +15,19 @@ import LiquidityPoolsPage from "./pages/LiquidityPoolsPage";
 
 const PUBLISHABLE_KEY = "pk_test_dmFsdWVkLWJhZGdlci0zNy5jbGVyay5hY2NvdW50cy5kZXYk";
 
+// Component for displaying documentation Docusaurus through iframe
+function DocsFrame() {
+  return (
+    <div className="w-full h-screen">
+      <iframe
+        src="/docs/intro/"
+        className="w-full h-full border-0"
+        title="Documentation"
+      />
+    </div>
+  );
+}
+
 function AppInner() {
   const { user } = useUser();
 
@@ -27,6 +40,7 @@ function AppInner() {
               <Route path="/" element={<LandingPage />} />
               <Route path="/blog" element={<BlogPage />} />
               <Route path="/blog/:slug" element={<BlogPostPage />} />
+              <Route path="/docs/*" element={<DocsFrame />} />
               <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </SignedOut>
@@ -42,6 +56,7 @@ function AppInner() {
               <Route path="/withdraw" element={user ? <WithdrawPage /> : <Navigate to="/" />} />
               <Route path="/blog" element={user ? <BlogPage /> : <Navigate to="/" />} />
               <Route path="/blog/:slug" element={user ? <BlogPostPage /> : <Navigate to="/" />} />
+              <Route path="/docs/*" element={<DocsFrame />} />
               <Route path="/" element={user ? <Dashboard userId={user.id} /> : <Navigate to="/" />} />
             </Routes>
           </SignedIn>
