@@ -4,7 +4,7 @@
   "type": "module",
   "packageManager": "bun",
   "scripts": {
-    "build": "cd ../frontend && bun install && npx vite build --outDir=../backend/frontend/dist",
+    "build": "cd ../frontend && bun install && cd docusaurus-docs && bun install && bun run build && cd .. && npx vite build --outDir=../backend/frontend/dist && cd ../backend && node scripts/copy-docs.cjs",
     "import-apac": "bun run scripts/import_apac_prices.ts",
     "generate-prices": "bun run scripts/generate_prices.ts",
     "migrate-to-prod": "bun run scripts/migrate_to_prod.ts",

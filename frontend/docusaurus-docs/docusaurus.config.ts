@@ -9,7 +9,7 @@ const config: Config = {
   tagline: 'Perpetuals Exchange for Real Estate Synthetics',
 
   // Set the production url of your site here
-  url: 'http://localhost:5173',
+  url: process.env.DOCUSAURUS_URL || 'https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app',
   // Set the /<baseUrl>/ pathname under which your site is served
   baseUrl: '/docs/',
 
