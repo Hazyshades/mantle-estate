@@ -27,11 +27,6 @@ const sidebars: SidebarsConfig = {
         'formulas/pnl',
       ],
     },
-    {
-      type: 'doc',
-      id: 'market-metrics',
-      label: 'Market Metrics',
-    },
   ],
 };
 
