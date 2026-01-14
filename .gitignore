@@ -14,6 +14,8 @@ backend/.env
 frontend/.env
 
 /docs
+# Exception: allow Docusaurus docs
+!frontend/
 
 
 /.cursor/
@@ -22,6 +24,8 @@ frontend/.env
 .cursorignore  
 
 *.md
+# Exception: allow Docusaurus markdown files
+!frontend/docusaurus-docs/docs/
 
 /cursor
 \.cursor\
