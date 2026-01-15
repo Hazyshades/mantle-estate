@@ -11,6 +11,7 @@
       "http://localhost:5173",
       "http://localhost:3000",
       "http://localhost:5174",
+      "https://mantle-estate-frontend.vercel.app",
       "https://mantle-estate-frontend-git-vercel-xetras-projects-a56da406.vercel.app",
       "https://*.vercel.app"
     ]
