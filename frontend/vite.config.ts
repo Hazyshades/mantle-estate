@@ -89,9 +89,10 @@ export default defineConfig({
       },
     },
   ],
-  mode: "development",
   build: {
-    minify: false,
+    outDir: "dist",
+    minify: process.env.NODE_ENV === "production",
+    sourcemap: process.env.NODE_ENV === "development",
   },
   server: {
     fs: {
