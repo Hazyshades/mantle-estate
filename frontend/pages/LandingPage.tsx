@@ -116,7 +116,7 @@ export default function LandingPage() {
             </div>
             <div className="flex items-center gap-4">
               <Button variant="ghost" asChild>
-                <Link to="/docs/intro/">Docs</Link>
+                <a href="/docs/intro/" target="_blank" rel="noopener noreferrer">Docs</a>
               </Button>
               <Button variant="ghost" asChild>
                 <Link to="/blog">Blog</Link>
@@ -157,7 +157,7 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
-                <Link to="/docs/intro/">Docs</Link>
+                <a href="/docs/intro/" target="_blank" rel="noopener noreferrer">Docs</a>
               </Button>
             </div>
           </div>
@@ -450,7 +450,7 @@ export default function LandingPage() {
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
-                  <Link to="/docs/intro/">Docs</Link>
+                  <a href="/docs/intro/" target="_blank" rel="noopener noreferrer">Docs</a>
                 </Button>
               </div>
             </CardContent>
