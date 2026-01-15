@@ -61,14 +61,14 @@ export default function LandingPage() {
   const stats = [
     { label: "Global Markets", value: "18", icon: Globe },
     { label: "Trading Fee", value: "0.01%", icon: DollarSign },
-    { label: "Blockchain", value: "Mantle", icon: Shield },
+    { label: "Network", value: "Mantle", icon: Shield },
     { label: "Price Data", value: "Real", icon: BarChart3 },
   ];
 
   const features = [
     {
       icon: TrendingUp,
-      title: "Perpetual Futures Contracts",
+      title: "Perpetual Futures",
       description: "Take long or short positions on city-specific real estate price indices without expiration dates. Trade 18 major global markets."
     },
     {
@@ -79,12 +79,12 @@ export default function LandingPage() {
     {
       icon: Zap,
       title: "Fast & Low-Cost Trading",
-      description: "Built on Mantle blockchain for high-speed, low-cost transactions. Trade 24/7 with instant execution and minimal fees."
+      description: "Built on Mantle Network for high-speed, low-cost transactions. Trade 24/7 with instant execution and minimal fees."
     },
     {
       icon: Shield,
       title: "Smart Contract Security",
-      description: "Your funds are protected by audited smart contracts on the Mantle blockchain. Transparent, secure, and trustless."
+      description: "Your funds are protected by audited smart contracts on the Mantle Network. Transparent, secure, and trustless."
     },
     {
       icon: Building2,
@@ -148,7 +148,7 @@ export default function LandingPage() {
               </span>
             </h1>
             <p className="text-xl sm:text-2xl text-muted-foreground max-w-2xl mx-auto">
-              Mantle Estate is a decentralized exchange built on Mantle blockchain that offers perpetual futures contracts 
+              Mantle Estate is a decentralized exchange built on Mantle Network that offers perpetual futures 
               tied to real estate price indices, enabling you to invest in real estate markets without owning physical property.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
@@ -185,8 +185,8 @@ export default function LandingPage() {
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold">Why Mantle Estate?</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A decentralized exchange built for real estate derivatives. 18 global markets. Perpetual futures contracts. 
-              Isolated liquidity pools. Dynamic risk management. Built on Mantle blockchain.
+              A decentralized exchange built for real estate derivatives. 18 global markets. Perpetual futures. 
+              Isolated liquidity pools. Dynamic risk management. Built on Mantle Network.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -341,7 +341,7 @@ export default function LandingPage() {
           <div className="text-center mb-16 space-y-4">
             <h2 className="text-4xl sm:text-5xl font-bold">How Mantle Estate Works</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              A decentralized exchange powered by perpetual futures contracts and automated market makers
+              A decentralized exchange powered by perpetual futures and automated market makers
             </p>
           </div>
           <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-8">
@@ -352,7 +352,7 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-xl font-semibold">Perpetual Futures</h3>
                 <p className="text-muted-foreground">
-                  Trade perpetual futures contracts tied to city-specific real estate price indices. 
+                  Trade perpetual futures tied to city-specific real estate price indices. 
                   No expiration dates - hold positions as long as you want.
                 </p>
               </CardContent>
@@ -410,7 +410,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold">2. Deposit Funds</h3>
               <p className="text-muted-foreground">
-                Deposit USDC to the platform via our secure deposit smart contract on Mantle blockchain
+                Deposit USDC to the platform via our secure deposit smart contract on Mantle Network
               </p>
             </div>
             <div className="text-center space-y-4">
@@ -461,7 +461,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border bg-muted/30 py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <img 
@@ -473,8 +473,8 @@ export default function LandingPage() {
                 <span className="text-lg font-bold">Mantle Estate</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Decentralized exchange for perpetual futures contracts on real estate price indices. 
-                Built on Mantle blockchain.
+                Decentralized exchange for perpetual futures on real estate price indices. 
+                Built on Mantle Network.
               </p>
             </div>
             <div>
@@ -484,9 +484,7 @@ export default function LandingPage() {
                 <li><a href="/docs/intro/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Documentation</a></li>
               </ul>
             </div>
-
-            
-        
+          </div>
           <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
             <p>© 2026 Mantle Estate. All rights reserved.</p>
           </div>
