@@ -43,8 +43,8 @@ const config: AMMConfig = {
       : undefined,
   ].filter(Boolean) as AMMConfig["accounts"],
   trading: {
-    minTradeSize: parseNumber(process.env.AMM_MIN_TRADE_SIZE, 25),
-    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 150),
+    minTradeSize: parseNumber(process.env.AMM_MIN_TRADE_SIZE, 5000),
+    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 15000),
     minBalance: parseNumber(process.env.AMM_MIN_BALANCE, 20),
     minTradeInterval: parseNumber(process.env.AMM_MIN_TRADE_INTERVAL_MS, 7_000),
     maxTradeInterval: parseNumber(process.env.AMM_MAX_TRADE_INTERVAL_MS, 15_000),
