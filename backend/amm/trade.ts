@@ -158,11 +158,9 @@ export const executeTrade = api(
   }
 );
 
-// Cron job - runs every 2 minutes
-// Schedule can be changed by replacing the string below with desired value
-// Examples: "*/1 * * * *" (every minute), "*/5 * * * *" (every 5 minutes)
+// Cron job
 const ammCronJob = new CronJob("amm-trade", {
   title: "AMM Trading Bot",
-  schedule: "*/2 * * * *", // Every 2 minutes
+  schedule: "*/30 * * * *", // Every 30 minutes // Examples: "*/1 * * * *" (every minute), "*/5 * * * *" (every 5 minutes)
   endpoint: executeTrade,
 });

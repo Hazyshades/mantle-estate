@@ -28,5 +28,5 @@ frontend/.env
 !frontend/docusaurus-docs/docs/
 
 /cursor
-\.cursor\
+.cursor/
 contract\
