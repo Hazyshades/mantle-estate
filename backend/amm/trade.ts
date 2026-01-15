@@ -1,4 +1,5 @@
 import { api } from "encore.dev/api";
+import { CronJob } from "encore.dev/cron";
 import config from "./config";
 import { AccountManager } from "../scripts/amm/account-manager";
 import type { TradingStrategy, City } from "../scripts/amm/types";
@@ -156,3 +157,10 @@ export const executeTrade = api(
     }
   }
 );
+
+// Cron job
+const ammCronJob = new CronJob("amm-trade", {
+  title: "AMM Trading Bot",
+  schedule: "*/30 * * * *", // Every 30 minutes // Examples: "*/1 * * * *" (every minute), "*/5 * * * *" (every 5 minutes)
+  endpoint: executeTrade,
+});
