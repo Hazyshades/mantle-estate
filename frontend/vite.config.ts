@@ -4,9 +4,31 @@ import { fileURLToPath } from 'url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react-swc'
 import fs from 'fs'
+import { copyFileSync, mkdirSync, readdirSync } from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const docsBuildPath = path.resolve(__dirname, 'docusaurus-docs/build')
+const docsOutputPath = path.resolve(__dirname, 'dist/docs')
+
+// Function to copy directory recursively
+function copyDir(src: string, dest: string) {
+  if (!fs.existsSync(dest)) {
+    mkdirSync(dest, { recursive: true })
+  }
+  
+  const entries = readdirSync(src, { withFileTypes: true })
+  
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name)
+    const destPath = path.join(dest, entry.name)
+    
+    if (entry.isDirectory()) {
+      copyDir(srcPath, destPath)
+    } else {
+      copyFileSync(srcPath, destPath)
+    }
+  }
+}
 
 export default defineConfig({
   resolve: {
@@ -22,7 +44,20 @@ export default defineConfig({
       // Using SWC for JSX compilation (no Babel required)
       jsxRuntime: 'automatic',
     }),
-    // Plugin for serving static files Docusaurus
+    // Plugin to copy Docusaurus docs to dist/docs during build
+    {
+      name: 'copy-docs',
+      closeBundle() {
+        if (fs.existsSync(docsBuildPath)) {
+          console.log('Copying Docusaurus docs to dist/docs...')
+          copyDir(docsBuildPath, docsOutputPath)
+          console.log('Docs copied successfully!')
+        } else {
+          console.warn('Docusaurus build directory not found. Make sure to run "bun run build:docs:once" before building.')
+        }
+      },
+    },
+    // Plugin for serving static files Docusaurus (dev server only)
     {
       name: 'docusaurus-static',
       configureServer(server) {

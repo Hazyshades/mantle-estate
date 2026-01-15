@@ -41,7 +41,7 @@
     "dev": "concurrently \"vite\" \"bun run dev:docs\"",
     "dev:frontend": "vite",
     "dev:docs": "bun run build:docs:once && bun run watch:docs",
-    "build": "vite build",
+    "build": "bun run build:docs:once && vite build",
     "build:docs": "cd docusaurus-docs && bun run build",
     "build:docs:once": "cd docusaurus-docs && bun run build",
     "preview": "vite preview",
