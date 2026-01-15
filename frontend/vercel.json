@@ -1,5 +1,5 @@
 {
-  "buildCommand": "bun install && bun run build",
+  "buildCommand": "bun install && cd docusaurus-docs && bun install && cd .. && bun run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
