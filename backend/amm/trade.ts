@@ -103,6 +103,10 @@ export const executeTrade = api(
       // Initialize if needed
       const { accounts, cities } = await initializeIfNeeded();
 
+      logger.info(`Available accounts: ${accounts.length}`, {
+        accountIds: accounts.map(a => a.id),
+      });
+
       if (cities.length === 0) {
         return {
           success: false,
@@ -110,8 +114,16 @@ export const executeTrade = api(
         };
       }
 
+      if (accounts.length === 0) {
+        return {
+          success: false,
+          message: "No available accounts for trading",
+        };
+      }
+
       // Select random account
       const account = randomChoice(accounts);
+      logger.info(`Selected account: ${account.id} from ${accounts.length} available accounts`);
       
       // Refresh account state
       if (!accountManager) {
