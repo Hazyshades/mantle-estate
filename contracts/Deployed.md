@@ -17,6 +17,13 @@
 - **USDC Token:** `0x8136564cfec628dc62c963bad34ccc58d792aae3`
 - **Network:** Mantle Sepolia Testnet (Chain ID: 5003)
 
+#### 3. MantleEstate LP Pool (Hong Kong) — TODO DEPLOY
+- **Contract:** `MantleEstateLPPoolHongKong` (file: `contracts/MantleEstateLPPool.sol`)
+https://sepolia.mantlescan.xyz/address/0x9afe988f7f42b54558e6b26422f2a1cab6299208
+- **Address:** `0x9afe988f7f42b54558e6b26422f2a1cab6299208`
+- **USDC Token:** `0x8136564cfec628dc62c963bad34ccc58d792aae3` (tUSDC)
+- **Network:** Mantle Sepolia Testnet (Chain ID: 5003)
+
 ## 📋 Contract Parameters
 
 - **Min Deposit:** 10 USDC (10,000,000 accounting for 6 decimals)
@@ -36,4 +43,5 @@
 2. Test contract functions
 3. Integrate with backend
 4. Integrate with frontend
+5. Deploy LP pool for Hong Kong and record its address here
 
