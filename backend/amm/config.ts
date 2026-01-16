@@ -24,24 +24,25 @@ const cityIds =
 const apiBaseUrl =
   process.env.ENCORE_API_URL ?? process.env.AMM_API_URL ?? "http://localhost:4000";
 
+// Default user IDs - зашиты в коде для работы без переменных окружения
+// Замените на реальные User ID из вашей базы данных (таблица users, колонка id)
+const DEFAULT_ACCOUNT_1_USER_ID = "user_38IZJMlAyYhkqAy4zfoEhrpbOJP";
+const DEFAULT_ACCOUNT_2_USER_ID = "user_38KNz9N0UNfEmdPeigpQAIefyy8";
+
 const config: AMMConfig = {
   apiBaseUrl,
   accounts: [
-    process.env.AMM_ACCOUNT_1_TOKEN
-      ? { 
-          id: "account-1", 
-          userId: process.env.AMM_ACCOUNT_1_TOKEN ?? "user_38IZJMlAyYhkqAy4zfoEhrpbOJP", // User ID from DB users table
-          clerkToken: process.env.AMM_ACCOUNT_1_CLERK_TOKEN, // Optional Clerk token
-        }
-      : undefined,
-    process.env.AMM_ACCOUNT_2_TOKEN
-      ? { 
-          id: "account-2", 
-          userId: process.env.AMM_ACCOUNT_2_TOKEN ?? "user_38KNz9N0UNfEmdPeigpQAIefyy8", // User ID from DB users table
-          clerkToken: process.env.AMM_ACCOUNT_2_CLERK_TOKEN, // Optional Clerk token
-        }
-      : undefined,
-  ].filter(Boolean) as AMMConfig["accounts"],
+    {
+      id: "account-1",
+      userId: process.env.AMM_ACCOUNT_1_TOKEN ?? DEFAULT_ACCOUNT_1_USER_ID,
+      clerkToken: process.env.AMM_ACCOUNT_1_CLERK_TOKEN,
+    },
+    {
+      id: "account-2",
+      userId: process.env.AMM_ACCOUNT_2_TOKEN ?? DEFAULT_ACCOUNT_2_USER_ID,
+      clerkToken: process.env.AMM_ACCOUNT_2_CLERK_TOKEN,
+    },
+  ],
   trading: {
     minTradeSize: parseNumber(process.env.AMM_MIN_TRADE_SIZE, 5000),
     maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 15000),
