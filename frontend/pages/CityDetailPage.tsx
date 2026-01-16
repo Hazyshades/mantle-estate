@@ -30,7 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-// Import city icons
+// Import city icons - US cities
 import nyIcon from "@/components/ui/icon/NY.png";
 import miamiIcon from "@/components/ui/icon/miami.png";
 import laIcon from "@/components/ui/icon/LA.png";
@@ -40,11 +40,25 @@ import houstonIcon from "@/components/ui/icon/houston.png";
 import washingtonIcon from "@/components/ui/icon/Washington.png";
 import philadelphiaIcon from "@/components/ui/icon/Philadelphia.png";
 
-// Function for get a parth to city icon
+// Import city icons - APAC cities
+import hongKongIcon from "@/components/ui/icon/hong-kong-icon.png";
+import seoulIcon from "@/components/ui/icon/seoul-icon.png";
+import singaporeIcon from "@/components/ui/icon/singapore-icon.png";
+import sydneyIcon from "@/components/ui/icon/sydney-icon.png";
+import shanghaiIcon from "@/components/ui/icon/the-bund-shanghai-icon.png";
+import tokyoIcon from "@/components/ui/icon/tokyo-icon.png";
+
+// Import city icons - Europe cities
+import berlinIcon from "@/components/ui/icon/berlin-icon.png";
+import londonIcon from "@/components/ui/icon/london-icon.png";
+import parisIcon from "@/components/ui/icon/paris-icon.png";
+
+// Function to get city icon path
 const getCityIcon = (cityName: string): string | null => {
   const cityNameOnly = cityName.split(",")[0].trim().toLowerCase();
   
   const iconMap: Record<string, string> = {
+    // US cities
     "new york": nyIcon,
     "miami": miamiIcon,
     "los angeles": laIcon,
@@ -53,6 +67,17 @@ const getCityIcon = (cityName: string): string | null => {
     "houston": houstonIcon,
     "washington": washingtonIcon,
     "philadelphia": philadelphiaIcon,
+    // APAC cities
+    "tokyo": tokyoIcon,
+    "singapore": singaporeIcon,
+    "hong kong": hongKongIcon,
+    "shanghai": shanghaiIcon,
+    "sydney": sydneyIcon,
+    "seoul": seoulIcon,
+    // Europe cities
+    "london": londonIcon,
+    "paris": parisIcon,
+    "berlin": berlinIcon,
   };
   
   return iconMap[cityNameOnly] || null;

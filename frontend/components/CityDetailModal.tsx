@@ -19,6 +19,59 @@ import { Building2, TrendingUp, TrendingDown, Wallet, Info } from "lucide-react"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import PriceChartShadcn from "./PriceChartShadcn";
 
+// Import city icons - US cities
+import nyIcon from "@/components/ui/icon/NY.png";
+import miamiIcon from "@/components/ui/icon/miami.png";
+import laIcon from "@/components/ui/icon/LA.png";
+import chicagoIcon from "@/components/ui/icon/chicago.png";
+import dallasIcon from "@/components/ui/icon/dallas.png";
+import houstonIcon from "@/components/ui/icon/houston.png";
+import washingtonIcon from "@/components/ui/icon/Washington.png";
+import philadelphiaIcon from "@/components/ui/icon/Philadelphia.png";
+
+// Import city icons - APAC cities
+import hongKongIcon from "@/components/ui/icon/hong-kong-icon.png";
+import seoulIcon from "@/components/ui/icon/seoul-icon.png";
+import singaporeIcon from "@/components/ui/icon/singapore-icon.png";
+import sydneyIcon from "@/components/ui/icon/sydney-icon.png";
+import shanghaiIcon from "@/components/ui/icon/the-bund-shanghai-icon.png";
+import tokyoIcon from "@/components/ui/icon/tokyo-icon.png";
+
+// Import city icons - Europe cities
+import berlinIcon from "@/components/ui/icon/berlin-icon.png";
+import londonIcon from "@/components/ui/icon/london-icon.png";
+import parisIcon from "@/components/ui/icon/paris-icon.png";
+
+// Function to get city icon path
+const getCityIcon = (cityName: string): string | null => {
+  const cityNameOnly = cityName.split(",")[0].trim().toLowerCase();
+  
+  const iconMap: Record<string, string> = {
+    // US cities
+    "new york": nyIcon,
+    "miami": miamiIcon,
+    "los angeles": laIcon,
+    "chicago": chicagoIcon,
+    "dallas": dallasIcon,
+    "houston": houstonIcon,
+    "washington": washingtonIcon,
+    "philadelphia": philadelphiaIcon,
+    // APAC cities
+    "tokyo": tokyoIcon,
+    "singapore": singaporeIcon,
+    "hong kong": hongKongIcon,
+    "shanghai": shanghaiIcon,
+    "sydney": sydneyIcon,
+    "seoul": seoulIcon,
+    // Europe cities
+    "london": londonIcon,
+    "paris": parisIcon,
+    "berlin": berlinIcon,
+  };
+  
+  return iconMap[cityNameOnly] || null;
+};
+
 interface CityDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -342,6 +395,9 @@ export default function CityDetailModal({
     return `${countryCode}-${cityCode}`;
   }, [city.name, city.country]);
 
+  // Get city icon
+  const cityIcon = useMemo(() => getCityIcon(city.name), [city.name]);
+
   const amountNum = parseFloat(amount) || 0;
   const sizeNum = parseFloat(size) || 0;
   const calculatedSize = amountNum > 0 ? amountNum / indexPrice : sizeNum;
@@ -359,7 +415,15 @@ export default function CityDetailModal({
               </div>
               <div className="flex items-center gap-3">
                 <div className="rounded-full bg-primary/20 p-3">
-                  <Building2 className="h-6 w-6 text-primary" />
+                  {cityIcon ? (
+                    <img 
+                      src={cityIcon} 
+                      alt={city.name.split(",")[0]} 
+                      className="h-6 w-6 object-contain"
+                    />
+                  ) : (
+                    <Building2 className="h-6 w-6 text-primary" />
+                  )}
                 </div>
                 <div>
                   <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">{city.name.split(",")[0]}</h2>

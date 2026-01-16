@@ -9,7 +9,7 @@ export const blogContent: Record<string, React.ReactElement> = {
       <section>
         <h2 className="text-3xl font-bold mb-4">Abstract</h2>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          Mantle Estate v0.1 is a decentralized protocol designed for perpetual synthetic real estate trading on the Mantle blockchain. 
+          Mantle Estate v0.1 is a decentralized protocol designed for perpetual synthetic real estate trading on the Mantle Network. 
           The protocol enables traders to gain exposure to real estate price movements across multiple global markets without owning physical property. 
           Mantle Estate v0.1 employs a novel pricing mechanism that combines oracle-based market prices with dynamic index pricing based on position skew, 
           ensuring fair execution while maintaining price discovery through funding rates and leverage.
@@ -26,7 +26,7 @@ export const blogContent: Record<string, React.ReactElement> = {
         </p>
         <p className="text-muted-foreground">
           Unlike traditional real estate investment, Mantle Estate allows traders to open long or short positions with leverage, 
-          enabling both bullish and bearish strategies. The protocol operates on the Mantle blockchain using USDC as collateral, 
+          enabling both bullish and bearish strategies. The protocol operates on the Mantle Network using USDC as collateral, 
           ensuring fast transactions and low fees.
         </p>
       </section>
@@ -328,7 +328,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           Mantle Estate v0.1 prioritizes security through multiple layers:
         </p>
         <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-4">
-          <li><strong>Smart Contracts:</strong> Built on Mantle blockchain using OpenZeppelin libraries</li>
+          <li><strong>Smart Contracts:</strong> Built on Mantle Network using OpenZeppelin libraries</li>
           <li><strong>Authentication:</strong> Clerk-based authentication for secure user access</li>
           <li><strong>Database:</strong> Parameterized SQL queries to prevent injection attacks</li>
           <li><strong>Input Validation:</strong> All user inputs are validated before processing</li>

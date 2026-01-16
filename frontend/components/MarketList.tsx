@@ -19,6 +19,59 @@ import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
 import { useUnitPreference } from "@/lib/useUnitPreference";
 
+// Import city icons - US cities
+import nyIcon from "@/components/ui/icon/NY.png";
+import miamiIcon from "@/components/ui/icon/miami.png";
+import laIcon from "@/components/ui/icon/LA.png";
+import chicagoIcon from "@/components/ui/icon/chicago.png";
+import dallasIcon from "@/components/ui/icon/dallas.png";
+import houstonIcon from "@/components/ui/icon/houston.png";
+import washingtonIcon from "@/components/ui/icon/Washington.png";
+import philadelphiaIcon from "@/components/ui/icon/Philadelphia.png";
+
+// Import city icons - APAC cities
+import hongKongIcon from "@/components/ui/icon/hong-kong-icon.png";
+import seoulIcon from "@/components/ui/icon/seoul-icon.png";
+import singaporeIcon from "@/components/ui/icon/singapore-icon.png";
+import sydneyIcon from "@/components/ui/icon/sydney-icon.png";
+import shanghaiIcon from "@/components/ui/icon/the-bund-shanghai-icon.png";
+import tokyoIcon from "@/components/ui/icon/tokyo-icon.png";
+
+// Import city icons - Europe cities
+import berlinIcon from "@/components/ui/icon/berlin-icon.png";
+import londonIcon from "@/components/ui/icon/london-icon.png";
+import parisIcon from "@/components/ui/icon/paris-icon.png";
+
+// Function to get city icon path
+const getCityIcon = (cityName: string): string | null => {
+  const cityNameOnly = cityName.split(",")[0].trim().toLowerCase();
+  
+  const iconMap: Record<string, string> = {
+    // US cities
+    "new york": nyIcon,
+    "miami": miamiIcon,
+    "los angeles": laIcon,
+    "chicago": chicagoIcon,
+    "dallas": dallasIcon,
+    "houston": houstonIcon,
+    "washington": washingtonIcon,
+    "philadelphia": philadelphiaIcon,
+    // APAC cities
+    "tokyo": tokyoIcon,
+    "singapore": singaporeIcon,
+    "hong kong": hongKongIcon,
+    "shanghai": shanghaiIcon,
+    "sydney": sydneyIcon,
+    "seoul": seoulIcon,
+    // Europe cities
+    "london": londonIcon,
+    "paris": parisIcon,
+    "berlin": berlinIcon,
+  };
+  
+  return iconMap[cityNameOnly] || null;
+};
+
 interface MarketListProps {
   cities: City[];
   balance: number;
@@ -100,6 +153,7 @@ function MarketCardCompact({ city, balance, onTradeComplete }: MarketRowProps) {
 
   const changeColor = priceChange24h >= 0 ? "text-green-500" : "text-red-500";
   const cityDisplayName = city.name.includes(",") ? city.name : `${city.name}, ${city.country}`;
+  const cityIcon = getCityIcon(city.name);
 
   const getCityCode = () => {
     const parts = city.name.split(",");
@@ -141,6 +195,17 @@ function MarketCardCompact({ city, balance, onTradeComplete }: MarketRowProps) {
           {cityDisplayName}
         </h3>
         <div className="flex items-center gap-3 mt-2 flex-wrap">
+          {/* City Icon */}
+          {cityIcon && (
+            <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-white dark:bg-white flex items-center justify-center">
+              <img
+                src={cityIcon}
+                alt={`${cityDisplayName} icon`}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
           <div className="flex-shrink-0">
             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Price</p>
             <p className="text-base font-semibold text-slate-900 dark:text-slate-100">${city.indexPriceUsd.toFixed(2)}</p>
@@ -564,24 +629,28 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
         {/* View Toggle Icons */}
         <div className="flex items-center gap-2">
           <Button
-            variant={viewMode === "compact" ? "default" : "ghost"}
+            variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-lg hover:bg-slate-100"
+            className={`h-9 w-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 ${
+              viewMode === "compact" 
+                ? "bg-slate-100 dark:bg-slate-800" 
+                : "bg-transparent"
+            }`}
             onClick={() => setViewMode(viewMode === "grid" ? "compact" : "grid")}
             aria-label={viewMode === "grid" ? "Switch to compact list view" : "Switch to grid view"}
           >
             {viewMode === "grid" ? (
-              <List className="h-5 w-5 text-slate-600" />
+              <List className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             ) : (
-              <Grid3x3 className="h-5 w-5 text-slate-600" />
+              <Grid3x3 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
             )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9 rounded-lg hover:bg-slate-100"
+            className="h-9 w-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
           >
-            <Settings className="h-5 w-5 text-slate-600" />
+            <Settings className="h-5 w-5 text-slate-600 dark:text-slate-400" />
           </Button>
         </div>
       </div>

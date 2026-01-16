@@ -141,10 +141,18 @@ export default function MintDepositPage() {
         provider
       );
       const claimed = await testUsdcContract.hasClaimedInitialMNT(walletAddress);
-      setHasClaimedMNT(claimed);
+      // Only update if we got a definitive value, and don't overwrite true with false
+      // This prevents race conditions where API says success but contract hasn't updated yet
+      setHasClaimedMNT((prev) => {
+        // If we already know it's claimed (true), keep it true
+        // Only update if previous value was null or false
+        if (prev === true) return true;
+        return claimed;
+      });
     } catch (error: any) {
       console.error("Error checking MNT claim status:", error);
-      setHasClaimedMNT(null);
+      // Don't overwrite true with null on error
+      setHasClaimedMNT((prev) => prev === true ? true : null);
     }
   };
 
@@ -181,17 +189,13 @@ export default function MintDepositPage() {
       });
 
       // Update state immediately after successful API call
+      // This ensures UI updates right away without waiting for contract verification
       setHasClaimedMNT(true);
 
       toast({
         title: "MNT Sent Successfully!",
         description: result.message || `You received ${result.amount} MNT tokens for gas fees`,
       });
-
-      // Reload claim status to verify
-      setTimeout(async () => {
-        await checkMNTClaimStatus();
-      }, 2000);
     } catch (error: any) {
       console.error("Error claiming MNT:", error);
       toast({

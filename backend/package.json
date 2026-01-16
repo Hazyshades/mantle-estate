@@ -8,7 +8,10 @@
     "import-apac": "bun run scripts/import_apac_prices.ts",
     "generate-prices": "bun run scripts/generate_prices.ts",
     "migrate-to-prod": "bun run scripts/migrate_to_prod.ts",
-    "export-db": "bun run scripts/export_database.ts"
+    "export-db": "bun run scripts/export_database.ts",
+    "amm:run": "bun run scripts/amm/http-run.ts",
+    "amm:run-internal": "bun run scripts/amm/index.ts",
+    "amm:test": "bun run scripts/amm/http-run.ts"
   },
   "dependencies": {
     "@clerk/backend": "^1.27.0",

@@ -107,14 +107,17 @@ export const sendInitialMNT = api<SendInitialMNTRequest, SendInitialMNTResponse>
         if (!privateKey || !privateKey.startsWith("0x")) {
           throw new Error("Invalid private key format");
         }
-      } catch (error) {
+      } catch (error: any) {
         // Fallback to local dev key if secret is not set (for local development only)
         if (LOCAL_DEV_PRIVATE_KEY && LOCAL_DEV_PRIVATE_KEY.startsWith("0x")) {
           console.warn("⚠️  Using local dev private key. This should NOT be used in production!");
           privateKey = LOCAL_DEV_PRIVATE_KEY;
         } else {
+          const errorMsg = error?.message || String(error);
           throw APIError.internal(
-            "Contract owner private key not configured. Please set ContractOwnerPrivateKey secret or CONTRACT_OWNER_PRIVATE_KEY environment variable."
+            `Contract owner private key not configured. Please set ContractOwnerPrivateKey secret in Encore Cloud for your environment (staging/production). ` +
+            `Error: ${errorMsg}. ` +
+            `Make sure the secret is set for the correct environment group and the value starts with "0x".`
           );
         }
       }
@@ -272,14 +275,17 @@ export const sendInitialMNTBatch = api<SendInitialMNTBatchRequest, SendInitialMN
         if (!privateKey || !privateKey.startsWith("0x")) {
           throw new Error("Invalid private key format");
         }
-      } catch (error) {
+      } catch (error: any) {
         // Fallback to local dev key if secret is not set (for local development only)
         if (LOCAL_DEV_PRIVATE_KEY && LOCAL_DEV_PRIVATE_KEY.startsWith("0x")) {
           console.warn("⚠️  Using local dev private key. This should NOT be used in production!");
           privateKey = LOCAL_DEV_PRIVATE_KEY;
         } else {
+          const errorMsg = error?.message || String(error);
           throw APIError.internal(
-            "Contract owner private key not configured. Please set ContractOwnerPrivateKey secret or CONTRACT_OWNER_PRIVATE_KEY environment variable."
+            `Contract owner private key not configured. Please set ContractOwnerPrivateKey secret in Encore Cloud for your environment (staging/production). ` +
+            `Error: ${errorMsg}. ` +
+            `Make sure the secret is set for the correct environment group and the value starts with "0x".`
           );
         }
       }
