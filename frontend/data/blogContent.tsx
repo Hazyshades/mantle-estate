@@ -343,9 +343,28 @@ export const blogContent: Record<string, React.ReactElement> = {
     <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       <section>
         <h2 className="text-3xl font-bold mb-4">Roadmap</h2>
-        <p className="text-muted-foreground">
-          Content coming soon...
-        </p>
+        <div className="space-y-4 text-muted-foreground">
+          <p>As of Q1 2026, we are actively testing our mathematical models.</p>
+          <p>
+            We are still in testnet mode and actively testing best practices and mechanics.
+          </p>
+          <p>
+            We are currently in the process of fully transitioning to on-chain oracle operations and LP pool functionality.
+          </p>
+          <p>
+            Once the mechanism is refined and we have high confidence in its operation, we will transition the platform fully to on-chain mechanics.
+          </p>
+
+          <h3 className="text-xl font-semibold mt-6">Q1 2026</h3>
+          <ul className="list-disc list-inside space-y-2">
+            <li><strong>Full on-chain work:</strong> oracles, LP, AMM</li>
+            <li><strong>Whitepaper v1:</strong> created and published</li>
+            <li><strong>Early Access:</strong> platform rollout</li>
+            <li><strong>Leverage:</strong> x2–x10</li>
+            <li><strong>APAC market expansion:</strong> China, Thailand, Vietnam, Indonesia</li>
+            <li><strong>Real estate pricing methodology release:</strong> US regions and APAC</li>
+          </ul>
+        </div>
       </section>
     </div>
   ),
