@@ -41,10 +41,10 @@ const config: AMMConfig = {
   ].filter(Boolean) as AMMConfig["accounts"],
   trading: {
     minTradeSize: parseNumber(process.env.AMM_MIN_TRADE_SIZE, 5000),
-    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 12500),
+    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 9000),
     minBalance: parseNumber(process.env.AMM_MIN_BALANCE, 20),
-    minTradeInterval: parseNumber(process.env.AMM_MIN_TRADE_INTERVAL_MS, 7_000),
-    maxTradeInterval: parseNumber(process.env.AMM_MAX_TRADE_INTERVAL_MS, 15_000),
+    minTradeInterval: parseNumber(process.env.AMM_MIN_TRADE_INTERVAL_MS, 17_000),
+    maxTradeInterval: parseNumber(process.env.AMM_MAX_TRADE_INTERVAL_MS, 150_000),
     minHoldTime: parseNumber(process.env.AMM_MIN_HOLD_TIME_MS, 5_000),
     maxHoldTime: parseNumber(process.env.AMM_MAX_HOLD_TIME_MS, 60_000),
     closeProbability: parseNumber(process.env.AMM_CLOSE_PROBABILITY, 0.35),

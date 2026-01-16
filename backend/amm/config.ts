@@ -23,9 +23,6 @@ const cityIds =
 // For Encore service, use internal API URL
 const apiBaseUrl =
   process.env.ENCORE_API_URL ?? process.env.AMM_API_URL ?? "http://localhost:4000";
-
-// Default user IDs - зашиты в коде для работы без переменных окружения
-// Замените на реальные User ID из вашей базы данных (таблица users, колонка id)
 const DEFAULT_ACCOUNT_1_USER_ID = "user_38IZJMlAyYhkqAy4zfoEhrpbOJP";
 const DEFAULT_ACCOUNT_2_USER_ID = "user_38KNz9N0UNfEmdPeigpQAIefyy8";
 
@@ -45,15 +42,15 @@ const config: AMMConfig = {
   ],
   trading: {
     minTradeSize: parseNumber(process.env.AMM_MIN_TRADE_SIZE, 5000),
-    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 15000),
-    minBalance: parseNumber(process.env.AMM_MIN_BALANCE, 20),
-    minTradeInterval: parseNumber(process.env.AMM_MIN_TRADE_INTERVAL_MS, 7_000),
-    maxTradeInterval: parseNumber(process.env.AMM_MAX_TRADE_INTERVAL_MS, 15_000),
-    minHoldTime: parseNumber(process.env.AMM_MIN_HOLD_TIME_MS, 5_000),
-    maxHoldTime: parseNumber(process.env.AMM_MAX_HOLD_TIME_MS, 60_000),
+    maxTradeSize: parseNumber(process.env.AMM_MAX_TRADE_SIZE, 9500),
+    minBalance: parseNumber(process.env.AMM_MIN_BALANCE, 4920),
+    minTradeInterval: parseNumber(process.env.AMM_MIN_TRADE_INTERVAL_MS, 17_000),
+    maxTradeInterval: parseNumber(process.env.AMM_MAX_TRADE_INTERVAL_MS, 150_000),
+    minHoldTime: parseNumber(process.env.AMM_MIN_HOLD_TIME_MS, 95_000),
+    maxHoldTime: parseNumber(process.env.AMM_MAX_HOLD_TIME_MS, 600_000),
     closeProbability: parseNumber(process.env.AMM_CLOSE_PROBABILITY, 0.35),
     maxOpenPositions: parseNumber(process.env.AMM_MAX_OPEN_POSITIONS, 5),
-    leverage: [1, 2],
+    leverage: [1],
   },
   strategy:
     (process.env.AMM_STRATEGY as AMMConfig["strategy"]) ?? "random",

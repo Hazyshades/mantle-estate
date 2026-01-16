@@ -21,8 +21,8 @@ const config: AMMConfig = {
     },
   ],
   trading: {
-    minTradeSize: 50,
-    maxTradeSize: 200,
+    minTradeSize: 7550,
+    maxTradeSize: 9200,
     minBalance: 25,
     minTradeInterval: 5_000,
     maxTradeInterval: 20_000,
