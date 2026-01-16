@@ -30,14 +30,14 @@ const config: AMMConfig = {
     process.env.AMM_ACCOUNT_1_TOKEN
       ? { 
           id: "account-1", 
-          userId: process.env.AMM_ACCOUNT_1_TOKEN, // User ID from DB users table
+          userId: process.env.AMM_ACCOUNT_1_TOKEN ?? "user_38IZJMlAyYhkqAy4zfoEhrpbOJP", // User ID from DB users table
           clerkToken: process.env.AMM_ACCOUNT_1_CLERK_TOKEN, // Optional Clerk token
         }
       : undefined,
     process.env.AMM_ACCOUNT_2_TOKEN
       ? { 
           id: "account-2", 
-          userId: process.env.AMM_ACCOUNT_2_TOKEN, // User ID from DB users table
+          userId: process.env.AMM_ACCOUNT_2_TOKEN ?? "user_38KNz9N0UNfEmdPeigpQAIefyy8", // User ID from DB users table
           clerkToken: process.env.AMM_ACCOUNT_2_CLERK_TOKEN, // Optional Clerk token
         }
       : undefined,
