@@ -280,6 +280,7 @@ contract MantleEstateLPPoolHongKong is MantleEstateCityLPPool {
             "meLP-HKG"
         )
     {}
+<<<<<<< Current (Your changes)
 }
 
 /**
@@ -552,4 +553,3 @@ contract MantleEstateLPPoolTokyo is MantleEstateCityLPPool {
             "meLP-TYO"
         )
     {}
-}
