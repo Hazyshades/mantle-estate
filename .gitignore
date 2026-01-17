@@ -26,6 +26,7 @@ frontend/.env
 *.md
 # Exception: allow Docusaurus markdown files
 !frontend/docusaurus-docs/docs/
+!frontend/docusaurus-docs/docs/**/*.md
 
 /cursor
 .cursor/
