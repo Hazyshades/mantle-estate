@@ -27,6 +27,13 @@ const sidebars: SidebarsConfig = {
         'formulas/pnl',
       ],
     },
+    {
+      type: 'category',
+      label: 'Contracts',
+      items: [
+        'contracts/overview',
+      ],
+    },
   ],
 };
 

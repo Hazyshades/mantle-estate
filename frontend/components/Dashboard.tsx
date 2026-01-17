@@ -220,7 +220,7 @@ export default function Dashboard({ userId }: DashboardProps) {
               <p className="text-sm leading-none font-medium text-muted-foreground">Portfolio</p>
               <h2 className="scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0 text-foreground">Summary metrics</h2>
               <p className="leading-7 text-muted-foreground max-w-xl [&:not(:first-child)]:mt-6">
-                Track synthetic real estate markets, open long or short positions, and monitor P&amp;L in one place.
+                Track markets, open long or short positions, and monitor P&amp;L in one place.
               </p>
             </div>
             <Card className="shadow-sm border-border">
