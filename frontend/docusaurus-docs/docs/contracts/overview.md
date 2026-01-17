@@ -25,16 +25,3 @@ All smart contracts are deployed on **Mantle Sepolia Testnet** (Chain ID: 5003).
 | Contract | Address | Description |
 |----------|---------|-------------|
 | **MantleEstate LP Operator** | `0x62e72f83aaae864ac3d6686820f2e04777f80b29` | Operator contract for managing LP pools (collecting fees, paying out profits) |
-
-## Contract Parameters
-
-- **Min Deposit:** 10 USDC (10,000,000 accounting for 6 decimals)
-- **Max Deposit:** 1,000,000 USDC (1,000,000,000,000 accounting for 6 decimals)
-- **USDC Token:** `0x8136564cfec628dc62c963bad34ccc58d792aae3` (tUSDC)
-- **Network:** Mantle Sepolia Testnet (Chain ID: 5003)
-- **Status:** Active (not paused)
-
-## Useful Links
-
-- [Mantle Sepolia Explorer](https://sepolia.mantlescan.xyz)
-- [Deployment Information](../../../contracts/Deployed.md)
