@@ -89,7 +89,7 @@ export default function LandingPage() {
     {
       icon: Building2,
       title: "Real-Time Price Data",
-      description: "Prices based on real estate indices (Zillow Home Value Index) with real-time updates and transparent pricing."
+      description: "Prices based on real estate indices (, ) with real-time updates and transparent pricing."
     },
     {
       icon: Coins,
@@ -115,6 +115,12 @@ export default function LandingPage() {
               <span className="text-xl font-bold">Mantle Estate</span>
             </div>
             <div className="flex items-center gap-4">
+              <Button variant="ghost" asChild>
+                <Link to="/blog/compliance-declaration">Compliance</Link>
+              </Button>
+              <Button variant="ghost" asChild>
+                <Link to="/blog/one-pager-pitch">Pitch</Link>
+              </Button>
               <Button variant="ghost" asChild>
                 <a href="/docs/intro/" target="_blank" rel="noopener noreferrer">Docs</a>
               </Button>
@@ -461,7 +467,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="border-t border-border bg-muted/30 py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-3 gap-8">
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <img 
@@ -482,6 +488,21 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><a href="/docs/intro/" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Documentation</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Team</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>
+                  <a
+                    href="https://x.com/Leonissx"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-foreground transition-colors"
+                  >
+                    X: Leonissx
+                  </a>
+                </li>
               </ul>
             </div>
           </div>

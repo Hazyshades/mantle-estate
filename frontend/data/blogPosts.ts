@@ -13,6 +13,16 @@ const FIXED_BLOG_DATE = "1/15/2026";
 
 export const blogPosts: BlogPost[] = [
   {
+    slug: "compliance-declaration",
+    title: "Compliance Declaration",
+    category: "announcement",
+    date: FIXED_BLOG_DATE,
+    readingTime: "3 min",
+    author: "Mantle Estate Team",
+    excerpt: "A template disclosure for regulated assets and compliance considerations for the Mantle Estate project.",
+    featured: true,
+  },
+  {
     slug: "mantle-estate-v0.1",
     title: "Mantle Estate v0.1: A New Way to Trade Synthetic Real Estate",
     category: "announcement",

@@ -4,6 +4,69 @@ import "katex/dist/katex.min.css";
 import chart1HomePriceTrends from "@/components/ui/1 pitch/Chart1_Home-Price-Trends-Following-Economic-Recessions.png";
 
 export const blogContent: Record<string, React.ReactElement> = {
+  "compliance-declaration": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <div className="flex flex-col gap-3">
+          <h2 className="text-3xl font-bold">Disclosure Template for Regulated Assets</h2>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">1. Scope</h3>
+        <p className="text-muted-foreground">
+          Mantle Estate is a protocol for trading synthetic derivatives that track city-level real
+          estate price movements. The project does not confer ownership rights to real property and
+          does not issue tokens that represent equity in physical assets or legal entities.
+        </p>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">2. Regulated Assets</h3>
+        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <li>
+            The project does not issue securities, fund units, bonds, or other regulated financial
+            instruments in the traditional sense.
+          </li>
+          <li>
+            Synthetic markets reference indices and price metrics but do not grant claims on index
+            providers or real-world assets.
+          </li>
+          <li>
+            The collateral asset used (e.g., tUSDC in testing) can't be considered a regulated
+            asset in certain jurisdictions, and users should take this into account when
+            participating.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">3. Compliance and Restrictions</h3>
+        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <li>
+            The project does not provide legal, tax, or investment advice.
+          </li>
+          <li>
+            Access to the protocol may be restricted for users from certain jurisdictions in
+            accordance with applicable laws and platform requirements.
+          </li>
+          <li>
+            Users are responsible for assessing the legal status of the protocol in their own
+            jurisdiction.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">4. Risk Disclosure</h3>
+        <div className="rounded-lg border border-border/60 bg-muted/40 p-4 text-muted-foreground">
+          Trading synthetic derivatives involves significant risk. Outcomes may include substantial
+          gains or complete loss of funds. Participation is appropriate only if you understand the
+          risks and comply with local laws.
+        </div>
+      </section>
+    </div>
+  ),
   "mantle-estate-v0.1": (
     <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       {/* Abstract */}

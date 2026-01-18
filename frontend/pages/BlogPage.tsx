@@ -27,22 +27,11 @@ export default function BlogPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <main className="container mx-auto px-4 py-12 max-w-4xl">
           {/* Header */}
-          <div className="mb-12">
+          <div className="mb-2">
             <h1 className="text-4xl font-bold mb-4">Blog</h1>
             <p className="text-lg text-muted-foreground">
               News, updates, and insights from the Mantle Estate team.
             </p>
-          </div>
-
-          {/* Search */}
-          <div className="mb-12">
-            <Input
-              type="search"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-md"
-            />
           </div>
 
           {/* Featured Articles */}
