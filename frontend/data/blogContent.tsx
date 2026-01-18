@@ -1,6 +1,7 @@
 import React from "react";
 import { BlockMath, InlineMath } from "react-katex";
-import "katex/dist/katex.min.css";
+import "katex/dist/katex.min.css"; 
+import chart1HomePriceTrends from "@/components/ui/1 pitch/Chart1_Home-Price-Trends-Following-Economic-Recessions.png";
 
 export const blogContent: Record<string, React.ReactElement> = {
   "mantle-estate-v0.1": (
@@ -26,7 +27,7 @@ export const blogContent: Record<string, React.ReactElement> = {
         </p>
         <p className="text-muted-foreground">
           Unlike traditional real estate investment, Mantle Estate allows traders to open long or short positions with leverage, 
-          enabling both bullish and bearish strategies. The protocol operates on the Mantle Network using USDC as collateral, 
+          enabling both bullish and bearish strategies. The protocol operates on the Mantle Network using tUSDC as collateral (in testing mode), 
           ensuring fast transactions and low fees.
         </p>
       </section>
@@ -91,7 +92,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           including cities in the United States, Europe, and Asia-Pacific regions.
         </p>
         <p className="text-muted-foreground">
-          Each market has a single collateral token (USDC) and a single price feed. Market prices are updated daily from external 
+          Each market has a single collateral token (tUSDC) and a single price feed. Market prices are updated daily from external 
           data sources, with Index Price calculated in real-time based on trading activity and position skew.
         </p>
       </section>
@@ -240,7 +241,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           <li><strong>2x leverage:</strong> Position size is double the margin, amplifying price movements by 2x</li>
         </ul>
         <p className="text-muted-foreground">
-          Leverage is applied to price movements, not through borrowing. All positions are fully collateralized.
+          Leverage is applied to price movements, not through borrowing. All positions are fully collateralized with tUSDC.
         </p>
 
         <h3 className="text-2xl font-semibold mb-4">Profit and Loss Calculation</h3>
@@ -361,9 +362,109 @@ export const blogContent: Record<string, React.ReactElement> = {
             <li><strong>Whitepaper v1:</strong> created and published</li>
             <li><strong>Early Access:</strong> platform rollout</li>
             <li><strong>Leverage:</strong> x2–x10</li>
+            <li><strong>MNT collateral:</strong> use MNT as the primary collateral</li>
             <li><strong>APAC market expansion:</strong> China, Thailand, Vietnam, Indonesia</li>
             <li><strong>Real estate pricing methodology release:</strong> US regions and APAC</li>
           </ul>
+        </div>
+      </section>
+    </div>
+  ),
+  "one-pager-pitch": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <h2 className="text-3xl font-bold mb-4">Mantle Estate — One-pager Pitch</h2>
+        <div className="space-y-6 text-muted-foreground">
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Problem</h3>
+            <p>
+              Real estate is one of the largest asset classes, but it is illiquid, local, and hard
+              to access for active trading. Investors struggle to hedge price declines in specific
+              cities, while global diversification requires capital, time, and legal infrastructure.
+            </p>
+            <img
+              src={chart1HomePriceTrends}
+              alt="Home price trends following economic recessions"
+              className="mt-4 w-full rounded-lg border border-border/60"
+              loading="lazy"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Solution</h3>
+            <p>
+              Mantle Estate is a decentralized protocol for trading synthetic real estate on the
+              Mantle Network. Users gain exposure to city-level real estate prices without owning
+              physical property: they can open long/short positions, use leverage, and exit at any
+              time.
+            </p>
+            <p className="mt-4 font-medium text-foreground">Key mechanisms:</p>
+            <ul className="list-disc list-inside space-y-2">
+              <li>
+                Two-tier pricing: Market Price from oracles + Index Price adjusted by position
+                imbalance.
+              </li>
+              <li>Funding rate balances the market: majority pays minority.</li>
+              <li>Isolated city markets with separate OI, skew, and price dynamics.</li>
+              <li>tUSDC collateral in testing mode, fast transactions, and low fees on Mantle.</li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/mantle-estate-v0.1"
+                className="font-medium underline underline-offset-4"
+              >
+                Mantle Estate v0.1
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Business model</h3>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Trading fees: charged on opening and closing positions.</li>
+              <li>
+                Funding mechanics: fee redistribution that supports liquidity balance.
+              </li>
+              <li>
+                LP pools: liquidity providers earn from trading activity and take the opposite
+                side of net trader P&amp;L.
+              </li>
+              <li>
+                Scale through new markets (cities/regions) and growing trading volume.
+              </li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/mantle-estate-v0.1"
+                className="font-medium underline underline-offset-4"
+              >
+                Mantle Estate v0.1
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Roadmap (Q1 2026)</h3>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Full on-chain infrastructure: oracles, LP, AMM</li>
+              <li>Whitepaper v1</li>
+              <li>Early Access platform rollout</li>
+              <li>Leverage x2–x10</li>
+              <li>APAC expansion: China, Thailand, Vietnam, Indonesia</li>
+              <li>Real estate pricing methodology for the US and APAC</li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/roadmap"
+                className="font-medium underline underline-offset-4"
+              >
+                Roadmap
+              </a>
+            </p>
+          </div>
         </div>
       </section>
     </div>
