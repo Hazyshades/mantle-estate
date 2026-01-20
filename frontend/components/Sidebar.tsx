@@ -4,14 +4,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
   Building2,
-  TrendingUp,
-  History,
-  Settings,
+  Briefcase,
   ChevronLeft,
   ChevronRight,
-  Coins,
-  ArrowDown,
+  Clock,
   Droplets,
+  Coins,
+  Sliders,
+  Store,
+  ArrowDownToLine,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -40,7 +41,7 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
     {
       id: "markets",
       label: "Markets",
-      icon: Building2,
+      icon: Store,
       imageSrc: "/images/logos/markets.png",
       path: "/",
       badge: null,
@@ -48,14 +49,14 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
     {
       id: "positions",
       label: "Positions",
-      icon: TrendingUp,
+      icon: Briefcase,
       path: "/positions",
       badge: positionsCount > 0 ? positionsCount : null,
     },
     {
       id: "history",
       label: "History",
-      icon: History,
+      icon: Clock,
       path: "/history",
       badge: null,
     },
@@ -76,14 +77,14 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
     {
       id: "withdraw",
       label: "Withdraw",
-      icon: ArrowDown,
+      icon: ArrowDownToLine,
       path: "/withdraw",
       badge: null,
     },
     {
       id: "settings",
       label: "Settings",
-      icon: Settings,
+      icon: Sliders,
       path: "/settings",
       badge: null,
     },
@@ -127,10 +128,8 @@ export function Sidebar({ positionsCount = 0, onTabChange, collapsed: collapsedP
         <div className="flex h-16 items-center justify-between border-b px-4">
           {!collapsed && (
             <div className="flex items-center gap-2">
-              <div className="rounded-lg bg-primary/10 p-2">
-                <Building2 className="h-5 w-5 text-primary" />
-              </div>
-              <span className="font-semibold text-sidebar-foreground">Trading</span>
+              <span className="font-semibold text-sidebar-foreground">Trade Real Estate
+              </span>
             </div>
           )}
           <Button

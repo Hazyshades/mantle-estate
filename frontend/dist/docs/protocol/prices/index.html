@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-protocol/prices" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Prices | Mantle Estate</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app/docs/protocol/prices"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Prices | Mantle Estate"><meta data-rh="true" name="description" content="Mantle Estate uses a comprehensive price calculation system for different regional markets. Prices are updated daily and track changes in residential real estate prices in real-time."><meta data-rh="true" property="og:description" content="Mantle Estate uses a comprehensive price calculation system for different regional markets. Prices are updated daily and track changes in residential real estate prices in real-time."><link data-rh="true" rel="canonical" href="https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app/docs/protocol/prices"><link data-rh="true" rel="alternate" href="https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app/docs/protocol/prices" hreflang="en"><link data-rh="true" rel="alternate" href="https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app/docs/protocol/prices" hreflang="x-default"><script data-rh="true" type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Prices","item":"https://staging-real-estate-trading-simulator-t9ii.frontend.encr.app/docs/protocol/prices"}]}</script><link rel="stylesheet" href="/docs/assets/css/styles.ab5855d0.css">
+<script src="/docs/assets/js/runtime~main.aefaa61a.js" defer="defer"></script>
+<script src="/docs/assets/js/main.e8ece6a9.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/docs/"><b class="navbar__title text--truncate">Mantle Estate</b></a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/docs/intro">Documentation</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><aside class="theme-doc-sidebar-container docSidebarContainer_YfHR"><div class="sidebarViewport_aRkj"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/docs/intro"><span title="Introduction" class="linkLabel_WmDU">Introduction</span></a></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret menu__link--active" role="button" aria-expanded="true" href="/docs/protocol/overview"><span title="Protocol" class="categoryLinkLabel_W154">Protocol</span></a></div><ul class="menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/protocol/overview"><span title="Protocol Overview" class="linkLabel_WmDU">Protocol Overview</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" tabindex="0" href="/docs/protocol/prices"><span title="Prices" class="linkLabel_WmDU">Prices</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/protocol/funding-rate"><span title="Funding Rate" class="linkLabel_WmDU">Funding Rate</span></a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-2 menu__list-item"><a class="menu__link" tabindex="0" href="/docs/protocol/trading"><span title="Trading" class="linkLabel_WmDU">Trading</span></a></li></ul></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/docs/formulas/index-price"><span title="Formulas and Calculations" class="categoryLinkLabel_W154">Formulas and Calculations</span></a></div></li><li class="theme-doc-sidebar-item-category theme-doc-sidebar-item-category-level-1 menu__list-item menu__list-item--collapsed"><div class="menu__list-item-collapsible"><a class="categoryLink_byQd menu__link menu__link--sublist menu__link--sublist-caret" role="button" aria-expanded="false" href="/docs/contracts/overview"><span title="Contracts" class="categoryLinkLabel_W154">Contracts</span></a></div></li></ul></nav></div></div></aside><main class="docMainContainer_TBSr"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><nav class="theme-doc-breadcrumbs breadcrumbsContainer_Z_bl" aria-label="Breadcrumbs"><ul class="breadcrumbs"><li class="breadcrumbs__item"><span class="breadcrumbs__link">Protocol</span></li><li class="breadcrumbs__item breadcrumbs__item--active"><span class="breadcrumbs__link">Prices</span></li></ul></nav><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Prices</h1></header>
+<p>Mantle Estate uses a comprehensive price calculation system for different regional markets. Prices are updated <strong>daily</strong> and track changes in residential real estate prices in real-time.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="data-sources-by-region">Data Sources by Region<a href="#data-sources-by-region" class="hash-link" aria-label="Direct link to Data Sources by Region" title="Direct link to Data Sources by Region" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="united-states-us-markets">United States (US Markets)<a href="#united-states-us-markets" class="hash-link" aria-label="Direct link to United States (US Markets)" title="Direct link to United States (US Markets)" translate="no">​</a></h3>
+<p>For US markets, data from <strong>Zillow</strong> — the largest real estate portal in the United States — is used.</p>
+<p><strong>Key Features:</strong></p>
+<ul>
+<li class="">Daily price updates</li>
+<li class="">Data covers a wide range of property types</li>
+<li class="">Integration with real-world real estate market</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="europe-european-markets">Europe (European Markets)<a href="#europe-european-markets" class="hash-link" aria-label="Direct link to Europe (European Markets)" title="Direct link to Europe (European Markets)" translate="no">​</a></h3>
+<p>For European markets, combinations of official government indices, real estate market reports, and economic databases are used.</p>
+<p><strong>Data Sources:</strong></p>
+<ul>
+<li class=""><strong>London</strong>: Land Registry (official transaction registry) with hedonic quality and location adjustments</li>
+<li class=""><strong>Paris</strong>: INSEE and Notaires de France — Secondary housing price index</li>
+<li class=""><strong>Berlin</strong>: Destatis (Federal Statistical Office) and GREIX (Kiel Institute)</li>
+<li class=""><strong>Dubai</strong>: REIDIN and ValuStrat with hedonic adjustments (DLD – Dubai Land Department)</li>
+</ul>
+<p><strong>Methodology:</strong></p>
+<ul>
+<li class="">Quarterly or annual data are interpolated to monthly values</li>
+<li class="">Prices in local currency are converted to USD using average monthly exchange rates</li>
+<li class="">Hedonic methods are used to account for quality/location</li>
+<li class="">Prices reflect a blend of apartments/condominiums and houses</li>
+</ul>
+<p><strong>Overview:</strong>
+Monthly average residential property prices for European cities were derived from a combination of official government indices, real estate market reports, and economic databases. Prices represent a blend of apartments/condos and houses (where data allows), focusing on urban residential averages. Data for 2025–2026 includes forecasts extrapolated from recent trends (e.g., Q3–Q4 2025).</p>
+<ul>
+<li class=""><strong>Data Aggregation</strong>: Quarterly or annual data from sources was interpolated to monthly values using linear trends</li>
+<li class=""><strong>Currency Conversion</strong>: Local currency prices were converted to USD using average monthly exchange rates (from sources like Reuters or FRED)</li>
+<li class=""><strong>Adjustments</strong>: Where sqm prices were given, average property sizes were applied (e.g., 60–80 m² for apartments) based on city-specific reports. Forecasts account for inflation and market trends</li>
+<li class=""><strong>Source Selection</strong>: Priority was given to official sources (government statistics) and reputable analysts; data was cross-verified for consistency. Hedonic methods or indices were used to account for quality/location</li>
+<li class=""><strong>Limitations</strong>: Averages vary by segment (new vs. existing); luxury outliers are not included. Forecasts assume stable trends without major shocks</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="apac-asia-pacific-markets">APAC (Asia-Pacific Markets)<a href="#apac-asia-pacific-markets" class="hash-link" aria-label="Direct link to APAC (Asia-Pacific Markets)" title="Direct link to APAC (Asia-Pacific Markets)" translate="no">​</a></h3>
+<p>For Asia-Pacific markets, combinations of official government indices, real estate market reports, and economic databases are used.</p>
+<p><strong>Major Cities and Sources:</strong></p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="tokyo-japan">Tokyo, Japan<a href="#tokyo-japan" class="hash-link" aria-label="Direct link to Tokyo, Japan" title="Direct link to Tokyo, Japan" translate="no">​</a></h4>
+<ul>
+<li class="">Japan Real Estate Institute (JREI)</li>
+<li class="">Ministry of Land, Infrastructure, Transport and Tourism (MLIT)</li>
+<li class="">Hedonic quality adjustments</li>
+</ul>
+<p><strong>Methodology</strong>: Based on JREI surveys and MLIT indices, which use transaction data adjusted for quality (hedonic method). Prices in JPY/sqm converted to full property (avg 70 sqm condo) and USD. 2025 projections from YoY growth (e.g., 8–12% in Tokyo metro). Interpolation from quarterly BIS data.</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="singapore">Singapore<a href="#singapore" class="hash-link" aria-label="Direct link to Singapore" title="Direct link to Singapore" translate="no">​</a></h4>
+<ul>
+<li class="">Urban Redevelopment Authority (URA) Private Residential Property Price Index</li>
+<li class="">Transaction data with hedonic adjustments</li>
+<li class="">Includes HDB flats and condos</li>
+</ul>
+<p><strong>Methodology</strong>: URA Private Residential Property Price Index, based on transaction caveats (hedonic-adjusted for attributes). Includes HDB flats and condos. SGD to USD conversion; monthly from quarterly data. 2025 forecast uses 0.9% Q3 growth, projecting 4–5% annual.</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="hong-kong">Hong Kong<a href="#hong-kong" class="hash-link" aria-label="Direct link to Hong Kong" title="Direct link to Hong Kong" translate="no">​</a></h4>
+<ul>
+<li class="">Rating and Valuation Department (RVD)</li>
+<li class="">Classification by size (A–E)</li>
+<li class="">Transaction data (repeat-sales/hedonic)</li>
+</ul>
+<p><strong>Methodology</strong>: RVD classifies by size (A–E), using transaction data (repeat-sales/hedonic). HKD/sqm to full property (avg 50 sqm), USD conversion. 2025 uses 1.13% YoY rise, with Q2 index interpolation.</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="shanghai-china">Shanghai, China<a href="#shanghai-china" class="hash-link" aria-label="Direct link to Shanghai, China" title="Direct link to Shanghai, China" translate="no">​</a></h4>
+<ul>
+<li class="">National Bureau of Statistics (NBS)</li>
+<li class="">CREIS index</li>
+<li class="">70-city survey with transaction data</li>
+</ul>
+<p><strong>Methodology</strong>: NBS and CREIS use 70-city survey (transaction-based, hedonic). RMB/sqm to full (80 sqm avg), USD. 2025 forecast: -2.4% YoY drop, interpolated from monthly.</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="sydney-australia">Sydney, Australia<a href="#sydney-australia" class="hash-link" aria-label="Direct link to Sydney, Australia" title="Direct link to Sydney, Australia" translate="no">​</a></h4>
+<ul>
+<li class="">ABS (Australian Bureau of Statistics)</li>
+<li class="">CoreLogic hedonic indices</li>
+<li class="">Median prices</li>
+</ul>
+<p><strong>Methodology</strong>: ABS and CoreLogic use hedonic indices from sales data. Median AUD prices to USD; monthly from quarterly. 2025: 4–5% rise projection, with $23k Q3 increase.</p>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="seoul-south-korea">Seoul, South Korea<a href="#seoul-south-korea" class="hash-link" aria-label="Direct link to Seoul, South Korea" title="Direct link to Seoul, South Korea" translate="no">​</a></h4>
+<ul>
+<li class="">Korea Real Estate Board</li>
+<li class="">KB Kookmin Bank</li>
+<li class="">Transaction surveys with hedonic adjustments</li>
+</ul>
+<p><strong>Methodology</strong>: Korea Real Estate Board and KB Kookmin Bank use transaction surveys (hedonic). KRW to USD; monthly from quarterly. 2025: 0.7% YoY, with 5.9% projection adjustment.</p>
+<p><strong>APAC Methodology Overview:</strong>
+The monthly average residential property prices in the CSV were derived from a combination of official government indices, real estate market reports, and economic databases. Prices represent a blend of apartments/condos and houses (where data allows), focusing on urban residential averages.</p>
+<ul>
+<li class=""><strong>Data Aggregation</strong>: Quarterly or annual data from sources was interpolated to monthly values using linear trends. For incomplete periods (e.g., pre-2018 blanks in CSV), no data was filled as per available historicals</li>
+<li class=""><strong>Currency Conversion</strong>: Local currency prices were converted to USD using average monthly exchange rates from sources like FRED or Trading Economics</li>
+<li class=""><strong>Adjustments</strong>: Where sqm prices were given, assumed average property sizes (e.g., 60–80 sqm for apartments) based on city-specific reports. 2025 data includes projections from mid-year trends, extrapolated linearly from latest available (e.g., Q3 2025)</li>
+<li class=""><strong>Sources Selection</strong>: Prioritized official (e.g., government stats) and reputable analysts; cross-verified for consistency. Hedonic or index-based methods adjust for quality/location</li>
+<li class=""><strong>Limitations</strong>: Averages vary by segment (new vs. existing); no luxury outliers included. Projections assume stable trends without major shocks</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="how-price-changes-are-calculated">How Price Changes Are Calculated<a href="#how-price-changes-are-calculated" class="hash-link" aria-label="Direct link to How Price Changes Are Calculated" title="Direct link to How Price Changes Are Calculated" translate="no">​</a></h2>
+<p>Mantle Estate uses next methodology: a real estate price index that updates <strong>daily</strong> and tracks price changes in real-time across different markets (web sites, reports, online ads).</p>
+<p>Unlike traditional indices like Case-Shiller (which uses only repeat sales of single-family homes, monthly, with months of lag), our system includes <strong>all types of transactions</strong> (including new construction, condos, townhouses, multi-family homes) and strives for maximum timeliness.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-data-sources">1. Data Sources<a href="#1-data-sources" class="hash-link" aria-label="Direct link to 1. Data Sources" title="Direct link to 1. Data Sources" translate="no">​</a></h3>
+<p><strong>Primary Sources:</strong></p>
+<ul>
+<li class="">Sales records from county registrars, official registries, historical transaction data</li>
+</ul>
+<p><strong>Additional Sources:</strong></p>
+<ul>
+<li class="">Timely sources, such as active listings (sales listings), which strongly correlate with final sale prices (correlation coefficient ~0.89). This allows accounting for fresher information, compensating for delays in official sales (from 2 weeks to 6 months)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-data-cleaning-and-filtering">2. Data Cleaning and Filtering<a href="#2-data-cleaning-and-filtering" class="hash-link" aria-label="Direct link to 2. Data Cleaning and Filtering" title="Direct link to 2. Data Cleaning and Filtering" translate="no">​</a></h3>
+<p><strong>Cleaning:</strong></p>
+<ul>
+<li class="">Duplicate removal</li>
+<li class="">Address standardization</li>
+<li class="">Area and other parameter verification</li>
+</ul>
+<p><strong>Outlier Filtering:</strong></p>
+<ul>
+<li class="">Only transactions in the <strong>35–65th percentiles</strong> of price distribution are used</li>
+<li class="">This avoids the influence of ultra-expensive or ultra-cheap properties</li>
+<li class="">Reduces distortions from market skewness</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-daily-price-calculation">3. Daily Price Calculation<a href="#3-daily-price-calculation" class="hash-link" aria-label="Direct link to 3. Daily Price Calculation" title="Direct link to 3. Daily Price Calculation" translate="no">​</a></h3>
+<p><strong>Methodology:</strong></p>
+<ol>
+<li class=""><strong>Rolling median</strong> price per sqm/ft is calculated using a dynamic time window backwards</li>
+<li class="">Window adjusts automatically:<!-- -->
+<ul>
+<li class="">Shorter in active markets with high transaction volume</li>
+<li class="">Longer in sparse markets (to gather sufficient data)</li>
+</ul>
+</li>
+<li class="">Timely data (listings) are added to historical sales with <strong>exponential weights</strong>:<!-- -->
+<ul>
+<li class="">More weight to recent observations</li>
+<li class="">Historical influence is preserved</li>
+</ul>
+</li>
+<li class="">Final smoothed price — combination of these components + <strong>7-day smoothing</strong> to minimize noise</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="4-price-changes">4. Price Changes<a href="#4-price-changes" class="hash-link" aria-label="Direct link to 4. Price Changes" title="Direct link to 4. Price Changes" translate="no">​</a></h3>
+<p>Price changes are simply the difference in daily median price per sqm/ft from day to day (or over a period).</p>
+<p><strong>Benefits:</strong></p>
+<ul>
+<li class="">Daily data updates</li>
+<li class="">Listing integration allows the index to respond to market shifts much faster than monthly indices</li>
+<li class="">No seasonal adjustment (to avoid lags and artificial distortions)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-revisions-and-quality">5. Revisions and Quality<a href="#5-revisions-and-quality" class="hash-link" aria-label="Direct link to 5. Revisions and Quality" title="Direct link to 5. Revisions and Quality" translate="no">​</a></h3>
+<ul>
+<li class="">Index is tested daily for anomalies (sharp spikes, source issues)</li>
+<li class="">Data is revised when necessary</li>
+<li class="">Accuracy is verified by correlation with traditional indices (e.g., Case-Shiller for US, where applicable)</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="result">Result<a href="#result" class="hash-link" aria-label="Direct link to Result" title="Direct link to Result" translate="no">​</a></h2>
+<p>Price changes in Mantle Estate reflect real market trends based on:</p>
+<ul>
+<li class="">All available transactions</li>
+<li class="">Fresh signals from listings</li>
+<li class="">Strong smoothing for stability</li>
+<li class="">Daily updates</li>
+</ul>
+<p>This allows seeing whether prices are rising in a specific city today, rather than waiting months.</p></div></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"><a class="pagination-nav__link pagination-nav__link--prev" href="/docs/protocol/overview"><div class="pagination-nav__sublabel">Previous</div><div class="pagination-nav__label">Protocol Overview</div></a><a class="pagination-nav__link pagination-nav__link--next" href="/docs/protocol/funding-rate"><div class="pagination-nav__sublabel">Next</div><div class="pagination-nav__label">Funding Rate</div></a></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#data-sources-by-region" class="table-of-contents__link toc-highlight">Data Sources by Region</a><ul><li><a href="#united-states-us-markets" class="table-of-contents__link toc-highlight">United States (US Markets)</a></li><li><a href="#europe-european-markets" class="table-of-contents__link toc-highlight">Europe (European Markets)</a></li><li><a href="#apac-asia-pacific-markets" class="table-of-contents__link toc-highlight">APAC (Asia-Pacific Markets)</a></li></ul></li><li><a href="#how-price-changes-are-calculated" class="table-of-contents__link toc-highlight">How Price Changes Are Calculated</a><ul><li><a href="#1-data-sources" class="table-of-contents__link toc-highlight">1. Data Sources</a></li><li><a href="#2-data-cleaning-and-filtering" class="table-of-contents__link toc-highlight">2. Data Cleaning and Filtering</a></li><li><a href="#3-daily-price-calculation" class="table-of-contents__link toc-highlight">3. Daily Price Calculation</a></li><li><a href="#4-price-changes" class="table-of-contents__link toc-highlight">4. Price Changes</a></li><li><a href="#5-revisions-and-quality" class="table-of-contents__link toc-highlight">5. Revisions and Quality</a></li></ul></li><li><a href="#result" class="table-of-contents__link toc-highlight">Result</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026Mantle Estate. All rights reserved..</div></div></div></footer></div>
+</body>
+</html>

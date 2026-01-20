@@ -425,7 +425,7 @@ export const blogContent: Record<string, React.ReactElement> = {
             <li><strong>Whitepaper v1:</strong> created and published</li>
             <li><strong>Early Access:</strong> platform rollout</li>
             <li><strong>Leverage:</strong> x2–x10</li>
-            <li><strong>MNT collateral:</strong> use MNT as the primary collateral</li>
+            <li><strong>MNT and mETH collateral:</strong> use MNT and mETH as the primary collateral</li>
             <li><strong>APAC market expansion:</strong> China, Thailand, Vietnam, Indonesia</li>
             <li><strong>Real estate pricing methodology release:</strong> US regions and APAC</li>
           </ul>

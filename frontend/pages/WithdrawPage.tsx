@@ -17,7 +17,7 @@ import { Loader2, ArrowDown, AlertCircle, CheckCircle2, ArrowLeft, Wallet, Trend
 // Contract addresses (from Deployed.md)
 const DEPOSIT_CONTRACT_ADDRESS = "0x54fDDAbe007fa60cA84d1DeA27E6400c99E290ca";
 const MANTLE_SEPOLIA_CHAIN_ID = 5003;
-const MIN_WITHDRAW = 10; // USDC
+const MIN_WITHDRAW = 10; // tUSDC
 
 // Contract ABIs
 const DEPOSIT_CONTRACT_ABI = [
@@ -255,7 +255,7 @@ export default function WithdrawPage() {
       toast({
         variant: "destructive",
         title: "Invalid Amount",
-        description: `Amount must be at least ${MIN_WITHDRAW} USDC`,
+        description: `Amount must be at least ${MIN_WITHDRAW} tUSDC`,
       });
       return;
     }
@@ -264,7 +264,7 @@ export default function WithdrawPage() {
       toast({
         variant: "destructive",
         title: "Insufficient Balance",
-        description: `You have ${platformBalance.toFixed(2)} USDC, but trying to withdraw ${amountNum.toFixed(2)} USDC`,
+        description: `You have ${platformBalance.toFixed(2)} tUSDC, but trying to withdraw ${amountNum.toFixed(2)} tUSDC`,
       });
       return;
     }
@@ -279,7 +279,7 @@ export default function WithdrawPage() {
       const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
 
-      // Convert amount to USDC (6 decimals)
+      // Convert amount to tUSDC (6 decimals)
       const amountInSmallestUnits = BigInt(Math.floor(amountNum * 1_000_000));
       
       // Call withdraw function
@@ -297,7 +297,7 @@ export default function WithdrawPage() {
         toast({
           variant: "destructive",
           title: "Insufficient Contract Balance",
-          description: `Contract has only ${contractBalanceFormatted.toFixed(2)} USDC available, but you're trying to withdraw ${amountNum.toFixed(2)} USDC. Please contact support.`,
+          description: `Contract has only ${contractBalanceFormatted.toFixed(2)} tUSDC available, but you're trying to withdraw ${amountNum.toFixed(2)} tUSDC. Please contact support.`,
         });
         setIsWithdrawing(false);
         return;
@@ -347,7 +347,7 @@ export default function WithdrawPage() {
 
       toast({
         title: "Withdrawal Successful!",
-        description: `${result.message}. Your new balance: ${result.newBalance.toFixed(2)} USDC`,
+        description: `${result.message}. Your new balance: ${result.newBalance.toFixed(2)} tUSDC`,
       });
 
       // Reload balance and stats
@@ -371,9 +371,9 @@ export default function WithdrawPage() {
           // Check for known error selectors
           if (typeof errorData === "string") {
             if (errorData.startsWith("0xf4d678b8")) {
-              errorMessage = "Contract has insufficient USDC balance. Please contact support or try again later.";
+              errorMessage = "Contract has insufficient tUSDC balance. Please contact support or try again later.";
             } else if (errorData.startsWith("0xdb73cdf0")) {
-              errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} USDC.`;
+              errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} tUSDC.`;
             } else if (errorData.startsWith("0xc5ff3d33")) {
               errorMessage = "Wallet is not linked to your account. Please link your wallet first.";
             } else if (errorData.startsWith("0xeb4156ad")) {
@@ -387,9 +387,9 @@ export default function WithdrawPage() {
               const decoded = contractInterface.parseError(error.data);
               if (decoded) {
                 if (decoded.name === "InsufficientBalance") {
-                  errorMessage = "Contract has insufficient USDC balance. Please contact support or try again later.";
+                  errorMessage = "Contract has insufficient tUSDC balance. Please contact support or try again later.";
                 } else if (decoded.name === "InvalidWithdrawAmount") {
-                  errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} USDC.`;
+                  errorMessage = `Invalid withdrawal amount. Minimum withdrawal is ${MIN_WITHDRAW} tUSDC.`;
                 } else if (decoded.name === "WalletNotLinked") {
                   errorMessage = "Wallet is not linked to your account. Please link your wallet first.";
                 } else if (decoded.name === "TransactionAlreadyProcessed") {
@@ -435,7 +435,7 @@ export default function WithdrawPage() {
               </Button>
               <div>
                 <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">Withdraw Funds</h1>
-                <p className="text-sm text-muted-foreground">Withdraw USDC from your platform balance</p>
+                <p className="text-sm text-muted-foreground">Withdraw ttUSDC from your platform balance</p>
               </div>
             </div>
             <ThemeToggle />
@@ -455,7 +455,7 @@ export default function WithdrawPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="rounded-md bg-muted p-4">
                       <p className="text-sm text-muted-foreground mb-1">Current Balance</p>
-                      <p className="text-2xl font-bold">{stats.currentBalance.toFixed(2)} USDC</p>
+                      <p className="text-2xl font-bold">{stats.currentBalance.toFixed(2)} tUSDC</p>
                     </div>
                     <div className={`rounded-md p-4 ${stats.totalPnl >= 0 ? 'bg-green-50 dark:bg-green-950/20' : 'bg-red-50 dark:bg-red-950/20'}`}>
                       <div className="flex items-center gap-2 mb-1">
@@ -467,18 +467,18 @@ export default function WithdrawPage() {
                         <p className="text-sm text-muted-foreground">Total P&L</p>
                       </div>
                       <p className={`text-2xl font-bold ${stats.totalPnl >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-                        {stats.totalPnl >= 0 ? '+' : ''}{stats.totalPnl.toFixed(2)} USDC
+                        {stats.totalPnl >= 0 ? '+' : ''}{stats.totalPnl.toFixed(2)} tUSDC
                       </p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="rounded-md bg-muted p-4">
                       <p className="text-sm text-muted-foreground mb-1">Total Deposits</p>
-                      <p className="text-lg font-semibold">{stats.totalDeposits.toFixed(2)} USDC</p>
+                      <p className="text-lg font-semibold">{stats.totalDeposits.toFixed(2)} tUSDC</p>
                     </div>
                     <div className="rounded-md bg-muted p-4">
                       <p className="text-sm text-muted-foreground mb-1">Total Withdrawals</p>
-                      <p className="text-lg font-semibold">{stats.totalWithdrawals.toFixed(2)} USDC</p>
+                      <p className="text-lg font-semibold">{stats.totalWithdrawals.toFixed(2)} tUSDC</p>
                     </div>
                   </div>
                 </CardContent>
@@ -516,7 +516,7 @@ export default function WithdrawPage() {
                       <p className="font-mono text-sm break-all">{walletAddress}</p>
                       {platformBalance !== null && (
                         <p className="text-sm text-muted-foreground mt-2">
-                          Platform Balance: <span className="font-semibold">{platformBalance.toFixed(2)} USDC</span>
+                          Platform Balance: <span className="font-semibold">{platformBalance.toFixed(2)} tUSDC</span>
                         </p>
                       )}
                       {isWalletLinked !== null && (
@@ -553,22 +553,22 @@ export default function WithdrawPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <ArrowDown className="h-5 w-5" />
-                    Withdraw USDC
+                    Withdraw tUSDC
                   </CardTitle>
                   <CardDescription>
-                    Withdraw USDC tokens from your platform balance to your wallet
+                    Withdraw tUSDC tokens from your platform balance to your wallet
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {platformBalance !== null && (
                     <div className="rounded-md bg-muted p-3">
                       <p className="text-sm text-muted-foreground mb-1">Available Balance:</p>
-                      <p className="font-semibold text-lg">{platformBalance.toFixed(2)} USDC</p>
+                      <p className="font-semibold text-lg">{platformBalance.toFixed(2)} tUSDC</p>
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <Label htmlFor="withdrawAmount">Withdraw Amount (USDC)</Label>
+                    <Label htmlFor="withdrawAmount">Withdraw Amount (tUSDC)</Label>
                     <Input
                       id="withdrawAmount"
                       type="number"
@@ -576,11 +576,11 @@ export default function WithdrawPage() {
                       min={MIN_WITHDRAW}
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
-                      placeholder={`Minimum ${MIN_WITHDRAW} USDC`}
+                      placeholder={`Minimum ${MIN_WITHDRAW} tUSDC`}
                       disabled={isWithdrawing}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Make sure you have enough balance in your platform account ({platformBalance !== null ? `${platformBalance.toFixed(2)} USDC available` : "checking..."})
+                      Make sure you have enough balance in your platform account ({platformBalance !== null ? `${platformBalance.toFixed(2)} tUSDC available` : "checking..."})
                     </p>
                   </div>
 
@@ -608,7 +608,7 @@ export default function WithdrawPage() {
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Insufficient Balance</AlertTitle>
                       <AlertDescription>
-                        You don't have enough USDC in your platform balance. You have {platformBalance.toFixed(2)} USDC, but trying to withdraw {parseFloat(withdrawAmount).toFixed(2)} USDC.
+                        You don't have enough tUSDC in your platform balance. You have {platformBalance.toFixed(2)} tUSDC, but trying to withdraw {parseFloat(withdrawAmount).toFixed(2)} tUSDC.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -636,9 +636,9 @@ export default function WithdrawPage() {
                   <li>Connect your MetaMask wallet</li>
                   <li>Make sure you're on Mantle Sepolia Testnet (Chain ID: {MANTLE_SEPOLIA_CHAIN_ID})</li>
                   <li>Link your wallet to your account (if not already linked)</li>
-                  <li>Enter the amount you want to withdraw (minimum {MIN_WITHDRAW} USDC)</li>
+                  <li>Enter the amount you want to withdraw (minimum {MIN_WITHDRAW} tUSDC)</li>
                   <li>Confirm the withdrawal transaction in MetaMask</li>
-                  <li>Your USDC will be sent to your connected wallet</li>
+                  <li>Your tUSDC will be sent to your connected wallet</li>
                 </ol>
               </CardContent>
             </Card>
