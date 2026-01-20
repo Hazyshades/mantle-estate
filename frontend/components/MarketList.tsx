@@ -14,6 +14,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, Filter, List, Settings, X, ChevronDown, ChevronUp, Grid3x3 } from "lucide-react";
 import PriceUpdateTimer from "@/components/PriceUpdateTimer";
 import { getCityCardImage } from "@/data/cityImages";
@@ -626,32 +628,21 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
           </PopoverContent>
         </Popover>
 
-        {/* View Toggle Icons */}
+        {/* View Toggle */}
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`h-9 w-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 ${
-              viewMode === "compact" 
-                ? "bg-slate-100 dark:bg-slate-800" 
-                : "bg-transparent"
-            }`}
-            onClick={() => setViewMode(viewMode === "grid" ? "compact" : "grid")}
-            aria-label={viewMode === "grid" ? "Switch to compact list view" : "Switch to grid view"}
+          <ToggleGroup
+            type="single"
+            value={viewMode}
+            onValueChange={(value) => value && setViewMode(value as typeof viewMode)}
+            className="rounded-lg border border-gray-200 bg-white p-1 shadow-sm dark:border-slate-700 dark:bg-card"
           >
-            {viewMode === "grid" ? (
-              <List className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-            ) : (
-              <Grid3x3 className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            <Settings className="h-5 w-5 text-slate-600 dark:text-slate-400" />
-          </Button>
+            <ToggleGroupItem value="grid" aria-label="Switch to grid view" className="h-8 w-8">
+              <Grid3x3 className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="compact" aria-label="Switch to compact view" className="h-8 w-8">
+              <List className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
       </div>
 
@@ -689,8 +680,8 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                 ))}
               </div>
             ) : (
-              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of APAC real estate markets">
-                <div className="flex gap-4 min-w-max px-1">
+              <ScrollArea className="w-full pb-4" type="always">
+                <div className="flex gap-4 min-w-max px-1" role="list" aria-label="List of APAC real estate markets">
                   {apacCities.map((city) => (
                     <MarketCardCompact
                       key={city.id}
@@ -700,7 +691,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                     />
                   ))}
                 </div>
-              </div>
+              </ScrollArea>
             )
           )}
         </div>
@@ -740,8 +731,8 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                 ))}
               </div>
             ) : (
-              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of Europe real estate markets">
-                <div className="flex gap-4 min-w-max px-1">
+              <ScrollArea className="w-full pb-4" type="always">
+                <div className="flex gap-4 min-w-max px-1" role="list" aria-label="List of Europe real estate markets">
                   {europeCities.map((city) => (
                     <MarketCardCompact
                       key={city.id}
@@ -751,7 +742,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                     />
                   ))}
                 </div>
-              </div>
+              </ScrollArea>
             )
           )}
         </div>
@@ -791,8 +782,8 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                 ))}
               </div>
             ) : (
-              <div className="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 dark:scrollbar-thumb-slate-600 dark:scrollbar-track-slate-800" role="list" aria-label="List of USA real estate markets">
-                <div className="flex gap-4 min-w-max px-1">
+              <ScrollArea className="w-full pb-4" type="always">
+                <div className="flex gap-4 min-w-max px-1" role="list" aria-label="List of USA real estate markets">
                   {usaCities.map((city) => (
                     <MarketCardCompact
                       key={city.id}
@@ -802,7 +793,7 @@ export default function MarketList({ cities, balance, onTradeComplete }: MarketL
                     />
                   ))}
                 </div>
-              </div>
+              </ScrollArea>
             )
           )}
         </div>
