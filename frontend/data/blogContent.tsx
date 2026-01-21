@@ -532,6 +532,79 @@ export const blogContent: Record<string, React.ReactElement> = {
       </section>
     </div>
   ),
+  "how-to-work-with-mantle-estate": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <h2 className="text-3xl font-bold mb-4">Claim MNT and tUSDC</h2>
+        <div className="space-y-6 text-muted-foreground">
+          <ol className="list-decimal list-inside space-y-6">
+            <li className="space-y-3">
+              <p>Connect your MetaMask wallet</p>
+              <img
+                src="/images/guide/1.png"
+                alt="Connect MetaMask wallet"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Make sure you're on Mantle Sepolia Testnet (Chain ID: 5003)</p>
+              <img
+                src="/images/guide/3.png"
+                alt="Mantle Sepolia Testnet network selection"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Go to Mint &amp; Deposit tab. You don&apos;t need any test MNT tokens. Just connect wallet again</p>
+              <img
+                src="/images/guide/3.1.png"
+                alt="Mint and deposit tab"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+              <p>and claim initial MNT tokens for gas fees (no gas required!)</p>
+              <img
+                src="/images/guide/3.2.png"
+                alt="Claim initial MNT tokens"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Link your wallet to your account (if not already linked)</p>
+              <img
+                src="/images/guide/5.png"
+                alt="Link wallet to account"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Mint 10,000 tUSDC tokens</p>
+              <img
+                src="/images/guide/4.png"
+                alt="Mint tUSDC tokens"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Deposit to the platform</p>
+              <img
+                src="/images/guide/7.png"
+                alt="Deposit to the platform"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+          </ol>
+          <p className="font-medium text-foreground">Start trading!</p>
+        </div>
+      </section>
+    </div>
+  ),
 };
 
 export function getBlogContent(slug: string): React.ReactElement | null {

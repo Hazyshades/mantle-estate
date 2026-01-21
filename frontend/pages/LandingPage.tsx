@@ -163,6 +163,9 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
+                <Link to="/blog/how-to-work-with-mantle-estate">Guide</Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="text-lg px-8 py-6">
                 <a href="/docs/intro/" target="_blank" rel="noopener noreferrer">Docs</a>
               </Button>
             </div>

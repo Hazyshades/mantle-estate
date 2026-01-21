@@ -43,6 +43,16 @@ export const blogPosts: BlogPost[] = [
     featured: true,
   },
   {
+    slug: "how-to-work-with-mantle-estate",
+    title: "How to work with Mantle Estate",
+    category: "guide",
+    date: FIXED_BLOG_DATE,
+    readingTime: "2 min",
+    author: "Mantle Estate Team",
+    excerpt: "Step-by-step instructions for connecting your wallet, minting tUSDC, and depositing to start trading.",
+    featured: true,
+  },
+  {
     slug: "roadmap",
     title: "Roadmap",
     category: "announcement",
