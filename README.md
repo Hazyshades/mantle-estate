@@ -63,19 +63,7 @@ $$\text{skew} = \text{Long OI} - \text{Short OI}$$
 ## Position Management
 
 ### Fees
-- Opening: 0.01% of position value
-- Closing: 0.01% of position value
-- Funding: Based on funding rate and time held
-
-## Market Metrics
-
-- Volume 24h
-- Open Interest (Long OI + Short OI)
-- Skew (Long OI - Short OI)
-- Funding Rate
-- Available OI
-
-## Tech Stack
+- Opening/Closing: 0.01% of position value
 
 - **Frontend**: React 19 + TypeScript + Vite + Tailwind CSS + shadcn/ui
 - **Smart Contracts**: Solidity ^0.8.20 (Mantle Network)
