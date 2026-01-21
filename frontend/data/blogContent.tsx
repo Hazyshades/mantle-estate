@@ -1,15 +1,79 @@
 import React from "react";
 import { BlockMath, InlineMath } from "react-katex";
-import "katex/dist/katex.min.css";
+import "katex/dist/katex.min.css"; 
+import chart1HomePriceTrends from "@/components/ui/1 pitch/Chart1_Home-Price-Trends-Following-Economic-Recessions.png";
 
 export const blogContent: Record<string, React.ReactElement> = {
+  "compliance-declaration": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <div className="flex flex-col gap-3">
+          <h2 className="text-3xl font-bold">Disclosure Template for Regulated Assets</h2>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">1. Scope</h3>
+        <p className="text-muted-foreground">
+          Mantle Estate is a protocol for trading synthetic derivatives that track city-level real
+          estate price movements. The project does not confer ownership rights to real property and
+          does not issue tokens that represent equity in physical assets or legal entities.
+        </p>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">2. Regulated Assets</h3>
+        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <li>
+            The project does not issue securities, fund units, bonds, or other regulated financial
+            instruments in the traditional sense.
+          </li>
+          <li>
+            Synthetic markets reference indices and price metrics but do not grant claims on index
+            providers or real-world assets.
+          </li>
+          <li>
+            The collateral asset used (e.g., tUSDC in testing) can't be considered a regulated
+            asset in certain jurisdictions, and users should take this into account when
+            participating.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">3. Compliance and Restrictions</h3>
+        <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+          <li>
+            The project does not provide legal, tax, or investment advice.
+          </li>
+          <li>
+            Access to the protocol may be restricted for users from certain jurisdictions in
+            accordance with applicable laws and platform requirements.
+          </li>
+          <li>
+            Users are responsible for assessing the legal status of the protocol in their own
+            jurisdiction.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h3 className="text-2xl font-semibold mb-3">4. Risk Disclosure</h3>
+        <div className="rounded-lg border border-border/60 bg-muted/40 p-4 text-muted-foreground">
+          Trading synthetic derivatives involves significant risk. Outcomes may include substantial
+          gains or complete loss of funds. Participation is appropriate only if you understand the
+          risks and comply with local laws.
+        </div>
+      </section>
+    </div>
+  ),
   "mantle-estate-v0.1": (
     <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       {/* Abstract */}
       <section>
         <h2 className="text-3xl font-bold mb-4">Abstract</h2>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          Mantle Estate v0.1 is a decentralized protocol designed for perpetual synthetic real estate trading on the Mantle blockchain. 
+          Mantle Estate v0.1 is a decentralized protocol designed for perpetual synthetic real estate trading on the Mantle Network. 
           The protocol enables traders to gain exposure to real estate price movements across multiple global markets without owning physical property. 
           Mantle Estate v0.1 employs a novel pricing mechanism that combines oracle-based market prices with dynamic index pricing based on position skew, 
           ensuring fair execution while maintaining price discovery through funding rates and leverage.
@@ -26,7 +90,7 @@ export const blogContent: Record<string, React.ReactElement> = {
         </p>
         <p className="text-muted-foreground">
           Unlike traditional real estate investment, Mantle Estate allows traders to open long or short positions with leverage, 
-          enabling both bullish and bearish strategies. The protocol operates on the Mantle blockchain using USDC as collateral, 
+          enabling both bullish and bearish strategies. The protocol operates on the Mantle Network using tUSDC as collateral (in testing mode), 
           ensuring fast transactions and low fees.
         </p>
       </section>
@@ -91,7 +155,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           including cities in the United States, Europe, and Asia-Pacific regions.
         </p>
         <p className="text-muted-foreground">
-          Each market has a single collateral token (USDC) and a single price feed. Market prices are updated daily from external 
+          Each market has a single collateral token (tUSDC) and a single price feed. Market prices are updated daily from external 
           data sources, with Index Price calculated in real-time based on trading activity and position skew.
         </p>
       </section>
@@ -240,7 +304,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           <li><strong>2x leverage:</strong> Position size is double the margin, amplifying price movements by 2x</li>
         </ul>
         <p className="text-muted-foreground">
-          Leverage is applied to price movements, not through borrowing. All positions are fully collateralized.
+          Leverage is applied to price movements, not through borrowing. All positions are fully collateralized with tUSDC.
         </p>
 
         <h3 className="text-2xl font-semibold mb-4">Profit and Loss Calculation</h3>
@@ -328,7 +392,7 @@ export const blogContent: Record<string, React.ReactElement> = {
           Mantle Estate v0.1 prioritizes security through multiple layers:
         </p>
         <ul className="list-disc list-inside space-y-2 text-muted-foreground mb-4">
-          <li><strong>Smart Contracts:</strong> Built on Mantle blockchain using OpenZeppelin libraries</li>
+          <li><strong>Smart Contracts:</strong> Built on Mantle Network using OpenZeppelin libraries</li>
           <li><strong>Authentication:</strong> Clerk-based authentication for secure user access</li>
           <li><strong>Database:</strong> Parameterized SQL queries to prevent injection attacks</li>
           <li><strong>Input Validation:</strong> All user inputs are validated before processing</li>
@@ -343,9 +407,201 @@ export const blogContent: Record<string, React.ReactElement> = {
     <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
       <section>
         <h2 className="text-3xl font-bold mb-4">Roadmap</h2>
-        <p className="text-muted-foreground">
-          Content coming soon...
-        </p>
+        <div className="space-y-4 text-muted-foreground">
+          <p>As of Q1 2026, we are actively testing our mathematical models.</p>
+          <p>
+            We are still in testnet mode and actively testing best practices and mechanics.
+          </p>
+          <p>
+            We are currently in the process of fully transitioning to on-chain oracle operations and LP pool functionality.
+          </p>
+          <p>
+            Once the mechanism is refined and we have high confidence in its operation, we will transition the platform fully to on-chain mechanics.
+          </p>
+
+          <h3 className="text-xl font-semibold mt-6">Q1 2026</h3>
+          <ul className="list-disc list-inside space-y-2">
+            <li><strong>Full on-chain work:</strong> oracles, LP, AMM</li>
+            <li><strong>Whitepaper v1:</strong> created and published</li>
+            <li><strong>Early Access:</strong> platform rollout</li>
+            <li><strong>Leverage:</strong> x2–x10</li>
+            <li><strong>MNT and mETH collateral:</strong> use MNT and mETH as the primary collateral</li>
+            <li><strong>APAC market expansion:</strong> China, Thailand, Vietnam, Indonesia</li>
+            <li><strong>Real estate pricing methodology release:</strong> US regions and APAC</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  ),
+  "one-pager-pitch": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <h2 className="text-3xl font-bold mb-4">Mantle Estate — One-pager Pitch</h2>
+        <div className="space-y-6 text-muted-foreground">
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Problem</h3>
+            <p>
+              Real estate is one of the largest asset classes, but it is illiquid, local, and hard
+              to access for active trading. Investors struggle to hedge price declines in specific
+              cities, while global diversification requires capital, time, and legal infrastructure.
+            </p>
+            <img
+              src={chart1HomePriceTrends}
+              alt="Home price trends following economic recessions"
+              className="mt-4 w-full rounded-lg border border-border/60"
+              loading="lazy"
+            />
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Solution</h3>
+            <p>
+              Mantle Estate is a decentralized protocol for trading synthetic real estate on the
+              Mantle Network. Users gain exposure to city-level real estate prices without owning
+              physical property: they can open long/short positions, use leverage, and exit at any
+              time.
+            </p>
+            <p className="mt-4 font-medium text-foreground">Key mechanisms:</p>
+            <ul className="list-disc list-inside space-y-2">
+              <li>
+                Two-tier pricing: Market Price from oracles + Index Price adjusted by position
+                imbalance.
+              </li>
+              <li>Funding rate balances the market: majority pays minority.</li>
+              <li>Isolated city markets with separate OI, skew, and price dynamics.</li>
+              <li>tUSDC collateral in testing mode, fast transactions, and low fees on Mantle.</li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/mantle-estate-v0.1"
+                className="font-medium underline underline-offset-4"
+              >
+                Mantle Estate v0.1
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Business model</h3>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Trading fees: charged on opening and closing positions.</li>
+              <li>
+                Funding mechanics: fee redistribution that supports liquidity balance.
+              </li>
+              <li>
+                LP pools: liquidity providers earn from trading activity and take the opposite
+                side of net trader P&amp;L.
+              </li>
+              <li>
+                Scale through new markets (cities/regions) and growing trading volume.
+              </li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/mantle-estate-v0.1"
+                className="font-medium underline underline-offset-4"
+              >
+                Mantle Estate v0.1
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-2xl font-semibold text-foreground mb-2">Roadmap (Q1 2026)</h3>
+            <ul className="list-disc list-inside space-y-2">
+              <li>Full on-chain infrastructure: oracles, LP, AMM</li>
+              <li>Whitepaper v1</li>
+              <li>Early Access platform rollout</li>
+              <li>Leverage x2–x10</li>
+              <li>APAC expansion: China, Thailand, Vietnam, Indonesia</li>
+              <li>Real estate pricing methodology for the US and APAC</li>
+            </ul>
+            <p className="mt-2">
+              Source:{" "}
+              <a
+                href="https://mantle-estate-frontend.vercel.app/blog/roadmap"
+                className="font-medium underline underline-offset-4"
+              >
+                Roadmap
+              </a>
+            </p>
+          </div>
+        </div>
+      </section>
+    </div>
+  ),
+  "how-to-work-with-mantle-estate": (
+    <div className="space-y-12 prose prose-slate dark:prose-invert max-w-none">
+      <section>
+        <h2 className="text-3xl font-bold mb-4">Claim MNT and tUSDC</h2>
+        <div className="space-y-6 text-muted-foreground">
+          <ol className="list-decimal list-inside space-y-6">
+            <li className="space-y-3">
+              <p>Connect your MetaMask wallet</p>
+              <img
+                src="/images/guide/1.png"
+                alt="Connect MetaMask wallet"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Make sure you're on Mantle Sepolia Testnet (Chain ID: 5003)</p>
+              <img
+                src="/images/guide/3.png"
+                alt="Mantle Sepolia Testnet network selection"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Go to Mint &amp; Deposit tab. You don&apos;t need any test MNT tokens. Just connect wallet again</p>
+              <img
+                src="/images/guide/3.1.png"
+                alt="Mint and deposit tab"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+              <p>and claim initial MNT tokens for gas fees (no gas required!)</p>
+              <img
+                src="/images/guide/3.2.png"
+                alt="Claim initial MNT tokens"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Link your wallet to your account (if not already linked)</p>
+              <img
+                src="/images/guide/5.png"
+                alt="Link wallet to account"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Mint 10,000 tUSDC tokens</p>
+              <img
+                src="/images/guide/4.png"
+                alt="Mint tUSDC tokens"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+            <li className="space-y-3">
+              <p>Deposit to the platform</p>
+              <img
+                src="/images/guide/7.png"
+                alt="Deposit to the platform"
+                className="w-full rounded-lg border border-border/60"
+                loading="lazy"
+              />
+            </li>
+          </ol>
+          <p className="font-medium text-foreground">Start trading!</p>
+        </div>
       </section>
     </div>
   ),

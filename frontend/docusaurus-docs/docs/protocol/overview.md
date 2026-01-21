@@ -1,16 +1,16 @@
 # Protocol Overview
 
-Mantle Estate is a protocol for decentralized trading of synthetic real estate on the Mantle blockchain.
+Mantle Estate is a protocol for decentralized trading of synthetic real estate on the Mantle Network.
 
 ## Protocol Architecture
 
 The protocol consists of the following main components:
 
 ### 1. Smart Contracts
-- **MantleEstateDeposit** — Contract for deposits and withdrawals
-- Works with USDC (USD Coin) on the Mantle blockchain
+- MantleEstateDeposit - Contract for deposits and withdrawals
+- tUSDC - token for test mode.
 
-### 2. Backend (Encore.dev)
+### 2. Backend (Temporarily taken some onchain functionality)
 - API for trading, position management, and price calculations
 - Price and funding rate updates
 - User balance management
@@ -58,10 +58,3 @@ The protocol tracks:
 - **Volume 24h** — Trading volume over the last 24 hours
 - **Skew** — Difference between long and short position values
 - **Long/Short Ratio** — Ratio of long to short positions
-
-## Security
-
-- Authentication via Clerk
-- Transactions through smart contracts on Mantle
-- Parameterized SQL queries to prevent injection attacks
-- Validation of all input data

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,10 +10,7 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import LiquidityPoolCard from "../components/LiquidityPoolCard";
 import LpPositionsList from "../components/LpPositionsList";
 import type { City } from "~backend/city/list";
-import { useUser } from "@clerk/clerk-react";
-import { useClerk } from "@clerk/clerk-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, LogOut, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 // APAC countries list
@@ -55,8 +53,7 @@ export default function LiquidityPoolsPage() {
   const [isApacExpanded, setIsApacExpanded] = useState(true);
   const [isEuropeExpanded, setIsEuropeExpanded] = useState(true);
   const { toast } = useToast();
-  const { signOut } = useClerk();
-  const { user } = useUser();
+  const navigate = useNavigate();
   const backend = useBackend();
 
   // Separate cities into APAC, USA, and Europe
@@ -140,37 +137,18 @@ export default function LiquidityPoolsPage() {
       />
       <div className={`transition-all duration-300 ${sidebarCollapsed ? "ml-16" : "ml-64"}`}>
         {/* Header */}
-        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-16 items-center justify-between px-8">
-            <div className="flex items-center gap-4">
-              <Building2 className="h-6 w-6 text-primary" />
-              <h1 className="text-2xl font-bold">Liquidity Pools</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm text-muted-foreground">Balance</p>
-                <p className="text-lg font-semibold">${balance.toFixed(2)}</p>
+        <header className="sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur supports-[backdrop-filter]:backdrop-blur shadow-sm">
+          <div className="container mx-auto px-4 py-5 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={() => navigate("/markets")}>
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+              <div>
+                <h1 className="scroll-m-20 text-2xl font-bold tracking-tight">Liquidity Pools</h1>
+                <p className="text-sm text-muted-foreground">Provide liquidity and manage your LP positions</p>
               </div>
-              <ThemeToggle />
-              {user && (
-                <div className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarImage src={user.imageUrl} alt={user.fullName || ""} />
-                    <AvatarFallback>
-                      {user.fullName?.charAt(0) || user.emailAddresses[0]?.emailAddress.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => signOut()}
-                    title="Sign out"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
+            <ThemeToggle />
           </div>
         </header>
 

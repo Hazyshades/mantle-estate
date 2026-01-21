@@ -85,6 +85,9 @@ export default function PositionsList({ positions, cities, onCloseComplete }: Po
 
   return (
     <div className="space-y-4">
+      <div className="text-xs font-medium text-amber-600">
+        Displayed current/entry prices may be inaccurate.
+      </div>
       {positions.map((position) => (
         <Card 
           key={position.id}
